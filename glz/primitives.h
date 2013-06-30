@@ -17,7 +17,7 @@
 // glz geometry toolkit primitive definitions - you have no idea how anoying this was to make
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
-// git:// [future home of github link]
+// https://github.com/zeoverlord/glz.git
 
 
 

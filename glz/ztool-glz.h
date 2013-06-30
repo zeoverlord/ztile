@@ -17,7 +17,7 @@
 // glz toolkit - this file contains may usefull little functions and many more useless ones
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
-// git:// [future home of github link]
+// https://github.com/zeoverlord/glz.git
 
 #define GLZ_NULL 0
 

@@ -17,7 +17,7 @@
 // glz 2D example app - i wouldn't say it produces any meningfull results, but it's a start.
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
-// git:// [future home of github link]
+// https://github.com/zeoverlord/glz.git
 
 
 

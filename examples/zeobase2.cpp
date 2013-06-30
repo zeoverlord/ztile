@@ -17,7 +17,7 @@
 // glz basecode - lets just say you will need this
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
-// git:// [future home of github link]
+// https://github.com/zeoverlord/glz.git
 
 
 // if i did this right you shouldn't have to change anything in this file, instead use the zeobase2.h file to set things up.

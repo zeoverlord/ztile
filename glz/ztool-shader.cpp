@@ -17,7 +17,7 @@
 // glz shader toolkit - Warning does not produce actual shade
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
-// git:// [future home of github link]
+// https://github.com/zeoverlord/glz.git
 
 #include <fstream>
 #include <string.h>
