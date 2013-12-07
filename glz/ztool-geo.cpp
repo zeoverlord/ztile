@@ -1732,7 +1732,7 @@ return verts;
 
 // direct rendering functions for sprites and such, mostly 2D stuff
 
-void glzDirectSpriteRender(float X, float Y, float W, float H, float Z, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation)
+void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation)
 {
 
 	unsigned int localVAO;
@@ -1806,17 +1806,38 @@ void glzDirectSpriteRender(float X, float Y, float W, float H, float Z, float sp
 	break;
 
 }
-
-
-
-
-
 	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
-
 	glzKillVAO(localVAO, GLZ_AUTO);
 
+	return;
 }
 
+
+void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation)
+{
+
+	float quv[8];
+	glzAtlasQuad(atlasW, atlasH, atlasN, quv);
+	glzDirectSpriteRender(X, Y, Z, W, H, quv[2], quv[3], quv[6] - quv[2], quv[7] - quv[3], orientation);
+
+	return;
+}
+
+void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation)
+{
+
+	glzDirectSpriteRenderAtlas(X, Y, Z, textureW / atlasW, textureH / atlasH,  atlasW, atlasH, atlasN, orientation);
+
+	return;
+}
+
+void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, unsigned int orientation)
+{
+
+	glzDirectSpriteRenderAtlas(quantize(X, q), quantize(Y, q), Z, textureW / atlasW, textureH / atlasH, atlasW, atlasH, atlasN, orientation);
+
+	return;
+}
 
 
 
@@ -1851,6 +1872,7 @@ void glzKillVAO(unsigned int vao, unsigned int type)
 	glDeleteVertexArrays(1,reinterpret_cast<GLuint *>(&vao));
 	glBindVertexArray(0);
 
+	return;
 }
 
 

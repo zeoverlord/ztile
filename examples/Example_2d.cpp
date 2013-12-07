@@ -175,6 +175,10 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	textvao_num[11]=glzVAOMakeText("Atlas grid", mt, 0.7f, text_tt, &textvao[11]);
 
+// sprite screen
+
+	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 0.7f, text_tt, &textvao[12]);
+
 
 
 // all screens
@@ -491,12 +495,18 @@ void Draw (void)
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 	
 		//glzDrawVAO(vao_num[2], vao[2], GL_TRIANGLES);
-		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_TOP_LEFT);
-		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_BOTTOM_LEFT);
-		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_TOP_RIGHT);
-		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_BOTTOM_RIGHT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_TOP_LEFT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_BOTTOM_LEFT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_TOP_RIGHT);
 
-		draw_text(-3.9f, 1.9f, 11, 2, ProgramObject, COL_WHITE);
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, GLZ_BOTTOM_RIGHT); 
+
+		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, GLZ_BOTTOM_LEFT);
+		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, GLZ_BOTTOM_LEFT);
+
+		
+		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
 		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
 
 	}

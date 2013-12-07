@@ -167,7 +167,10 @@ typedef struct
 	long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao);
 	long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao);
 
-	void glzDirectSpriteRender(float X, float Y, float W, float H, float Z, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation);  // mirroring GL_DrawTextureNV somewhat
+	void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation);  // mirroring GL_DrawTextureNV somewhat
+	void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation);  
+	void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation);
+	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, unsigned int orientation);
 
 
 	void glzKillVAO(unsigned int vao, unsigned int type);

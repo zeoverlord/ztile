@@ -110,6 +110,7 @@ float glzRandfs(void);  //produces a value between 1 and -1
 float glzModF(float f, float m);  //float modulo function
 int glzModFStep(float f, float m);  //special float modulo function that returns the number of times m fits in f
 int glzTimeCounter(float *t, float m);  //timing function
+float quantize(float f, float s); //quantized steping formula
 
 
 // some general math functions

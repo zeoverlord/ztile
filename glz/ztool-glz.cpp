@@ -86,7 +86,17 @@ int glzTimeCounter(float *t, float m)  //timing function
 	return r;
 }
 
+float quantize(float f, float s)
+{
+	float r = 0.0f;
+	if (s <= 0.0f) return f;
 
+	if (f<0)  // negative numbers
+	while (f<=r-s) r -= s;
+	else      // possitive numbers
+	while (f>=r+s) r += s;
+	return r;
+}
 
 
 // some general math functions
