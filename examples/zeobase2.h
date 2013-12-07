@@ -40,7 +40,7 @@
 #define NATIVE_FULLSCREEN		true					// generally speaking this should be st to true, most often the current resolution is the higest anyway, overides the above settigns
 #define WINDOW_X				0
 #define WINDOW_Y				0
-#define FORCE_OPENGL_VERSION	true					// if you want to force openGL to a specific openGL version, generally set this to false for release, but for development it could be good to set it to true
+#define FORCE_OPENGL_VERSION	false					// if you want to force openGL to a specific openGL version, generally set this to false for release, but for development it could be good to set it to true
 #define ENABLE_VSYNC			true					// makes everything run a bit smoother, but at a constant rate, makes it impossible to get the current framerate
 
 // Todo : change these to constants instead

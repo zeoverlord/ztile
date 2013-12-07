@@ -1730,6 +1730,98 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 return verts;
 }
 
+// direct rendering functions for sprites and such, mostly 2D stuff
+
+void glzDirectSpriteRender(float X, float Y, float W, float H, float Z, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation)
+{
+
+	unsigned int localVAO;
+
+	float vtr[] = {
+		X - W, Y - H, Z,
+		X, Y - H, Z,
+		X, Y, Z,
+		X - W, Y, Z,
+		X - W, Y - H, Z,
+		X, Y, Z };	
+
+	float vbr[] = {
+		X - W, Y, Z,
+		X, Y, Z,
+		X, Y + H, Z,
+		X - W, Y + H, Z,
+		X - W, Y, Z,
+		X, Y + H, Z };	
+
+	float vtl[] = {
+		X, Y - H, Z,
+			X + W, Y - H, Z,
+			X + W, Y , Z,
+			X, Y, Z,
+			X, Y - H, Z,
+			X + W, Y, Z };
+
+	float vbl[] = {
+			X, Y, Z,
+			X + W, Y, Z,
+			X + W, Y + H, Z,
+			X, Y + H, Z,
+			X, Y, Z,
+			X + W, Y + H, Z };
+
+	float t[] = {
+			spriteX, spriteY,
+			spriteX + spriteW, spriteY,
+			spriteX + spriteW, spriteY + spriteH,
+			spriteX, spriteY + spriteH,
+			spriteX, spriteY,
+			spriteX + spriteW, spriteY + spriteH };
+		
+	float n[] = {
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f };
+
+	switch (orientation)
+	{
+	
+	case GLZ_TOP_RIGHT:
+		glzVAOMakeFromArray(vtr, t, n, 6, &localVAO, GLZ_AUTO);
+		break;
+
+	case GLZ_BOTTOM_RIGHT:
+		glzVAOMakeFromArray(vbr, t, n, 6, &localVAO, GLZ_AUTO);
+		break;
+
+	case GLZ_TOP_LEFT:		
+		glzVAOMakeFromArray(vtl, t, n, 6, &localVAO, GLZ_AUTO);
+		break;
+
+	case GLZ_BOTTOM_LEFT:
+	default:
+		glzVAOMakeFromArray(vbl, t, n, 6, &localVAO, GLZ_AUTO);
+	break;
+
+}
+
+
+
+
+
+	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
+
+	glzKillVAO(localVAO, GLZ_AUTO);
+
+}
+
+
+
+
+
+
 
 void glzKillVAO(unsigned int vao, unsigned int type)
 {

@@ -69,6 +69,11 @@
 #define GLZ_TT_ATLAS_CUBE_INDFACE 4
 #define GLZ_TT_ATLAS_CUBE_CROSS 5
 
+#define GLZ_BOTTOM_LEFT 1
+#define GLZ_BOTTOM_RIGHT 2
+#define GLZ_TOP_LEFT 4
+#define GLZ_TOP_RIGHT 8
+
 
 
 
@@ -161,6 +166,8 @@ typedef struct
 	long glzVAOCountPrimitiveVerts(float varation, float resuloution, unsigned int primitive, texture_transform tt);
 	long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao);
 	long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao);
+
+	void glzDirectSpriteRender(float X, float Y, float W, float H, float Z, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation);  // mirroring GL_DrawTextureNV somewhat
 
 
 	void glzKillVAO(unsigned int vao, unsigned int type);

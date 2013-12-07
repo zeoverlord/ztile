@@ -59,7 +59,7 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=1;
+int gamestate=5;
 
 
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
@@ -283,10 +283,11 @@ if (gamestate==3)
 	}
 
 
-	if (g_keys->keyDown ['1'] == TRUE) gamestate=1;
-	if (g_keys->keyDown ['2'] == TRUE) gamestate=2;
-	if (g_keys->keyDown ['3'] == TRUE) gamestate=3;
-	if (g_keys->keyDown ['4'] == TRUE) gamestate=4;
+	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
+	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
+	if (g_keys->keyDown['3'] == TRUE) gamestate = 3;
+	if (g_keys->keyDown['4'] == TRUE) gamestate = 4;
+	if (g_keys->keyDown['5'] == TRUE) gamestate = 5;
 
 }
 
@@ -478,7 +479,27 @@ void Draw (void)
 
 	}
 
+	if (gamestate == 5)
+	{
 
+		glzLoadIdentity(m);
+		glzOrtho(m, -400, 400, -250, 250, -100, 100);
+	//	glzTranslatef(m, 0, 0, 0);
+
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+
+		glBindTexture(GL_TEXTURE_2D, texture[1]);
+	
+		//glzDrawVAO(vao_num[2], vao[2], GL_TRIANGLES);
+		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_TOP_LEFT);
+		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_BOTTOM_LEFT);
+		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_TOP_RIGHT);
+		glzDirectSpriteRender(0, 0, 100, 100, 1, 0, 0, 1.0, 1.0, GLZ_BOTTOM_RIGHT);
+
+		draw_text(-3.9f, 1.9f, 11, 2, ProgramObject, COL_WHITE);
+		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
+
+	}
 
 
 	glUseProgram(0);
