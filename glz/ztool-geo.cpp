@@ -1063,7 +1063,7 @@ void ini(void)
 	isinited=true;
 }
 
-image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, unsigned int axis, unsigned char *data)
+image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data)
 {
 	image_geo_transform igt;
 
@@ -1088,7 +1088,7 @@ image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned i
 }
 
 
-texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, unsigned int axis, unsigned int firstatlas, unsigned int atlas[])
+texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[])
 {
 	texture_transform tt;
 
@@ -1112,35 +1112,35 @@ texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, flo
 
 texture_transform glzMakeTTDefault()
 {
-	return glzMakeTT(GLZ_TT_NONE,1.0f,1.0f,0.0f,0.0f,1,1,0,0,0);
+	return glzMakeTT(GLZ_TT_NONE, 1.0f, 1.0f, 0.0f, 0.0f, 1, 1, glzAxis::X, 0, 0);
 }
 
 texture_transform glzMakeTTAtlas(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_NONE,1.0f,1.0f,0.0f,0.0f,awidth,aheight,0,firstatlas,0);
+	return glzMakeTT(GLZ_TT_NONE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasArray(unsigned int awidth, unsigned int aheight, unsigned int atlas[])
 {
-	return glzMakeTT(GLZ_TT_ATLASARRAY,1.0f,1.0f,0.0f,0.0f,awidth,aheight,0,0,atlas);
+	return glzMakeTT(GLZ_TT_ATLASARRAY, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, 0, atlas);
 }
 
 texture_transform glzMakeTTAtlasCubeTBS(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_TBS,1.0f,1.0f,0.0f,0.0f,awidth,aheight,0,firstatlas,0);
+	return glzMakeTT(GLZ_TT_ATLAS_CUBE_TBS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasCubeIndface(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_INDFACE,1.0f,1.0f,0.0f,0.0f,awidth,aheight,0,firstatlas,0);
+	return glzMakeTT(GLZ_TT_ATLAS_CUBE_INDFACE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasCubeCross(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_CROSS,1.0f,1.0f,0.0f,0.0f,awidth,aheight,0,firstatlas,0);
+	return glzMakeTT(GLZ_TT_ATLAS_CUBE_CROSS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
-texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, unsigned int axis)
+texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis axis)
 {
 	return glzMakeTT(GLZ_TT_VERTEX_COORD_ADOPT,uscale,vscale,0.0f,0.0f,1,1,axis,0,0);
 }
@@ -1250,11 +1250,11 @@ void glzIGT(float *vert, image_geo_transform igt, long num)
 		y*=igt.tscale;
 		z*=igt.tscale;
 
-		if (igt.axis & GLZ_AXIS_X) vert[i*3+0]+=glzImageReadBilinear(y,z,GLZ_RED,step,igt.width,igt.height,GLZ_REPEAT_X|GLZ_REPEAT_Y,igt.data,GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::X) vert[i * 3 + 0] += glzImageReadBilinear(y, z, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
 
-		if (igt.axis & GLZ_AXIS_Y) vert[i*3+1]+=glzImageReadBilinear(x,z,GLZ_RED,step,igt.width,igt.height,GLZ_REPEAT_X|GLZ_REPEAT_Y,igt.data,GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::Y) vert[i * 3 + 1] += glzImageReadBilinear(x, z, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
 			
-		if (igt.axis & GLZ_AXIS_Z) vert[i*3+2]+=glzImageReadBilinear(x,y,GLZ_RED,step,igt.width,igt.height,GLZ_REPEAT_X|GLZ_REPEAT_Y,igt.data,GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::Z) vert[i * 3 + 2] += glzImageReadBilinear(x, y, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
 
 		i++;
 		}
@@ -1277,18 +1277,18 @@ void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long
 		while (i<num)
 		{
 
-		if (tt.axis==GLZ_AXIS_X)
+			if (tt.axis == glzAxis::X)
 			{
 				tex[i*2+0]=(vert[i*3+1])/tt.u_scale;
 				tex[i*2+1]=(vert[i*3+2]-1)/tt.v_scale;
 			}
 
-		if (tt.axis==GLZ_AXIS_Y)
+			if (tt.axis == glzAxis::Y)
 			{
 				tex[i*2+0]=(vert[i*3+0])/tt.u_scale;
 				tex[i*2+1]=(vert[i*3+2]-1)/tt.v_scale;
 			}
-		if (tt.axis==GLZ_AXIS_Z)
+			if (tt.axis == glzAxis::Z)
 			{
 				tex[i*2+0]=(vert[i*3+0])/tt.u_scale;
 				tex[i*2+1]=(vert[i*3+1]-1)/tt.v_scale;
@@ -1310,7 +1310,7 @@ long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt
 
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,GLZ_AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
 
 	float *v,*t,*n;
 	v = new float[60000];
@@ -1327,7 +1327,7 @@ long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt
 	glzAtlasUVarrayRemap(tt.firstatlas,elements,tt.atlas_width,tt.atlas_height,t);
 	}
 
-	glzVAOMakeFromArray(v,t,n, elements,vao,GLZ_AUTO);
+	glzVAOMakeFromArray(v, t, n, elements, vao, glzVAOType::AUTO);
 
 	delete v;
 	delete t;
@@ -1340,7 +1340,7 @@ long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt
 
 
 
-void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao,unsigned int type)
+void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao, glzVAOType type)
 {
 	if(!isinited) ini();
 	
@@ -1361,7 +1361,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	glBufferData( GL_ARRAY_BUFFER, enteties*3*sizeof(float), v, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-	if((type & GLZ_VERTEX) == (type & GLZ_TEXTURE))
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_TEXTURE) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL))
 	{
 	glBindBuffer( GL_ARRAY_BUFFER, buffer[1] );			// Bind The Buffer
 	glBufferData( GL_ARRAY_BUFFER, enteties*2*sizeof(float), t, GL_DYNAMIC_DRAW);
@@ -1369,7 +1369,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	}
 
 
-	if((type & GLZ_VERTEX) == (type & GLZ_NORMAL))
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_NORMAL) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL))
 	{
 	glBindBuffer( GL_ARRAY_BUFFER, buffer[2] );			// Bind The Buffer
 	glBufferData( GL_ARRAY_BUFFER, enteties*3*sizeof(float), n, GL_DYNAMIC_DRAW);
@@ -1377,8 +1377,8 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	}
 
 	glEnableVertexAttribArray(0);
-	if((type & GLZ_VERTEX) == (type & GLZ_TEXTURE)) glEnableVertexAttribArray(1);
-	if((type & GLZ_VERTEX) == (type & GLZ_NORMAL)) glEnableVertexAttribArray(2);
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_TEXTURE) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL)) glEnableVertexAttribArray(1);
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_NORMAL) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL)) glEnableVertexAttribArray(2);
 
 
 	glBindVertexArray(0);
@@ -1398,7 +1398,7 @@ long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transfor
 
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,GLZ_AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
 	float *v,*t,*n;
 	
 	long verts=glzCountPrimText(text);
@@ -1411,7 +1411,7 @@ long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transfor
 	glzPrimText(text,kern,v,t,n);	
 	glzProjectVertexArray(v,matrix,verts);
 
-	glzVAOMakeFromArray(v,t,n, verts, vao, GLZ_AUTO);
+	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
 
 
 	delete[] v;	
@@ -1434,7 +1434,7 @@ long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture
 	data[0]= 1;
 
 	image_geo_transform igt;  // basically a dummy igt
-	igt=glzMakeIGT(GLZ_IGT_NONE,0,0,0,0,0,0,0,0,0,data);
+	igt = glzMakeIGT(GLZ_IGT_NONE, 0, 0, 0, 0, 0, 0, 0, 0, glzAxis::X, data);
 		
 	long verts=glzVAOMakeHeightAtlasGrid(x,y,matrix,tt,igt,vao);
 
@@ -1450,7 +1450,7 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,GLZ_AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
 	float *v,*t,*n;
 	
 	long verts=(x*y*6);
@@ -1467,7 +1467,7 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 
 	glzProjectVertexArray(v,matrix,verts);
 
-	glzVAOMakeFromArray(v,t,n, verts, vao, GLZ_AUTO);
+	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
 
 
 	delete[] v;	
@@ -1538,7 +1538,7 @@ long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,GLZ_AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
 
 	primitive_gen pg2[2];
 	pg2[0]=pg;	
@@ -1556,7 +1556,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,GLZ_AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
 
 	int i=0;
 	long verts=0;
@@ -1717,7 +1717,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 
 
 
-	glzVAOMakeFromArray(v,t,n, verts, vao, GLZ_AUTO);
+	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
 
 
 	delete[] v;	
@@ -1732,10 +1732,19 @@ return verts;
 
 // direct rendering functions for sprites and such, mostly 2D stuff
 
-void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation)
+void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin orientation)
 {
 
 	unsigned int localVAO;
+
+
+	float vc[] = {
+		X - W*0.5f, Y - H*0.5f, Z,
+		X + W*0.5f, Y - H*0.5f, Z,
+		X + W*0.5f, Y + H*0.5f, Z,
+		X - W*0.5f, Y + H*0.5f, Z,
+		X - W*0.5f, Y - H*0.5f, Z,
+		X + W*0.5f, Y + H*0.5f, Z };
 
 	float vtr[] = {
 		X - W, Y - H, Z,
@@ -1787,33 +1796,38 @@ void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float sp
 
 	switch (orientation)
 	{
+
+		
+	case glzOrigin::CENTERED:
+		glzVAOMakeFromArray(vc, t, n, 6, &localVAO, glzVAOType::AUTO);
+		break;
 	
-	case GLZ_TOP_RIGHT:
-		glzVAOMakeFromArray(vtr, t, n, 6, &localVAO, GLZ_AUTO);
+	case glzOrigin::TOP_RIGHT:
+		glzVAOMakeFromArray(vtr, t, n, 6, &localVAO, glzVAOType::AUTO);
 		break;
 
-	case GLZ_BOTTOM_RIGHT:
-		glzVAOMakeFromArray(vbr, t, n, 6, &localVAO, GLZ_AUTO);
+	case glzOrigin::BOTTOM_RIGHT:
+		glzVAOMakeFromArray(vbr, t, n, 6, &localVAO, glzVAOType::AUTO);
 		break;
 
-	case GLZ_TOP_LEFT:		
-		glzVAOMakeFromArray(vtl, t, n, 6, &localVAO, GLZ_AUTO);
+	case glzOrigin::TOP_LEFT:
+		glzVAOMakeFromArray(vtl, t, n, 6, &localVAO, glzVAOType::AUTO);
 		break;
 
-	case GLZ_BOTTOM_LEFT:
+	case glzOrigin::BOTTOM_LEFT:
 	default:
-		glzVAOMakeFromArray(vbl, t, n, 6, &localVAO, GLZ_AUTO);
+		glzVAOMakeFromArray(vbl, t, n, 6, &localVAO, glzVAOType::AUTO);
 	break;
 
 }
 	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, GLZ_AUTO);
+	glzKillVAO(localVAO, glzVAOType::AUTO);
 
 	return;
 }
 
 
-void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation)
+void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation)
 {
 
 	float quv[8];
@@ -1823,18 +1837,18 @@ void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, uns
 	return;
 }
 
-void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation)
+void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation)
 {
 
-	glzDirectSpriteRenderAtlas(X, Y, Z, textureW / atlasW, textureH / atlasH,  atlasW, atlasH, atlasN, orientation);
+	glzDirectSpriteRenderAtlas(X, Y, Z, (float)textureW / (float)atlasW, (float)textureH / (float)atlasH, atlasW, atlasH, atlasN, orientation);
 
 	return;
 }
 
-void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, unsigned int orientation)
+void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation)
 {
 
-	glzDirectSpriteRenderAtlas(quantize(X, q), quantize(Y, q), Z, textureW / atlasW, textureH / atlasH, atlasW, atlasH, atlasN, orientation);
+	glzDirectSpriteRenderAtlas(quantize(X, q), quantize(Y, q), Z, (float)textureW / (float)atlasW, (float)textureH / (float)atlasH, atlasW, atlasH, atlasN, orientation);
 
 	return;
 }
@@ -1844,7 +1858,7 @@ void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, 
 
 
 
-void glzKillVAO(unsigned int vao, unsigned int type)
+void glzKillVAO(unsigned int vao, glzVAOType type)
 {
 	if (!glIsVertexArray(vao)) return; // is this a vao
 
@@ -1856,13 +1870,13 @@ void glzKillVAO(unsigned int vao, unsigned int type)
 	glGetVertexAttribIuiv(0,GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING,&vbuf);
 	if( glIsBuffer(vbuf)) glDeleteBuffers(1,&vbuf);
 
-	if((type == GLZ_AUTO) ||(type == GLZ_VERTEX) || (type & GLZ_TEXTURE))
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX) || (type == glzVAOType::VERTEX_TEXTURE))
 	{
 	glGetVertexAttribIuiv(1,GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING,&vbuf);
 	if( glIsBuffer(vbuf))  glDeleteBuffers(1,&vbuf);
 	}
 
-	if((type == GLZ_AUTO) ||(type == GLZ_VERTEX) || (type & GLZ_NORMAL))
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX) || (type == glzVAOType::VERTEX_NORMAL) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL))
 	{
 	glGetVertexAttribIuiv(2,GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING,&vbuf);
 	if( glIsBuffer(vbuf))  glDeleteBuffers(1,&vbuf);
@@ -1883,7 +1897,7 @@ void glzKillAllVAO(void)
 	while (i<1024)
 	{
 		//if(active_vao[i]!=-1)
-			glzKillVAO(active_vao[i],GLZ_AUTO);
+		glzKillVAO(active_vao[i], glzVAOType::AUTO);
 		i++;
 	}
 

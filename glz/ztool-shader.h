@@ -19,18 +19,15 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
-#define GLZ_AUTO 0
-#define GLZ_VERTEX 1
-#define GLZ_VERTEX_TEXTURE 2
-#define GLZ_VERTEX_NORMAL 4
+#include "ztool-type.h"
 
 
 
 		//type signifies the type of data to choose from, if set at GLZ_AUTO it chooses the default settings
 
 
-	unsigned int glzShaderLoad(char file_vert[255],char file_geo[255],char file_frag[255],unsigned int type);
-	unsigned int glzShaderLoad(char file_vert[255],char file_frag[255],unsigned int type);
+unsigned int glzShaderLoad(char file_vert[255], char file_geo[255], char file_frag[255], glzVAOType type);
+unsigned int glzShaderLoad(char file_vert[255], char file_frag[255], glzVAOType type);
 	void glzShaderLink(unsigned int program);
 
 // for now just call one of the two first ones with "GLZ_AUTO" as the type then the last one, there will be much more here in future versions

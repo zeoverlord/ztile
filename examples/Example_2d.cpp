@@ -182,7 +182,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 // all screens
-	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4", mt3, 0.7f, text_tt, &textvao[15]);
+	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5", mt3, 0.7f, text_tt, &textvao[15]);
 
 
 
@@ -207,24 +207,24 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	ProgramObject=glzShaderLoad("data\\glsl.vert","data\\glsl.frag",GLZ_AUTO);
-	ProgramObjectFT=glzShaderLoad("data\\fancytext.vert","data\\fancytext.frag",GLZ_AUTO);
-	ProgramObjectFSQ=glzShaderLoad("data\\fsq.vert","data\\fsq.frag",GLZ_AUTO);
+	ProgramObject = glzShaderLoad("data\\glsl.vert", "data\\glsl.frag", glzVAOType::AUTO);
+	ProgramObjectFT = glzShaderLoad("data\\fancytext.vert", "data\\fancytext.frag", glzVAOType::AUTO);
+	ProgramObjectFSQ = glzShaderLoad("data\\fsq.vert", "data\\fsq.frag", glzVAOType::AUTO);
 	glzShaderLink(ProgramObject);
 	glzShaderLink(ProgramObjectFT);
 	glzShaderLink(ProgramObjectFSQ);
 
 	// load the textures
-	fonttexture[0]=glzLoadTexture("data\\fonts\\arial.tga",GLZ_FILTER_LINEAR);
-	fonttexture[1]=glzLoadTexture("data\\fonts\\minya_m.tga",GLZ_FILTER_LINEAR);
-	fonttexture[2]=glzLoadTexture("data\\fonts\\ms_gothic.tga",GLZ_FILTER_LINEAR);
-	fonttexture[3]=glzLoadTexture("data\\fonts\\digitalstrip_l.tga",GLZ_FILTER_LINEAR);
-	fonttexture[4]=glzLoadTexture("data\\fonts\\morpheus_l.tga",GLZ_FILTER_LINEAR);
+	fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
+	fonttexture[1] = glzLoadTexture("data\\fonts\\minya_m.tga", glzTexFilter::LINEAR);
+	fonttexture[2] = glzLoadTexture("data\\fonts\\ms_gothic.tga", glzTexFilter::LINEAR);
+	fonttexture[3] = glzLoadTexture("data\\fonts\\digitalstrip_l.tga", glzTexFilter::LINEAR);
+	fonttexture[4] = glzLoadTexture("data\\fonts\\morpheus_l.tga", glzTexFilter::LINEAR);
 
-	texture[0]=glzLoadTexture("data\\back.tga",GLZ_FILTER_LINEAR);
-	texture[1]=glzLoadTexture("data\\derpy_phirana.tga",GLZ_FILTER_LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
-	texture[2]=glzLoadTexture("data\\explotion128a.tga",GLZ_FILTER_NEAREST);
-	texture[3]=glzLoadTexture("data\\tinytiles.tga",GLZ_FILTER_NEAREST);
+	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::LINEAR);
+	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
+	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
+	texture[3] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
 
 
 	return TRUE;												// Return TRUE (Initialization Successful)
@@ -488,22 +488,22 @@ void Draw (void)
 
 		glzLoadIdentity(m);
 		glzOrtho(m, -400, 400, -250, 250, -100, 100);
-	//	glzTranslatef(m, 0, 0, 0);
+
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
 
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 	
-		//glzDrawVAO(vao_num[2], vao[2], GL_TRIANGLES);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_TOP_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_BOTTOM_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, GLZ_TOP_RIGHT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
+		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
-		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, GLZ_BOTTOM_RIGHT); 
+		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, glzOrigin::CENTERED);
 
-		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, GLZ_BOTTOM_LEFT);
-		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, GLZ_BOTTOM_LEFT);
+		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
+		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
 
 		
 		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);

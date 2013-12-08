@@ -19,19 +19,10 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
+#include "ztool-type.h"
+
 #define GLZ_NULL 0
-
-#define GLZ_AUTO 0
-#define GLZ_VERTEX 1
-#define GLZ_VERTEX_TEXTURE 2
-#define GLZ_VERTEX_NORMAL 4
-
 #define GLZ_INVERT 1
-
-#define GLZ_BOTTOM_LEFT 1
-#define GLZ_BOTTOM_RIGHT 2
-#define GLZ_TOP_LEFT 4
-#define GLZ_TOP_RIGHT 8
 
 #define GLZ_MIRROR_X 1
 #define GLZ_MIRROR_Y 2

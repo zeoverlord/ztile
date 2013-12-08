@@ -19,10 +19,9 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
-#define GLZ_AUTO 0
-#define GLZ_VERTEX 1
-#define GLZ_TEXTURE 2
-#define GLZ_NORMAL 4
+#include "ztool-type.h"
+
+
 
 // primitives, note that not all of these are implemented
 #define GLZ_PRIMITIVE_CUBE 0x001
@@ -52,10 +51,6 @@
 #define GLZ_PRIMITIVE_RANDOM_POINT 0x302
 #define GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY 0x303
 
-#define GLZ_AXIS_X 1
-#define GLZ_AXIS_Y 2
-#define GLZ_AXIS_Z 4
-
 // igt types
 
 #define GLZ_IGT_NONE 0
@@ -69,10 +64,8 @@
 #define GLZ_TT_ATLAS_CUBE_INDFACE 4
 #define GLZ_TT_ATLAS_CUBE_CROSS 5
 
-#define GLZ_BOTTOM_LEFT 1
-#define GLZ_BOTTOM_RIGHT 2
-#define GLZ_TOP_LEFT 4
-#define GLZ_TOP_RIGHT 8
+
+
 
 
 
@@ -97,7 +90,7 @@ typedef struct
 		float z_offset;
 		float scale;
 		float tscale;
-		unsigned int axis;
+		glzAxis axis;
 		unsigned char *data;
 	} image_geo_transform;
 
@@ -110,7 +103,7 @@ typedef struct
 		float v_offset;
 		unsigned int atlas_width;
 		unsigned int atlas_height;		
-		unsigned int axis;
+		glzAxis axis;
 		unsigned int firstatlas;
 		unsigned int *atlas;
 	} texture_transform;
@@ -137,16 +130,16 @@ typedef struct
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
 
-	image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, unsigned int axis, unsigned char *data);
+image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
 	
-	texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, unsigned int axis, unsigned int firstatlas,  unsigned int atlas[]);
+texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[]);
 	texture_transform glzMakeTTDefault();
 	texture_transform glzMakeTTAtlas(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	texture_transform glzMakeTTAtlasArray(unsigned int awidth, unsigned int aheight, unsigned int atlas[]);
 	texture_transform glzMakeTTAtlasCubeTBS(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	texture_transform glzMakeTTAtlasCubeIndface(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	texture_transform glzMakeTTAtlasCubeCross(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
-	texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, unsigned int axis);
+	texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis axis);
 
 	primitive_gen glzMakePG(unsigned int type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z);
 	primitive_gen glzMakePGDefault(unsigned int type);
@@ -156,7 +149,7 @@ typedef struct
 
 	
 	long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao);
-	void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao,unsigned int type);
+	void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao, glzVAOType type);
 
 	long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, unsigned int *vao);
 	
@@ -167,13 +160,13 @@ typedef struct
 	long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao);
 	long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao);
 
-	void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, unsigned int orientation);  // mirroring GL_DrawTextureNV somewhat
-	void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation);  
-	void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, unsigned int orientation);
-	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, unsigned int orientation);
+	void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin orientation);  // mirroring GL_DrawTextureNV somewhat
+	void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
+	void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
+	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
 
 
-	void glzKillVAO(unsigned int vao, unsigned int type);
+	void glzKillVAO(unsigned int vao, glzVAOType type);
 	void glzKillAllVAO(void);
 
 	void glzDrawVAO(long enteties, unsigned int vao, unsigned int type);

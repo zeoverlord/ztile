@@ -134,7 +134,7 @@ unsigned long getFileLength(ifstream& file)
 {
     if(!file.good()) return 0;
     
-    unsigned long pos=file.tellg();
+//    unsigned long pos=file.tellg();
     file.seekg(0,ios::end);
     unsigned long len = file.tellg();
     file.seekg(ios::beg);
@@ -339,7 +339,7 @@ void loadGShade(unsigned int program, char filename[160])  //dito on a fragment 
 
 // this specific function will only work if you have openGL 3.2 installed because of the geometry shader which should be any dx 10 class hardware, basically gf8xxx and above
 
-unsigned int glzShaderLoad(char file_vert[255],char file_geo[255],char file_frag[255],unsigned int type)
+unsigned int glzShaderLoad(char file_vert[255], char file_geo[255], char file_frag[255], glzVAOType type)
 {
 	if(!isinited_shd) ini_shd();
 
@@ -353,7 +353,7 @@ unsigned int glzShaderLoad(char file_vert[255],char file_geo[255],char file_frag
 	loadFShade(program, file_frag);
 
 	
-	if (type=GLZ_AUTO)
+	if (type == glzVAOType::AUTO)
 	{	
 	glBindAttribLocation(program,0, "Position");
 	glBindAttribLocation(program,1, "TexCoord");
@@ -366,7 +366,7 @@ unsigned int glzShaderLoad(char file_vert[255],char file_geo[255],char file_frag
 // this function loads only the certex and fragment programs and like the above it sets the vertex attribute locations
 // in the rare case you want to set these yourself then use any number you like above lets say 5, its really 1 but i might add support for like just vertex + texture and such later on
 // one thing to note is that the program is not linked, that function is lower down
-unsigned int glzShaderLoad(char file_vert[255],char file_frag[255],unsigned int type)
+unsigned int glzShaderLoad(char file_vert[255], char file_frag[255], glzVAOType type)
 {
 	if(!isinited_shd) ini_shd();
 
@@ -378,7 +378,7 @@ unsigned int glzShaderLoad(char file_vert[255],char file_frag[255],unsigned int 
 	loadVShade(program, file_vert);
 	loadFShade(program, file_frag);
 	
-	if (type=GLZ_AUTO)
+	if (type == glzVAOType::AUTO)
 	{	
 	glBindAttribLocation(program,0, "Position");
 	glBindAttribLocation(program,1, "TexCoord");

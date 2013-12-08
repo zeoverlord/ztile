@@ -19,28 +19,14 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
+
+#include "ztool-type.h"
+
 #define GLZ_AUTO 0
 #define GLZ_UNCOMPRESSED 1
 #define GLZ_COMPRESSED 2
 
 
-
-#define GLZ_FILTER_NONE			0x0010
-#define GLZ_FILTER_NEAREST		0x0011
-#define GLZ_FILTER_LINEAR		0x0012
-#define GLZ_FILTER_BILINEAR		0x0013
-#define GLZ_FILTER_TRILINEAR	0x0014
-#define GLZ_FILTER_ANSIO_2		0x0015
-#define GLZ_FILTER_ANSIO_4		0x0016
-#define GLZ_FILTER_ANSIO_8		0x0017
-#define GLZ_FILTER_ANSIO_16		0x0018
-#define GLZ_FILTER_ANSIO_MAX	0x0019
-
-
-#define GLZ_BOTTOM_LEFT 1
-#define GLZ_BOTTOM_RIGHT 2
-#define GLZ_TOP_LEFT 4
-#define GLZ_TOP_RIGHT 8
 
 
 
@@ -52,7 +38,7 @@ typedef struct
 	unsigned int m_id;
 	unsigned int m_type;
 	long imageSize;
-	unsigned int orientation;
+	glzOrigin orientation;
 	} img_head;
 
 
@@ -65,9 +51,9 @@ typedef struct
 // segmented loading, for if you want to load a texture into the cpu
 void glzReadTgaHead(img_head *img,char filename[255]);
 void glzLoadTga(img_head *img,char filename[255], unsigned char *data);
-void glzMaketex(img_head *img, unsigned char data[], unsigned int filter);
+void glzMaketex(img_head *img, unsigned char data[], glzTexFilter filter);
 
-unsigned int glzLoadTexture(char filename[255], unsigned int filter);  // type is here which image type (same as in openGL) and filter is the texture filtering
+unsigned int glzLoadTexture(char filename[255], glzTexFilter filter);  // type is here which image type (same as in openGL) and filter is the texture filtering
 // this load function only loads either TGA files or whtever the file ending is, but that's for another version
 
 

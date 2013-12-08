@@ -51,46 +51,46 @@ void ini_tex(void)
 
 // no need to be concerned about this one except if you want to add more filtering modes, then just add a new define and do the filtering settings here
 // later i might end up changing this to be a bit more thourough with both wrapping and filtering, but i will probably not need to break any code you write that uses this
-void chooseFilter(unsigned int filter)
+void chooseFilter(glzTexFilter filter)
 {
 	filter_mip=0;
 	filter_ansio=0;
 
 	switch(filter)
 	{
-	case GLZ_FILTER_NONE:
+	case glzTexFilter::NONE:
 		filter_max=GL_NEAREST;
 		filter_min=GL_NEAREST;
 		filter_wrap=GL_REPEAT;
 		break;
 		
-	case GLZ_FILTER_NEAREST:
+	case glzTexFilter::NEAREST:
 		filter_max=GL_NEAREST;
 		filter_min=GL_NEAREST;
 		filter_wrap=GL_REPEAT;
 		break;
 		
-	case GLZ_FILTER_LINEAR:
+	case glzTexFilter::LINEAR:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR;
 		filter_wrap=GL_REPEAT;
 		break;
 		
-	case GLZ_FILTER_BILINEAR:
+	case glzTexFilter::BILINEAR:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_NEAREST;
 		filter_wrap=GL_REPEAT;
 		filter_mip=1;
 		break;
 		
-	case GLZ_FILTER_TRILINEAR:
+	case glzTexFilter::TRILINEAR:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
 		filter_mip=1;
 		break;
 
-	case GLZ_FILTER_ANSIO_2:
+	case glzTexFilter::ANSIO_2:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
@@ -98,7 +98,7 @@ void chooseFilter(unsigned int filter)
 		filter_mip=1;
 		break;
 			
-	case GLZ_FILTER_ANSIO_4:
+	case glzTexFilter::ANSIO_4:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
@@ -106,7 +106,7 @@ void chooseFilter(unsigned int filter)
 		filter_mip=1;
 		break;
 			
-	case GLZ_FILTER_ANSIO_8:
+	case glzTexFilter::ANSIO_8:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
@@ -114,7 +114,7 @@ void chooseFilter(unsigned int filter)
 		filter_mip=1;
 		break;
 			
-	case GLZ_FILTER_ANSIO_16:
+	case glzTexFilter::ANSIO_16:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
@@ -122,7 +122,7 @@ void chooseFilter(unsigned int filter)
 		filter_mip=1;
 		break;
 			
-	case GLZ_FILTER_ANSIO_MAX:
+	case glzTexFilter::ANSIO_MAX:
 		filter_max=GL_LINEAR;
 		filter_min=GL_LINEAR_MIPMAP_LINEAR;
 		filter_wrap=GL_REPEAT;
@@ -148,7 +148,7 @@ void glzReadTgaHead(img_head *img,char filename[255])
 	img->m_id=0;
 	img->m_type=0;
 	img->imageSize=0;
-	img->orientation=GLZ_BOTTOM_LEFT;
+	img->orientation = glzOrigin::BOTTOM_LEFT;
 
 
 
@@ -181,9 +181,9 @@ void glzReadTgaHead(img_head *img,char filename[255])
 	img->m_height = header[15] * 256 + header[14];
 	img->m_bpp = header[16] / 8;
 
-	if (header[17] & 16) img->orientation=GLZ_BOTTOM_RIGHT;
-	if (header[17] & 32) img->orientation=GLZ_TOP_LEFT;
-	if ((header[17] & 16) && (header[17] & 32)) img->orientation=GLZ_TOP_RIGHT;
+	if (header[17] & 16) img->orientation = glzOrigin::BOTTOM_RIGHT;
+	if (header[17] & 32) img->orientation = glzOrigin::TOP_LEFT;
+	if ((header[17] & 16) && (header[17] & 32)) img->orientation = glzOrigin::TOP_RIGHT;
 
 	if (img->m_bpp != 3 && img->m_bpp != 4) 
 	{
@@ -306,7 +306,7 @@ void glzLoadTga(img_head *img,char filename[255], unsigned char *data)
 
 
 // unless you either made your own texture or changed the texture data somehow you should really let glzLoadTexture do the job
-void glzMaketex(img_head *img, unsigned char data[], unsigned int filter)
+void glzMaketex(img_head *img, unsigned char data[], glzTexFilter filter)
 {
 if(!isinited_tex) ini_tex();
 
@@ -338,7 +338,7 @@ if(!isinited_tex) ini_tex();
 
 
 // this is pretty self explanatory, supply filename and filter type (GLZ_FILTER_ANSIO_MAX is reccomended) and it spits out a texture handle
-unsigned int glzLoadTexture(char filename[255], unsigned int filter)
+unsigned int glzLoadTexture(char filename[255], glzTexFilter filter)
 {
 	if(!isinited_tex) ini_tex();
 
