@@ -139,10 +139,10 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	texture_transform text_tt=glzMakeTTAtlas(16,16,0);
 
-	prim_pg[0]=glzMakePGDefault(GLZ_PRIMITIVE_CUBE);
+	prim_pg[0] = glzMakePGDefault(glzPrimitive::CUBE);
 	glzScalef(prim_pg[0].matrix,5.0f,5.0f,5.0f);
 
-	prim_pg[1]=glzMakePGDefault(GLZ_PRIMITIVE_ICOSIDODECAHEDRON);
+	prim_pg[1] = glzMakePGDefault(glzPrimitive::ICOSIDODECAHEDRON);
 	glzTranslatef(prim_pg[1].matrix,-3,0,0);
 	glzScalef(prim_pg[1].matrix,7.0f,7.0f,7.0f);
 
@@ -152,9 +152,9 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	texture_transform obj_tt=glzMakeTTDefault();
 	texture_transform grid_tt=glzMakeTTAtlasArray(2,2,ad);
-	texture_transform height_tt=glzMakeTTVertexCoordAdopt(1.0f,1.0f,GLZ_AXIS_Z);
+	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z);
 
-	image_geo_transform igt=glzMakeIGT(GLZ_IGT_DISPLACE_ADD,img.m_width,img.m_height,img.m_bpp,0,0,0,2.0f,32.0,GLZ_AXIS_Z, data);
+	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 
 	vao_num[0]=glzVAOMakeText("Geometry generation test, try the arrow keys.", mt, 0.7f, text_tt, &vao[0]);
 	vao_num[1]=glzVAOMakePrimitives(1,prim_pg, &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
@@ -165,17 +165,17 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	//glzKillVAO(vao2, GLZ_AUTO);  // kills any vao created by the glz toolkit and all buffers within
 
-	ProgramObject=glzShaderLoad("data\\glsl.vert","data\\glsl.frag",GLZ_AUTO);
-	ProgramObjectFSQ=glzShaderLoad("data\\fsq.vert","data\\fsq.frag",GLZ_AUTO);
+	ProgramObject = glzShaderLoad("data\\glsl.vert", "data\\glsl.frag", glzVAOType::AUTO);
+	ProgramObjectFSQ = glzShaderLoad("data\\fsq.vert", "data\\fsq.frag", glzVAOType::AUTO);
 	glzShaderLink(ProgramObject);
 	glzShaderLink(ProgramObjectFSQ);
 
 	// load the textures
-	texture[0]=glzLoadTexture("data\\fonts\\digitalstrip_l.tga",GLZ_FILTER_LINEAR);
-	texture[1]=glzLoadTexture("data\\mariobox.tga",GLZ_FILTER_ANSIO_MAX);
-	texture[2]=glzLoadTexture("data\\cv90base.tga",GLZ_FILTER_ANSIO_MAX);
-	texture[3]=glzLoadTexture("data\\atlas_testpattern.tga",GLZ_FILTER_NEAREST);
-	texture[4]=glzLoadTexture("data\\gridlines.tga",GLZ_FILTER_ANSIO_MAX);
+	texture[0] = glzLoadTexture("data\\fonts\\digitalstrip_l.tga", glzTexFilter::LINEAR);
+	texture[1] = glzLoadTexture("data\\mariobox.tga", glzTexFilter::ANSIO_MAX);
+	texture[2] = glzLoadTexture("data\\cv90base.tga", glzTexFilter::ANSIO_MAX);
+	texture[3] = glzLoadTexture("data\\atlas_testpattern.tga", glzTexFilter::NEAREST);
+	texture[4] = glzLoadTexture("data\\gridlines.tga", glzTexFilter::ANSIO_MAX);
 
 
 	delete[] data;

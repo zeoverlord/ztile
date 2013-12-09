@@ -178,25 +178,25 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	
 	primitive_gen primitives[10];	
 
-	primitives[0]=glzMakePGDefault(GLZ_PRIMITIVE_CUBE);
+	primitives[0] = glzMakePGDefault(glzPrimitive::CUBE);
 	primitives[0].tt=glzMakeTTDefault();
 
-	primitives[1]=glzMakePGDefault(GLZ_PRIMITIVE_PYRAMID);
+	primitives[1] = glzMakePGDefault(glzPrimitive::PYRAMID);
 	primitives[1].tt=glzMakeTTDefault();
 
-	primitives[2]=glzMakePGDefault(GLZ_PRIMITIVE_TETRAHEDRON);
+	primitives[2] = glzMakePGDefault(glzPrimitive::TETRAHEDRON);
 	primitives[2].tt=glzMakeTTDefault();
 		
-	primitives[3]=glzMakePGDefault(GLZ_PRIMITIVE_OCTAHEDRON);
+	primitives[3] = glzMakePGDefault(glzPrimitive::OCTAHEDRON);
 	primitives[3].tt=glzMakeTTDefault();
 		
-	primitives[4]=glzMakePGDefault(GLZ_PRIMITIVE_DODECAHEDRON);
+	primitives[4] = glzMakePGDefault(glzPrimitive::DODECAHEDRON);
 	primitives[4].tt=glzMakeTTDefault();
 		
-	primitives[5]=glzMakePGDefault(GLZ_PRIMITIVE_ICOSAHEDRON);
+	primitives[5] = glzMakePGDefault(glzPrimitive::ICOSAHEDRON);
 	primitives[5].tt=glzMakeTTDefault();
 
-	primitives[6]=glzMakePGDefault(GLZ_PRIMITIVE_ICOSIDODECAHEDRON);
+	primitives[6] = glzMakePGDefault(glzPrimitive::ICOSIDODECAHEDRON);
 	primitives[6].tt=glzMakeTTDefault();
 
 
@@ -219,8 +219,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glzLoadTga(&img,"data\\heightmap.tga", data);
 
 	
-	texture_transform height_tt=glzMakeTTVertexCoordAdopt(1.0f,1.0f,GLZ_AXIS_Z);
-	image_geo_transform igt=glzMakeIGT(GLZ_IGT_DISPLACE_ADD,img.m_width,img.m_height,img.m_bpp,0,0,0,2.0f,32.0,GLZ_AXIS_Z, data);
+	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z);
+	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 	vao_num[9]=glzVAOMakeHeightAtlasGrid(16, 16, mh, height_tt, igt, &vao[9]);
 	
 	delete[] data;
@@ -229,15 +229,15 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	ProgramObject=glzShaderLoad("data\\glsl.vert","data\\glsl.frag",GLZ_AUTO);
+	ProgramObject = glzShaderLoad("data\\glsl.vert", "data\\glsl.frag", glzVAOType::AUTO);
 	glzShaderLink(ProgramObject);
 
 	// load the textures
-	fonttexture[0]=glzLoadTexture("data\\fonts\\arial.tga",GLZ_FILTER_LINEAR);
+	fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
 
-	texture[0]=glzLoadTexture("data\\back.tga",GLZ_FILTER_ANSIO_MAX);
-	texture[2]=glzLoadTexture("data\\cv90base.tga",GLZ_FILTER_ANSIO_MAX);
-	texture[4]=glzLoadTexture("data\\gridlines.tga",GLZ_FILTER_ANSIO_MAX);
+	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::ANSIO_MAX);
+	texture[2] = glzLoadTexture("data\\cv90base.tga", glzTexFilter::ANSIO_MAX);
+	texture[4] = glzLoadTexture("data\\gridlines.tga", glzTexFilter::ANSIO_MAX);
 
 
 

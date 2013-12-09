@@ -364,12 +364,12 @@ return img.m_id;
 // glzScreenShotADV adds x and y offsets and lossy compression, the lossy compression basically just lowers the sensitivity on the rle segments with +- the lossy argument
 // it's especially useful if you have lots of low amplidude high frequency noice and few gradients, but it can look uggly if set to high or if it is animated, below 5 should be ok in most cases
 
-void glzScreenShot(char filename[255],int x, int y, unsigned int type)
+void glzScreenShot(char filename[255], int x, int y, glzTexCompression type)
 {
 	glzScreenShotADV(filename,0,0,x,y,0,type);
 }
 
-void glzScreenShotADV(char filename[255],int xoffset, int yoffset, int x, int y, int lossy, unsigned int type)
+void glzScreenShotADV(char filename[255], int xoffset, int yoffset, int x, int y, int lossy, glzTexCompression type)
 {
 if(!isinited_tex) ini_tex();
 
@@ -391,7 +391,7 @@ int yb= (y-ya)/256;
 
 unsigned char header[18]={0,0,10,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
 
-if (type==GLZ_UNCOMPRESSED)
+if (type == glzTexCompression::UNCOMPRESSED)
 {
 	//assemble the uncompressed header
 	header[2]=2;
@@ -403,7 +403,7 @@ File.write (reinterpret_cast<char *>(data), sizeof (char)*imageSize);
 File.close();
 
 }
-else if ((type==GLZ_COMPRESSED) || (type==GLZ_AUTO))
+else if (type == glzTexCompression::COMPRESSED)
 {
 	// write header to file
 fstream File(filename, ios::out | ios::binary);

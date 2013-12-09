@@ -646,14 +646,14 @@ long glzPrimGrid(texture_transform tt, unsigned int x,unsigned int y, float *v,f
 
 		discard=0;
 
-		if(tt.type==GLZ_TT_ATLASARRAY) 
+		if (tt.type == glzTTType::ATLASARRAY)
 			if (tt.atlas[(yi*y)+xi]==9001)			//in case it's totally trasparent then dont make a quad, allso total DBZ reference
 				discard=1;
 
 		if (!discard)  
 		{
 
-			if(tt.type==GLZ_TT_ATLASARRAY) {
+			if (tt.type == glzTTType::ATLASARRAY) {
 				glzAtlasQuad(tt.atlas_width,tt.atlas_height,tt.atlas[(yi*y)+xi], quv);
 			}
 			else {glzAtlasQuad(1,1,0, quv);}
@@ -1063,7 +1063,7 @@ void ini(void)
 	isinited=true;
 }
 
-image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data)
+image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data)
 {
 	image_geo_transform igt;
 
@@ -1088,7 +1088,7 @@ image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned i
 }
 
 
-texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[])
+texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[])
 {
 	texture_transform tt;
 
@@ -1112,41 +1112,41 @@ texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, flo
 
 texture_transform glzMakeTTDefault()
 {
-	return glzMakeTT(GLZ_TT_NONE, 1.0f, 1.0f, 0.0f, 0.0f, 1, 1, glzAxis::X, 0, 0);
+	return glzMakeTT(glzTTType::NONE, 1.0f, 1.0f, 0.0f, 0.0f, 1, 1, glzAxis::X, 0, 0);
 }
 
 texture_transform glzMakeTTAtlas(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_NONE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
+	return glzMakeTT(glzTTType::NONE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasArray(unsigned int awidth, unsigned int aheight, unsigned int atlas[])
 {
-	return glzMakeTT(GLZ_TT_ATLASARRAY, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, 0, atlas);
+	return glzMakeTT(glzTTType::ATLASARRAY, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, 0, atlas);
 }
 
 texture_transform glzMakeTTAtlasCubeTBS(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_TBS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
+	return glzMakeTT(glzTTType::ATLAS_CUBE_TBS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasCubeIndface(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_INDFACE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
+	return glzMakeTT(glzTTType::ATLAS_CUBE_INDFACE, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTAtlasCubeCross(unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {
-	return glzMakeTT(GLZ_TT_ATLAS_CUBE_CROSS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
+	return glzMakeTT(glzTTType::ATLAS_CUBE_CROSS, 1.0f, 1.0f, 0.0f, 0.0f, awidth, aheight, glzAxis::X, firstatlas, 0);
 }
 
 texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis axis)
 {
-	return glzMakeTT(GLZ_TT_VERTEX_COORD_ADOPT,uscale,vscale,0.0f,0.0f,1,1,axis,0,0);
+	return glzMakeTT(glzTTType::VERTEX_COORD_ADOPT, uscale, vscale, 0.0f, 0.0f, 1, 1, axis, 0, 0);
 }
 
 	
-primitive_gen glzMakePG(unsigned int type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
+primitive_gen glzMakePG(glzPrimitive type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
 {
 	primitive_gen pg;
 
@@ -1162,7 +1162,7 @@ primitive_gen glzMakePG(unsigned int type, float matrix[16], texture_transform t
 
 }
 
-primitive_gen glzMakePGDefault(unsigned int type)
+primitive_gen glzMakePGDefault(glzPrimitive type)
 {		
 	primitive_gen pg;
 	pg.type=type;
@@ -1176,7 +1176,7 @@ primitive_gen glzMakePGDefault(unsigned int type)
 	return pg;
 }
 
-primitive_gen glzMakePGDefaultMatrix(unsigned int type, float matrix[16])
+primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, float matrix[16])
 {		
 	primitive_gen pg;
 	pg.type=type;
@@ -1190,7 +1190,7 @@ primitive_gen glzMakePGDefaultMatrix(unsigned int type, float matrix[16])
 	return pg;
 }
 
-primitive_gen glzMakePGAtlas(unsigned int type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
+primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {		
 	primitive_gen pg;
 	pg.type=type;
@@ -1204,7 +1204,7 @@ primitive_gen glzMakePGAtlas(unsigned int type, unsigned int awidth, unsigned in
 	return pg;
 }
 
-primitive_gen glzMakePGAtlasMatrix(unsigned int type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
+primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {		
 	primitive_gen pg;
 	pg.type=type;
@@ -1231,7 +1231,7 @@ void glzIGT(float *vert, image_geo_transform igt, long num)
 
 	switch(igt.type)
 	{
-	case GLZ_IGT_DISPLACE_ADD:
+	case glzIGTType::DISPLACE_ADD:
 
 		while (i<num)
 		{
@@ -1250,11 +1250,11 @@ void glzIGT(float *vert, image_geo_transform igt, long num)
 		y*=igt.tscale;
 		z*=igt.tscale;
 
-		if (igt.axis == glzAxis::X) vert[i * 3 + 0] += glzImageReadBilinear(y, z, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::X) vert[i * 3 + 0] += glzImageReadBilinear(y, z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
 
-		if (igt.axis == glzAxis::Y) vert[i * 3 + 1] += glzImageReadBilinear(x, z, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::Y) vert[i * 3 + 1] += glzImageReadBilinear(x, z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
 			
-		if (igt.axis == glzAxis::Z) vert[i * 3 + 2] += glzImageReadBilinear(x, y, GLZ_RED, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, GLZ_INVERT)*igt.scale;
+		if (igt.axis == glzAxis::Z) vert[i * 3 + 2] += glzImageReadBilinear(x, y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
 
 		i++;
 		}
@@ -1434,7 +1434,7 @@ long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture
 	data[0]= 1;
 
 	image_geo_transform igt;  // basically a dummy igt
-	igt = glzMakeIGT(GLZ_IGT_NONE, 0, 0, 0, 0, 0, 0, 0, 0, glzAxis::X, data);
+	igt = glzMakeIGT(glzIGTType::NONE, 0, 0, 0, 0, 0, 0, 0, 0, glzAxis::X, data);
 		
 	long verts=glzVAOMakeHeightAtlasGrid(x,y,matrix,tt,igt,vao);
 
@@ -1461,9 +1461,9 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 
 	glzPrimGrid(tt,x,y,v,t,n);
 
-	if(igt.type==GLZ_IGT_DISPLACE_ADD) glzIGT(v,igt,verts);
+	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(v, igt, verts);
 
-	if (tt.type==GLZ_TT_VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(v,t,tt,verts);
+	if (tt.type == glzTTType::VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(v, t, tt, verts);
 
 	glzProjectVertexArray(v,matrix,verts);
 
@@ -1487,41 +1487,42 @@ long glzVAOCountPrimitiveVerts(primitive_gen pg)
 switch (pg.type)
 	{	
 	
-	case GLZ_PRIMITIVE_CUBE:	
+	case glzPrimitive::CUBE:
+	case glzPrimitive::HEXAHEDRON:
 		return 36;		
 		break;
 
-	case GLZ_PRIMITIVE_TETRAHEDRON:	
+	case glzPrimitive::TETRAHEDRON:
 		return 12;
 		break;
 
-	case GLZ_PRIMITIVE_PYRAMID:
+	case glzPrimitive::PYRAMID:
 		return glzCountFromIndexArrays(pyramid_face,sizeof(pyramid_face)/sizeof(long));
 		break;
 
-	case GLZ_PRIMITIVE_OCTAHEDRON:
+	case glzPrimitive::OCTAHEDRON:
 		return glzCountFromIndexArrays(octahedron_face,sizeof(octahedron_face)/sizeof(long));
 		break;
 
-	case GLZ_PRIMITIVE_DODECAHEDRON:
+	case glzPrimitive::DODECAHEDRON:
 		return glzCountFromIndexArrays(dodecahedron_face,sizeof(dodecahedron_face)/sizeof(long));
 		break;
 
-	case GLZ_PRIMITIVE_ICOSAHEDRON:
+	case glzPrimitive::ICOSAHEDRON:
 		return glzCountFromIndexArrays(icosahedron_face,sizeof(icosahedron_face)/sizeof(long));
 		break;
 
-	case GLZ_PRIMITIVE_ICOSIDODECAHEDRON:
+	case glzPrimitive::ICOSIDODECAHEDRON:
 		return glzCountFromIndexArrays(icosidodecahederon_face,sizeof(icosidodecahederon_face)/sizeof(long));
 		break;
 
-	case GLZ_PRIMITIVE_FSQ:
+	case glzPrimitive::FSQ:
 		return 6;		
 		break;
-	case GLZ_PRIMITIVE_RANDOM_POINT:
+	case glzPrimitive::RANDOM_POINT:
 		return (long)pg.resolution_x;
 		break;
-	case GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY:
+	case glzPrimitive::SPRITE_ATLAS_ARRAY:
 		return pg.tt.atlas_width*pg.tt.atlas_height*6;	
 		break;		
 		
@@ -1587,7 +1588,8 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 		switch (pg[i].type)
 		{	
 	
-		case GLZ_PRIMITIVE_CUBE:		
+		case glzPrimitive::CUBE:
+		case glzPrimitive::HEXAHEDRON:
 			curvert=glzPrimCubeverts(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3);	
 
 			//curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,cube_vertex,cube_uv,cube_normal,cube_face,cube_uvface,cube_nface,sizeof(cube_face)/sizeof(long));
@@ -1598,14 +1600,14 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 		    {
 				int aw=pg[i].tt.atlas_width;
 				
-				if(pg[i].tt.type==GLZ_TT_ATLAS_CUBE_TBS)
+				if (pg[i].tt.type == glzTTType::ATLAS_CUBE_TBS)
 				{
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+oldcurvert*2);
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas+1,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(oldcurvert+6)*2);
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas+2,curvert-12,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(oldcurvert+12)*2);
 				}
 
-				else if(pg[i].tt.type==GLZ_TT_ATLAS_CUBE_INDFACE)
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_INDFACE)
 				{
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas+0,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(oldcurvert)*2);
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas+1,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(6+oldcurvert)*2);
@@ -1617,7 +1619,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 					glzAtlasUVarrayRemap(pg[i].tt.firstatlas+5,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(30+oldcurvert)*2);
 				}
 
-				else if(pg[i].tt.type==GLZ_TT_ATLAS_CUBE_CROSS)
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_CROSS)
 				{					
 					glzAtlasUVarrayRemapRotate(3,pg[i].tt.firstatlas+1,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(oldcurvert)*2);
 					glzAtlasUVarrayRemapRotate(3,pg[i].tt.firstatlas+aw+aw+1,6,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+(6+oldcurvert)*2);
@@ -1639,49 +1641,49 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 
 
 
-		case GLZ_PRIMITIVE_TETRAHEDRON:		
+		case glzPrimitive::TETRAHEDRON:
 			curvert=glzPrimTetra(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3);	
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;	
 
 		
-		case GLZ_PRIMITIVE_PYRAMID:
+		case glzPrimitive::PYRAMID:
 			curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,pyramid_vertex,pyramid_uv,pyramid_normal,pyramid_face,pyramid_uvface,pyramid_nface,sizeof(pyramid_face)/sizeof(long));
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
-		case GLZ_PRIMITIVE_OCTAHEDRON:
+		case glzPrimitive::OCTAHEDRON:
 			curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,octahedron_vertex,octahedron_uv,octahedron_normal,octahedron_face,octahedron_uvface,octahedron_nface,sizeof(octahedron_face)/sizeof(long));
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
-		case GLZ_PRIMITIVE_DODECAHEDRON:
+		case glzPrimitive::DODECAHEDRON:
 			curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,dodecahedron_vertex,dodecahedron_uv,dodecahedron_normal,dodecahedron_face,dodecahedron_uvface,dodecahedron_nface,sizeof(dodecahedron_face)/sizeof(long));
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
-		case GLZ_PRIMITIVE_ICOSAHEDRON:
+		case glzPrimitive::ICOSAHEDRON:
 			curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,icosahedron_vertex,icosahedron_uv,icosahedron_normal,icosahedron_face,icosahedron_uvface,icosahedron_nface,sizeof(icosahedron_face)/sizeof(long));
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
-		case GLZ_PRIMITIVE_ICOSIDODECAHEDRON:
+		case glzPrimitive::ICOSIDODECAHEDRON:
 			curvert=glzPrimFromIndexArrays(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3,icosidodecahederon_vertex,icosidodecahederon_uv,icosidodecahederon_normal,icosidodecahederon_face,icosidodecahederon_uvface,icosidodecahederon_nface,sizeof(icosidodecahederon_face)/sizeof(long));
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
 			
 
-		case GLZ_PRIMITIVE_FSQ:
+		case glzPrimitive::FSQ:
 			curvert=glzPrimFSQ(v+oldcurvert*3,t+oldcurvert*2,n+oldcurvert*3);
 			break;
 
-		case GLZ_PRIMITIVE_RANDOM_POINT:
+		case glzPrimitive::RANDOM_POINT:
 			curvert+=glzPrimRandom(v+oldcurvert,t+oldcurvert,n+oldcurvert,pg[i].resolution_x);	
 			glzProjectVertexArray(v+oldcurvert*3,pg[i].matrix,curvert);
 			break;
 
-		case GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY:
+		case glzPrimitive::SPRITE_ATLAS_ARRAY:
 				
 				saic=pg[i].tt.atlas_width*pg[i].tt.atlas_height;	
 								
@@ -1706,7 +1708,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 
 		}
 
-		if( (pg[i].tt.atlas_width+pg[i].tt.atlas_height>2) && (pg[i].type != GLZ_PRIMITIVE_CUBE) && (pg[i].type != GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY))
+		if ((pg[i].tt.atlas_width + pg[i].tt.atlas_height>2) && (pg[i].type != glzPrimitive::CUBE) && (pg[i].type != glzPrimitive::HEXAHEDRON) && (pg[i].type != glzPrimitive::SPRITE_ATLAS_ARRAY))
 		{
 			glzAtlasUVarrayRemap(pg[i].tt.firstatlas,curvert,pg[i].tt.atlas_width,pg[i].tt.atlas_height,t+oldcurvert*2);
 		}

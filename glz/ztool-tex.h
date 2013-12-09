@@ -22,13 +22,6 @@
 
 #include "ztool-type.h"
 
-#define GLZ_AUTO 0
-#define GLZ_UNCOMPRESSED 1
-#define GLZ_COMPRESSED 2
-
-
-
-
 
 typedef struct
 	{
@@ -60,8 +53,8 @@ unsigned int glzLoadTexture(char filename[255], glzTexFilter filter);  // type i
 // saving
 
 
-void glzScreenShot(char filename[255],int x, int y, unsigned int type);  // auto saves a compressed file
-void glzScreenShotADV(char filename[255],int xoffset, int yoffset, int x, int y, int lossy, unsigned int type);
+void glzScreenShot(char filename[255], int x, int y, glzTexCompression type);  // auto saves a compressed file
+void glzScreenShotADV(char filename[255], int xoffset, int yoffset, int x, int y, int lossy, glzTexCompression type);
 
 
 /*

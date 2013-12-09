@@ -25,23 +25,23 @@
 
 // these settings define how the application starts up and behaves
 
-#define WINDOW_TITLE			L"ZeoBase GL Framework" // what name you want windows to call it, dont touch the weird L in front of it since it's unicode
-#define DISPLAY_ERRORS			false					// set to false if you want to suppress errors
-#define SHOW_FRAME				true					// i normally dont but usefull if you want to make a more normal app
-#define ALLOW_MAAXIMIZE			true					// adds minimize/maximize buttons again usefull for a normal app
-#define START_WINDOWED			true					// starts in windowed mode instead of fullscreen
-#define ALLOW_FULLSCREENSWITCH	false					// doesn't work that well when showing a frame, infact dont even bother and set SHOW_FRAME to false
-#define ALLOW_RESIZE			false					// allows you to resice the window by dragging the borders, but only if SHOW_FRAME is true
-#define START_CENTERED			true					// centers the window which looks good IMHO
-#define WINDOW_WIDTH			800
-#define WINDOW_HEIGHT			500
-#define FULLSCREEN_WIDTH		1920
-#define FULLSCREEN_HEIGHT		1080
-#define NATIVE_FULLSCREEN		true					// generally speaking this should be st to true, most often the current resolution is the higest anyway, overides the above settigns
-#define WINDOW_X				0
-#define WINDOW_Y				0
-#define FORCE_OPENGL_VERSION	false					// if you want to force openGL to a specific openGL version, generally set this to false for release, but for development it could be good to set it to true
-#define ENABLE_VSYNC			true					// makes everything run a bit smoother, but at a constant rate, makes it impossible to get the current framerate
+const wchar_t  WINDOW_TITLE[] = L"ZeoBase GL Framework";// what name you want windows to call it, dont touch the weird L in front of it since it's unicode
+const bool  DISPLAY_ERRORS = false;						// set to false if you want to suppress errors
+const bool  SHOW_FRAME = true;							// i normally dont but usefull if you want to make a more normal app
+const bool  ALLOW_MAAXIMIZE = true;						// adds minimize/maximize buttons again usefull for a normal app
+const bool  START_WINDOWED = true;						// starts in windowed mode instead of fullscreen
+const bool  ALLOW_FULLSCREENSWITCH = false;				// doesn't work that well when showing a frame, infact dont even bother and set SHOW_FRAME to false
+const bool  ALLOW_RESIZE = false;						// allows you to resice the window by dragging the borders, but only if SHOW_FRAME is true
+const bool  START_CENTERED = true;						// centers the window which looks good IMHO
+const unsigned int WINDOW_WIDTH	= 800;
+const unsigned int  WINDOW_HEIGHT =	500;
+const unsigned int  FULLSCREEN_WIDTH = 1920;
+const unsigned int  FULLSCREEN_HEIGHT = 1080;
+const bool  NATIVE_FULLSCREEN = true;					// generally speaking this should be st to true, most often the current resolution is the higest anyway, overides the above settigns
+const unsigned int  WINDOW_X = 0;
+const unsigned int  WINDOW_Y = 0;
+const bool  FORCE_OPENGL_VERSION = true;				// if you want to force openGL to a specific openGL version, generally set this to false for release, but for development it could be good to set it to true
+const bool ENABLE_VSYNC = true;							// makes everything run a bit smoother, but at a constant rate, makes it impossible to get the current framerate
 
 // Todo : change these to constants instead
 // Todo #2 : change these to be loaded from a file instead

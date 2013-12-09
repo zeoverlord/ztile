@@ -21,71 +21,26 @@
 
 #include "ztool-type.h"
 
-#define GLZ_NULL 0
-#define GLZ_INVERT 1
-
-#define GLZ_MIRROR_X 1
-#define GLZ_MIRROR_Y 2
-#define GLZ_REPEAT_X 4
-#define GLZ_REPEAT_Y 8
-#define GLZ_CLAMP_X 16
-#define GLZ_CLAMP_Y 32
+const unsigned int  GLZ_MIRROR_X = 1;
+const unsigned int  GLZ_MIRROR_Y = 2;
+const unsigned int  GLZ_REPEAT_X = 4;
+const unsigned int  GLZ_REPEAT_Y = 8;
+const unsigned int  GLZ_CLAMP_X = 16;
+const unsigned int  GLZ_CLAMP_Y = 32;
 
 
 // color channels
 
-#define GLZ_RED 0
-#define GLZ_GREEN 1
-#define GLZ_BLUE 2
-#define GLZ_ALPHA 3
 
-#define GLZ_HUE 4
-#define GLZ_HUE2 5
-#define GLZ_CROMA 6
-#define GLZ_CROMA2 7
-#define GLZ_VALUE 8
-#define GLZ_LIGHTNESS 9
-#define GLZ_INTENSITY 10
-#define GLZ_LUMA 11
-#define GLZ_SHSV 12
-#define GLZ_SHSL  13
-#define GLZ_SHSI 14
-
-
-#define GLZ_RGB 3
-#define GLZ_RGBA 4
-
-
-// color conversion
-
-
-#define GLZ_RGB_8 1
-#define GLZ_RGB_32F 2
-
-#define GLZ_RGBA_8 32
-#define GLZ_RGBA_32F 4
-
-#define GLZ_HSL_8 5
-#define GLZ_HSL_32F 6
-
-#define GLZ_HSV_8 7
-#define GLZ_HSV_32F 8
-
-#define GLZ_HSI_8 9
-#define GLZ_HSI_32F 10
-
-
-#define GLZ_HCY_8 11
-#define GLZ_HCY_32F 12
+const unsigned int GLZ_RGB = 3;
+const unsigned int GLZ_RGBA = 4;
 
 
 
-
-
-#define PI				3.1415926535897932384626433832795
-#define PI_OVER_180		0.017453292519943295769236907684886
-#define PI_OVER_360		0.0087266462599716478846184538424431
-#define PI_OVER_180_REVERSE		57.2957795131
+const double PI = 3.1415926535897932384626433832795;
+const double PI_OVER_180 = 0.017453292519943295769236907684886;
+const double PI_OVER_360 = 0.0087266462599716478846184538424431;
+const double PI_OVER_180_REVERSE = 57.2957795131;
 
 
 
@@ -119,10 +74,10 @@ void glzCrossproductd(double a[3], double b[3], double *r);
 
 // image functions
 
-unsigned int glz2dTo1dImageRemap(unsigned int x, unsigned int y, unsigned int col, unsigned int step, unsigned int width, unsigned int height, unsigned int type);
-float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step, int width, int height, unsigned int mirror, unsigned char *data, unsigned int type);
+unsigned int glz2dTo1dImageRemap(unsigned int x, unsigned int y, unsigned int col, unsigned int step, unsigned int width, unsigned int height, bool invert);
+float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step, int width, int height, unsigned int mirror, unsigned char *data, bool invert);
 
-float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned int outtype);
+float glzColorConvert(float a, float b, float c, glzColorType intype, glzColorChannels outtype);
 
 // specialty code
 

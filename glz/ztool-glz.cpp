@@ -169,16 +169,16 @@ void glzCrossproductd(double a[3], double b[3], double *r)
 // this will take xy coordinates and convert them into 1d coordinates suitable for adressing images
 // use GLZ_INVERT as the type if the image data is stored bottom first but the y coordinate is top first
 
-unsigned int glz2dTo1dImageRemap(unsigned int x, unsigned int y, unsigned int col, unsigned int step, unsigned int width, unsigned int height, unsigned int type)
+unsigned int glz2dTo1dImageRemap(unsigned int x, unsigned int y, unsigned int col, unsigned int step, unsigned int width, unsigned int height, bool invert)
 {
-	if (type & GLZ_INVERT) return (((((height-1)-y)*width)+x)*step)+col;
+	if (invert) return (((((height-1)-y)*width)+x)*step)+col;
 	else return ((((width*y)*width)+x)*step)+col;
 
 }
 
 // gets the inerpolated result of a 2d coordinate from a 1D array, it's more or less what openGL does
 // this uses the function above so the type has the same function
-float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step, int width, int height, unsigned int mirror, unsigned char *data, unsigned int type)
+float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step, int width, int height, unsigned int mirror, unsigned char *data, bool invert)
 {
 	int ix=(int)x,iy=(int)y,ix2=(int)x+1,iy2=(int)y+1,mx,my;
 	float xfract=x-(float)ix;
@@ -258,11 +258,11 @@ float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step
 	float r=0;
 
 
-	value[0]=(float)data[glz2dTo1dImageRemap(ix,iy,col,step,width,height,type)]*(1-xfract)/255;
-	value[0]+=(float)data[glz2dTo1dImageRemap(ix2,iy,col,step,width,height,type)]*(xfract)/255;
+	value[0] = (float)data[glz2dTo1dImageRemap(ix, iy, col, step, width, height, invert)] * (1 - xfract) / 255;
+	value[0] += (float)data[glz2dTo1dImageRemap(ix2, iy, col, step, width, height, invert)] * (xfract) / 255;
 	
-	value[1]=(float)data[glz2dTo1dImageRemap(ix,iy2,col,step,width,height,type)]*(1-xfract)/255;
-	value[1]+=(float)data[glz2dTo1dImageRemap(ix2,iy2,col,step,width,height,type)]*(xfract)/255;
+	value[1] = (float)data[glz2dTo1dImageRemap(ix, iy2, col, step, width, height, invert)] * (1 - xfract) / 255;
+	value[1] += (float)data[glz2dTo1dImageRemap(ix2, iy2, col, step, width, height, invert)] * (xfract) / 255;
 
 
 	r=(value[1]*yfract)+(value[0]*(1-yfract));
@@ -276,14 +276,14 @@ float glzImageReadBilinear(float x, float y, unsigned int col, unsigned int step
 // so far any thesting has worked out as it should
 // btw this is probably the only code in there i don't fully understand
 
-float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned int outtype)
+float glzColorConvert(float a, float b, float c, glzColorType intype, glzColorChannels outtype)
 {
 
 
 
-	if ((intype==GLZ_RGB_8) || (intype==GLZ_RGB_32F))
+	if ((intype == glzColorType::RGB_8) || (intype == glzColorType::RGB_32F))
 	{
-		if (intype==GLZ_RGB_8) {a/=255; b/=255; c/=255;}
+		if (intype == glzColorType::RGB_8) { a /= 255; b /= 255; c /= 255; }
 
 		char max='a',min='a';
 		float maxval=a,minval=a;
@@ -300,16 +300,16 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 
 		switch(outtype)
 		{
-		case GLZ_RED:
+		case glzColorChannels::RED:
 			return a;
 			break;
-		case GLZ_GREEN:
+		case glzColorChannels::GREEN:
 			return b;
 			break;
-		case GLZ_BLUE:
+		case glzColorChannels::BLUE:
 			return c;
 			break;
-		case GLZ_HUE:
+		case glzColorChannels::HUE:
 			if(max == min) return 0.0f;
 
 			switch(max)
@@ -326,7 +326,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 
 			break;
 
-		case GLZ_HUE2:
+		case glzColorChannels::HUE2:
 			if(max == min) return 0.0f;
 			h=(float)atan2(beta,alpha)*(float)PI_OVER_180_REVERSE;
 			if(h < 0)
@@ -334,43 +334,43 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 			return h/360.f;
 			break;
 
-		case GLZ_CROMA:
+		case glzColorChannels::CROMA:
 			return d;
 			break;
-		case GLZ_CROMA2:
+		case glzColorChannels::CROMA2:
 
 			return sqrt((alpha*alpha)+(beta*beta));
 			break;
 
-		case GLZ_VALUE:
+		case glzColorChannels::VALUE:
 			return maxval;
 			break;
 
-		case GLZ_LIGHTNESS:
+		case glzColorChannels::LIGHTNESS:
 			return l;
 			break;
 
-		case GLZ_INTENSITY:
+		case glzColorChannels::INTENSITY:
 			return i;
 			break;
 
-		case GLZ_LUMA:
+		case glzColorChannels::LUMA:
 			return y;
 			break;
 
-		case GLZ_SHSV:
+		case glzColorChannels::SHSV:
 			if(max == min) return 0.0f;
 			return d/maxval;
 			break;
 
-		case GLZ_SHSL:
+		case glzColorChannels::SHSL:
 			if(max == min) return 0.0f;			
 
 			if(l>0.5)	return d/(2-(2*l));
 			else		return d/(2*l);
 			break;
 
-		case GLZ_SHSI:
+		case glzColorChannels::SHSI:
 			if(max == min) return 0.0f;
 			return 1-(minval/i);
 			break;
@@ -389,9 +389,9 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 
 
 
-	if ((intype==GLZ_HSL_8) || (intype==GLZ_HSL_32F))
+	if ((intype == glzColorType::HSL_8) || (intype == glzColorType::HSL_32F))
 	{
-		if (intype==GLZ_HSL_8) {a/=255; b/=255; c/=255;}
+		if (intype == glzColorType::HSL_8) { a /= 255; b /= 255; c /= 255; }
 		
 		float  h2=a*6.0f,rgb=0.0f;
 		float d=0.0f,x=0.0f;		
@@ -408,7 +408,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 		switch(outtype)
 		{
 
-		case GLZ_RED:
+		case glzColorChannels::RED:
 		
 	
 			if (h2>=0) rgb=d;
@@ -424,7 +424,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 			return rgb+minval;
 			break;
 
-		case GLZ_GREEN:		
+		case glzColorChannels::GREEN:
 	
 			if (h2>=0) rgb=x;
 			if (h2>1) rgb=d;
@@ -439,7 +439,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 			return rgb+minval;
 			break;
 
-		case GLZ_BLUE:		
+		case glzColorChannels::BLUE:
 	
 			if (h2>=0) rgb=0;
 			if (h2>1) rgb=0;
@@ -463,9 +463,9 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 	}
 			
 		
-	if ((intype==GLZ_HSV_8) || (intype==GLZ_HSV_32F))
+	if ((intype == glzColorType::HSV_8) || (intype == glzColorType::HSV_32F))
 	{
-		if (intype==GLZ_HSV_8) {a/=255; b/=255; c/=255;}
+		if (intype == glzColorType::HSV_8) { a /= 255; b /= 255; c /= 255; }
 
 
 		float  h2=a*6.0f,rgb=0.0f;
@@ -477,7 +477,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 		switch(outtype)
 		{
 
-		case GLZ_RED:		
+		case glzColorChannels::RED:
 	
 			if (h2>=0) rgb=d;
 			if (h2>1) rgb=x;
@@ -492,7 +492,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 			return rgb+minval;
 			break;
 
-		case GLZ_GREEN:		
+		case glzColorChannels::GREEN:
 	
 			if (h2>=0) rgb=x;
 			if (h2>1) rgb=d;
@@ -507,7 +507,7 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 			return rgb+minval;
 			break;
 
-		case GLZ_BLUE:		
+		case glzColorChannels::BLUE:
 	
 			if (h2>=0) rgb=0;
 			if (h2>1) rgb=0;
@@ -531,9 +531,9 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 		
 	}
 	
-	if ((intype==GLZ_HCY_8) || (intype==GLZ_HCY_32F))
+	if ((intype == glzColorType::HCY_8) || (intype == glzColorType::HCY_32F))
 	{
-		if (intype==GLZ_HCY_8) {a/=255; b/=255; c/=255;}
+		if (intype == glzColorType::HCY_8) { a /= 255; b /= 255; c /= 255; }
 
 
 		
@@ -576,15 +576,15 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 		switch(outtype)
 		{
 
-		case GLZ_RED:
+		case glzColorChannels::RED:
 			return c_r+minval;
 			break;
 
-		case GLZ_GREEN:
+		case glzColorChannels::GREEN:
 			return c_g+minval;
 			break;
 
-		case GLZ_BLUE:
+		case glzColorChannels::BLUE:
 			return c_b+minval;
 			break;
 
@@ -597,9 +597,9 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 
 	}
 
-	if ((intype==GLZ_HSI_8) || (intype==GLZ_HSI_32F))
+	if ((intype == glzColorType::HSI_8) || (intype == glzColorType::HSI_32F))
 	{
-		if (intype==GLZ_HSI_8) {a/=255; b/=255; c/=255;}
+		if (intype == glzColorType::HSI_8) { a /= 255; b /= 255; c /= 255; }
 				
 		float  h2=a*360.0f,c_r=0.0f,c_g=0.0f,c_b=0.0f;
 
@@ -634,15 +634,15 @@ float glzColorConvert(float a, float b, float c, unsigned int intype, unsigned i
 		switch(outtype)
 		{
 
-		case GLZ_RED:
+		case glzColorChannels::RED:
 			return c_r;
 			break;
 
-		case GLZ_GREEN:
+		case glzColorChannels::GREEN:
 			return c_g;
 			break;
 
-		case GLZ_BLUE:
+		case glzColorChannels::BLUE:
 			return c_b;
 			break;
 

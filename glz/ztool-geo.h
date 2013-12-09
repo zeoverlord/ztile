@@ -23,53 +23,6 @@
 
 
 
-// primitives, note that not all of these are implemented
-#define GLZ_PRIMITIVE_CUBE 0x001
-#define GLZ_PRIMITIVE_SPHERE 0x002 // not implemented
-#define GLZ_PRIMITIVE_PYRAMID 0x003 
-#define GLZ_PRIMITIVE_TETRAHEDRON 0x004
-#define GLZ_PRIMITIVE_HEXAHEDRON 0x001
-#define GLZ_PRIMITIVE_OCTAHEDRON 0x005 
-#define GLZ_PRIMITIVE_DODECAHEDRON 0x006 
-#define GLZ_PRIMITIVE_ICOSAHEDRON 0x007 
-#define GLZ_PRIMITIVE_ICOSIDODECAHEDRON 0x008 
-#define GLZ_PRIMITIVE_TORUS 0x009 // not implemented
-// geodesics, as in they are subdivided, a resolution_x of 1 is equal to 1 subdivision, 
-// if 0 then they are the same as their originating objects
-#define GLZ_PRIMITIVE_GEODESIC_TETRA 0x101 // not implemented
-#define GLZ_PRIMITIVE_GEODESIC_HEXA 0x102 // not implemented
-#define GLZ_PRIMITIVE_GEODESIC_OCTA 0x103 // not implemented
-#define GLZ_PRIMITIVE_GEODESIC_DODECA 0x104 // not implemented
-#define GLZ_PRIMITIVE_GEODESIC_ICOSA 0x105 // not implemented
-// closed, other primitives
-#define GLZ_PRIMITIVE_DOME 0x201 // not implemented
-#define GLZ_PRIMITIVE_DISC 0x202 // not implemented
-#define GLZ_PRIMITIVE_STAR_DODECAHEDRON 0x203 // not implemented
-
-// various other structures
-#define GLZ_PRIMITIVE_FSQ 0x301
-#define GLZ_PRIMITIVE_RANDOM_POINT 0x302
-#define GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY 0x303
-
-// igt types
-
-#define GLZ_IGT_NONE 0
-#define GLZ_IGT_DISPLACE_ADD 1
-
-
-#define GLZ_TT_NONE 0
-#define GLZ_TT_VERTEX_COORD_ADOPT 1
-#define GLZ_TT_ATLASARRAY 2
-#define GLZ_TT_ATLAS_CUBE_TBS 3
-#define GLZ_TT_ATLAS_CUBE_INDFACE 4
-#define GLZ_TT_ATLAS_CUBE_CROSS 5
-
-
-
-
-
-
-
 typedef struct Point2Struct {
 	double x, y;
 } Point2;
@@ -81,7 +34,7 @@ typedef struct Point3Struct {
 
 typedef struct
 	{
-		unsigned int type;
+		glzIGTType type;
 		unsigned int width;
 		unsigned int height;
 		unsigned int bpp;
@@ -96,7 +49,7 @@ typedef struct
 
 typedef struct
 	{
-		unsigned int type;
+		glzTTType type;
 		float u_scale;
 		float v_scale;
 		float u_offset;
@@ -110,7 +63,7 @@ typedef struct
 
 typedef struct
 	{
-		unsigned int type;
+		glzPrimitive type;
 		float matrix[16];
 		texture_transform tt;
 		float variation_1;
@@ -130,9 +83,9 @@ typedef struct
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
 
-image_geo_transform glzMakeIGT(unsigned int type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
+image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
 	
-texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[]);
+texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float u_offset, float v_offset, unsigned int atlas_width, unsigned int atlas_height, glzAxis axis, unsigned int firstatlas, unsigned int atlas[]);
 	texture_transform glzMakeTTDefault();
 	texture_transform glzMakeTTAtlas(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	texture_transform glzMakeTTAtlasArray(unsigned int awidth, unsigned int aheight, unsigned int atlas[]);
@@ -141,11 +94,11 @@ texture_transform glzMakeTT(unsigned int type, float u_scale, float v_scale, flo
 	texture_transform glzMakeTTAtlasCubeCross(unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis axis);
 
-	primitive_gen glzMakePG(unsigned int type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z);
-	primitive_gen glzMakePGDefault(unsigned int type);
-	primitive_gen glzMakePGDefaultMatrix(unsigned int type, float matrix[16]);	
-	primitive_gen glzMakePGAtlas(unsigned int type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
-	primitive_gen glzMakePGAtlasMatrix(unsigned int type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
+	primitive_gen glzMakePG(glzPrimitive type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z);
+	primitive_gen glzMakePGDefault(glzPrimitive type);
+	primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, float matrix[16]);
+	primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
+	primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 
 	
 	long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao);
