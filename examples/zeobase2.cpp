@@ -33,8 +33,8 @@
 #pragma comment( lib, "opengl32.lib" )							// Search For OpenGL32.lib While Linking
 #pragma comment( lib, "glu32.lib" )								// Search For GLu32.lib While Linking
 
-#define MAX_LOADSTRING 100
-#define WM_TOGGLEFULLSCREEN (WM_USER+1)									// Application Define Message For Toggling
+const int MAX_LOADSTRING = 100;
+const int WM_TOGGLEFULLSCREEN = WM_USER + 1;									// Application Define Message For Toggling
 
 using namespace std;
 

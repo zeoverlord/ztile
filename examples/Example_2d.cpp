@@ -188,14 +188,14 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 	primitive_gen prim_fsq_pg[1];	
-	prim_fsq_pg[0]=glzMakePGDefault(GLZ_PRIMITIVE_FSQ);
+	prim_fsq_pg[0] = glzMakePGDefault(glzPrimitive::FSQ);
 	prim_fsq_pg[0].tt=glzMakeTTDefault();
 
 	vao_num[0]=glzVAOMakePrimitive(prim_fsq_pg[0], &vao[0]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 
 	
 	primitive_gen prim_sprite1_pg[1];	
-	prim_sprite1_pg[0]=glzMakePGDefault(GLZ_PRIMITIVE_SPRITE_ATLAS_ARRAY);
+	prim_sprite1_pg[0] = glzMakePGDefault(glzPrimitive::SPRITE_ATLAS_ARRAY);
 	prim_sprite1_pg[0].tt=glzMakeTTAtlas(8,4,0);
 	
 	vao_num[1]=glzVAOMakePrimitive(prim_sprite1_pg[0], &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
