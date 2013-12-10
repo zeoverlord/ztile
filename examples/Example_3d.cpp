@@ -157,7 +157,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzTranslatef(mh,-8.0,8.0,0.0);
 
-	text_tt=glzMakeTTAtlas(16,16,0);
+	text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
 // primitive screen
 	textvao_num[0]=glzVAOMakeText("Primitives", mt, 0.7f, text_tt, &textvao[0]);
@@ -219,7 +219,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glzLoadTga(&img,"data\\heightmap.tga", data);
 
 	
-	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z);
+	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z, glzOrigin::BOTTOM_LEFT);
 	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 	vao_num[9]=glzVAOMakeHeightAtlasGrid(16, 16, mh, height_tt, igt, &vao[9]);
 	

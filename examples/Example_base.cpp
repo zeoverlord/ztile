@@ -137,7 +137,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	primitive_gen prim_pg[2];
 
-	texture_transform text_tt=glzMakeTTAtlas(16,16,0);
+	texture_transform text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
 	prim_pg[0] = glzMakePGDefault(glzPrimitive::CUBE);
 	glzScalef(prim_pg[0].matrix,5.0f,5.0f,5.0f);
@@ -147,12 +147,12 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glzScalef(prim_pg[1].matrix,7.0f,7.0f,7.0f);
 
 	
-	prim_pg[0].tt=glzMakeTTAtlasCubeCross(4,4,0);
-	prim_pg[1].tt=glzMakeTTAtlas(4,4,5);
+	prim_pg[0].tt = glzMakeTTAtlasCubeCross(4, 4, 0, glzOrigin::BOTTOM_LEFT);
+	prim_pg[1].tt = glzMakeTTAtlas(4, 4, 5, glzOrigin::BOTTOM_LEFT);
 
 	texture_transform obj_tt=glzMakeTTDefault();
-	texture_transform grid_tt=glzMakeTTAtlasArray(2,2,ad);
-	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z);
+	texture_transform grid_tt = glzMakeTTAtlasArray(2, 2, ad, glzOrigin::BOTTOM_LEFT);
+	texture_transform height_tt = glzMakeTTVertexCoordAdopt(1.0f, 1.0f, glzAxis::Z, glzOrigin::BOTTOM_LEFT);
 
 	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 

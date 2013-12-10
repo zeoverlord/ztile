@@ -31,7 +31,7 @@ typedef struct
 	unsigned int m_id;
 	unsigned int m_type;
 	long imageSize;
-	glzOrigin orientation;
+	glzOrigin origin;
 	} img_head;
 
 

@@ -632,7 +632,7 @@ long glzPrimText(char *text, float w, float *v, float *t, float *n, glzOrigin or
 }
 
 
-long glzPrimGrid(texture_transform tt, unsigned int x,unsigned int y, float *v,float *t,float *n)
+long glzPrimGrid(texture_transform tt, unsigned int x, unsigned int y, glzOrigin origin, float *v, float *t, float *n)
 {
 	float quv[8];
 	unsigned int xi=0,yi=0,it=0,iv=0,c=0,discard=0;
@@ -654,7 +654,7 @@ long glzPrimGrid(texture_transform tt, unsigned int x,unsigned int y, float *v,f
 		{
 
 			if (tt.type == glzTTType::ATLASARRAY) {
-				glzAtlasQuad(tt.atlas_width,tt.atlas_height,tt.atlas[(yi*y)+xi],glzOrigin::BOTTOM_RIGHT, quv);
+				glzAtlasQuad(tt.atlas_width, tt.atlas_height, tt.atlas[(yi*y) + xi], origin, quv);
 			}
 			else { glzAtlasQuad(1, 1, 0, glzOrigin::BOTTOM_RIGHT, quv); }
 		
@@ -1437,7 +1437,7 @@ long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture
 	image_geo_transform igt;  // basically a dummy igt
 	igt = glzMakeIGT(glzIGTType::NONE, 0, 0, 0, 0, 0, 0, 0, 0, glzAxis::X, data);
 		
-	long verts=glzVAOMakeHeightAtlasGrid(x,y,matrix,tt,igt,vao);
+	long verts = glzVAOMakeHeightAtlasGrid(x, y, matrix, tt, igt, vao);
 
 	delete data;
 
@@ -1460,7 +1460,7 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 	t = new float[verts*2];
 	n = new float[verts*3];
 
-	glzPrimGrid(tt,x,y,v,t,n);
+	glzPrimGrid(tt, x, y, tt.origin, v, t, n);
 
 	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(v, igt, verts);
 

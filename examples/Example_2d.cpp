@@ -150,10 +150,10 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzTranslatef(mh,-8.0,8.0,0.0);
 
-	// if orientation is messed up on the tga then do this
+	// if orientation is messed up on the tga then do this, but generally tga files have their origin set to glzOrigin::BOTTOM_LEFT
 	img_head img;
 	glzReadTgaHead(&img, "data\\fonts\\arial.tga");
-	text_tt=glzMakeTTAtlas(16,16,0,img.orientation);
+	text_tt = glzMakeTTAtlas(16, 16, 0, img.origin);
 
 
 

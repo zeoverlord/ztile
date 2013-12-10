@@ -148,7 +148,7 @@ void glzReadTgaHead(img_head *img,char filename[255])
 	img->m_id=0;
 	img->m_type=0;
 	img->imageSize=0;
-	img->orientation = glzOrigin::BOTTOM_LEFT;
+	img->origin = glzOrigin::BOTTOM_LEFT;
 
 
 
@@ -181,9 +181,9 @@ void glzReadTgaHead(img_head *img,char filename[255])
 	img->m_height = header[15] * 256 + header[14];
 	img->m_bpp = header[16] / 8;
 
-	if (header[17] & 16) img->orientation = glzOrigin::BOTTOM_RIGHT;
-	if (header[17] & 32) img->orientation = glzOrigin::TOP_LEFT;
-	if ((header[17] & 16) && (header[17] & 32)) img->orientation = glzOrigin::TOP_RIGHT;
+	if (header[17] & 16) img->origin = glzOrigin::BOTTOM_RIGHT;
+	if (header[17] & 32) img->origin = glzOrigin::TOP_LEFT;
+	if ((header[17] & 16) && (header[17] & 32)) img->origin = glzOrigin::TOP_RIGHT;
 
 	if (img->m_bpp != 3 && img->m_bpp != 4) 
 	{
