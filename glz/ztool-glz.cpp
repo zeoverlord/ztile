@@ -737,7 +737,7 @@ void glzCubicCurve(float pos, float l, float p1[3], float v1[3], float p2[3], fl
 
 
 
-void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, float *uvOut)
+void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin, float *uvOut)
 {
 	// generates 4 float[2] coordinates that corresponds to the sub image of an images atlas
 
@@ -759,6 +759,8 @@ void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, floa
 	}
 
 	y=yres-y;
+
+	// bottom left
 	// (0,0)
 	uvOut[0]=(x*xwidth);
 	uvOut[1]=(y*ywidth)-ywidth;
@@ -775,9 +777,29 @@ void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, floa
 	uvOut[6]=(x*xwidth)+xwidth;
 	uvOut[7]=(y*ywidth)-ywidth;
 
+	if ((origin == glzOrigin::BOTTOM_RIGHT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a x-flip
+		uvOut[0] = 1.0f - uvOut[0];
+		uvOut[2] = 1.0f - uvOut[2];
+		uvOut[4] = 1.0f - uvOut[4];
+		uvOut[6] = 1.0f - uvOut[6];
+		
+	}
+
+	if ((origin == glzOrigin::TOP_LEFT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a y-flip
+		uvOut[1] = 1.0f - uvOut[1];
+		uvOut[3] = 1.0f - uvOut[3];
+		uvOut[5] = 1.0f - uvOut[5];
+		uvOut[7] = 1.0f - uvOut[7];
+
+	}
+
 }
 
-void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, float *uvout)
+void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout)
 {
 
 	// same as above but instead of a direct reference we use a time variable instead, useful for animation but is not used in the basecode due to the static nature of vertex buffers
@@ -824,15 +846,36 @@ void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, float *uv
 	uvout[6]=(x*xwidth)+xwidth;
 	uvout[7]=(y*ywidth);
 
+
+	if ((origin == glzOrigin::BOTTOM_RIGHT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a x-flip
+		uvout[0] = 1.0f - uvout[0];
+		uvout[2] = 1.0f - uvout[2];
+		uvout[4] = 1.0f - uvout[4];
+		uvout[6] = 1.0f - uvout[6];
+
+	}
+
+	if ((origin == glzOrigin::TOP_LEFT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a y-flip
+		uvout[1] = 1.0f - uvout[1];
+		uvout[3] = 1.0f - uvout[3];
+		uvout[5] = 1.0f - uvout[5];
+		uvout[7] = 1.0f - uvout[7];
+
+	}
+
 }
 
 
-void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, float *uv)
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv)
 {
 	// i use this to make normally mapped objects into atlas mapped objects
 	float quv[8];
 
-	glzAtlasQuad(aw,ah,atlas, quv);
+	glzAtlasQuad(aw,ah,atlas,origin, quv);
 
 	unsigned int i=0;
 
@@ -847,7 +890,7 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw,
 
 }
 
-void glzAtlasUVarrayRemapRotate(unsigned int r,unsigned int atlas, unsigned int num, unsigned int aw,unsigned int ah, float *uv)
+void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv)
 {
 	// same as above except i now also rotate the original uv coordinates
 
@@ -892,7 +935,7 @@ void glzAtlasUVarrayRemapRotate(unsigned int r,unsigned int atlas, unsigned int 
 
 	float quv[8];
 
-	glzAtlasQuad(aw,ah,atlas, quv);
+	glzAtlasQuad(aw,ah,atlas,origin, quv);
 
 	i=0;
 

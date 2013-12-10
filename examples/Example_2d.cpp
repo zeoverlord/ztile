@@ -150,7 +150,12 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzTranslatef(mh,-8.0,8.0,0.0);
 
-	text_tt=glzMakeTTAtlas(16,16,0);
+	// if orientation is messed up on the tga then do this
+	img_head img;
+	glzReadTgaHead(&img, "data\\fonts\\arial.tga");
+	text_tt=glzMakeTTAtlas(16,16,0,img.orientation);
+
+
 
 // text screen
 	textvao_num[0]=glzVAOMakeText("Normal text", mt, 0.7f, text_tt, &textvao[0]);
@@ -196,12 +201,12 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	
 	primitive_gen prim_sprite1_pg[1];	
 	prim_sprite1_pg[0] = glzMakePGDefault(glzPrimitive::SPRITE_ATLAS_ARRAY);
-	prim_sprite1_pg[0].tt=glzMakeTTAtlas(8,4,0);
+	prim_sprite1_pg[0].tt = glzMakeTTAtlas(8, 4, 0, glzOrigin::BOTTOM_LEFT);
 	
 	vao_num[1]=glzVAOMakePrimitive(prim_sprite1_pg[0], &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 
 
-	texture_transform grid_tt=glzMakeTTAtlasArray(4,4,ad);
+	texture_transform grid_tt = glzMakeTTAtlasArray(4, 4, ad, glzOrigin::BOTTOM_LEFT);
 	vao_num[2]=glzVAOMakeAtlasGrid(8, 8, mg, grid_tt, &vao[2]);
 
 

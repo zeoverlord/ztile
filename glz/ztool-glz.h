@@ -84,10 +84,10 @@ float glzColorConvert(float a, float b, float c, glzColorType intype, glzColorCh
 float glzRemapToRange(float curmin,float cur,float curmax, float rmin, float rmax);
 void glzRemapToRangeArray(float curmin,float curmax, float rmin, float rmax, float *curdata, unsigned int num);
 void glzCubicCurve(float pos, float l, float p1[3], float v1[3], float p2[3], float v2[3], float *ret);
-void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, float *uvOut);
-void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, float *uvout);
-void glzAtlasUVarrayRemap(unsigned int atlas,unsigned int num,unsigned int aw,unsigned int ah, float *uv);
-void glzAtlasUVarrayRemapRotate(unsigned int r,unsigned int atlas, unsigned int num,unsigned int aw,unsigned int ah, float *uv);
+void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin, float *uvOut);
+void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout);
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
+void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
 
 
 // matrix stuff
