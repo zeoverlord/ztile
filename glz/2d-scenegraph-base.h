@@ -20,8 +20,7 @@
 // https://github.com/zeoverlord/glz.git
 
 
-
-class 2dObject {
+class Object2D {
 	// position, orientation, speed and such
 	float x_pos, y_pos, z_pos;
 	float x_speed, yspeed;
