@@ -19,6 +19,9 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
+
+using namespace std;
+
 #include "ztool-type.h"
 
 
@@ -118,7 +121,7 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
 	void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
 	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
-
+	void glzDirectPointArrayRender(float v[], float t[], int E);
 
 	void glzKillVAO(unsigned int vao, glzVAOType type);
 	void glzKillAllVAO(void);

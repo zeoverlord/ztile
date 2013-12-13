@@ -97,6 +97,7 @@
     <ClCompile Include="..\..\glz\ztool-glz.cpp" />
     <ClCompile Include="..\..\glz\ztool-shader.cpp" />
     <ClCompile Include="..\..\glz\ztool-tex.cpp" />
+    <ClCompile Include="..\..\glz\ztool_type.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\glz\2d-scenegraph-base.h" />

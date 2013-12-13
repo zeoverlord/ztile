@@ -20,6 +20,51 @@
 // https://github.com/zeoverlord/glz.git
 
 
+// overall
+	//rendering
+	//messaging
+	//ticks
+
+
+
+// data
+	//position  -  should this be in it's own struct?
+	//orientation
+	//speed
+
+	//type -which type of object is this
+
+
+	// colision data
+		//xy offset
+		//shape
+		//size
+
+	//render data
+		//origin
+		//atlas or uv data
+		//Texture reference?
+
+	//health
+	//armorvalue - essencially a health loss multiplier
+
+	// internal additional data - float[16]
+
+
+	// message- vector<message> - needs type, data and so on
+
+
+// actions
+	//run
+	//render
+
+#include "ztool-type.h"
+
+#ifndef __2dscenegraphbase__
+#define __2dscenegraphbase__
+
+
+
 class Object2D {
 	// position, orientation, speed and such
 	float x_pos, y_pos, z_pos;
@@ -30,3 +75,6 @@ class Object2D {
 public:
 
 };
+
+
+#endif /* __2dscenegraphbase__ */

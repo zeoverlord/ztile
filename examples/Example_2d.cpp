@@ -59,11 +59,16 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=5;
+int gamestate=6;
 
 
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
 texture_transform text_tt;
+
+//glzSimple2DParticleSystem ps;
+
+
+glzSimple2DParticleSystem *ps = new glzSimple2DParticleSystem;
 
 static PFNGLUSEPROGRAMPROC						glUseProgram;
 static PFNGLUNIFORM1IPROC                       glUniform1i;
@@ -77,6 +82,7 @@ static PFNGLGETUNIFORMLOCATIONPROC              glGetUniformLocation;
 #define COL_RED		2
 #define COL_GREEN	3
 #define COL_BLUE	4
+
 
 
 BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User Initialiazation Goes Here
@@ -218,7 +224,6 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glzShaderLink(ProgramObject);
 	glzShaderLink(ProgramObjectFT);
 	glzShaderLink(ProgramObjectFSQ);
-
 	// load the textures
 	fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
 	fonttexture[1] = glzLoadTexture("data\\fonts\\minya_m.tga", glzTexFilter::LINEAR);
@@ -230,6 +235,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
 	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
 	texture[3] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
+
+	
 
 
 	return TRUE;												// Return TRUE (Initialization Successful)
@@ -291,12 +298,25 @@ if (gamestate==3)
 		spriteframe=spriteframe%32;
 	}
 
+if (gamestate == 6)
+{
+
+	if (g_keys->keyDown[VK_SPACE] == TRUE)
+	{
+	
+		ps->spawn_burst(100, 0.0f, 0.0f, 0.0f, 2.0f, 10.0f, 5.0f, 3.0f, 0.3f, glzRandf());
+}
+ps->run(seconds);
+
+}
+	
 
 	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
 	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
 	if (g_keys->keyDown['3'] == TRUE) gamestate = 3;
 	if (g_keys->keyDown['4'] == TRUE) gamestate = 4;
 	if (g_keys->keyDown['5'] == TRUE) gamestate = 5;
+	if (g_keys->keyDown['6'] == TRUE) gamestate = 6;
 
 }
 
@@ -511,6 +531,29 @@ void Draw (void)
 		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
 
 		
+		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
+		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
+
+	}
+
+	if (gamestate == 6)
+	{
+
+		glzLoadIdentity(m);
+		glzOrtho(m, -400, 400, -250, 250, -100, 100);
+
+
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
+
+
+		glPointSize(3.0f);
+		ps->render_out();
+
+
+
+
 		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
 		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
 

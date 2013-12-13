@@ -19,6 +19,11 @@
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
 
+#include <vector>
+
+using namespace std;
+
+
 #ifndef __glztype__
 #define __glztype__
 
@@ -47,8 +52,97 @@ enum class glzIGTType { NONE, DISPLACE_ADD };
 
 enum class glzTTType { NONE, VERTEX_COORD_ADOPT, ATLASARRAY, ATLAS_CUBE_TBS, ATLAS_CUBE_INDFACE, ATLAS_CUBE_CROSS };
 
+enum class glzSceneGraphType { 
+	NONE,			// shouldn't really exist
+	DELETABLE,		// to be deleted before next round
+	DECORATION,		// contains no interaction only rendering
+	STATIC,			// does not move but may hurt player and/or recive damage
+	PLAYER,			// remote controlled by the user
+	ENTETY,			// has movement but no AI
+	STATIC_ENEMY,	// has AI but no movement
+	ENEMY			// freemoving enemy with AI
+};
+
+enum class glzSceneGraphSubType {
+	NONE
+
+};
+
+enum class glzSceneGraphSubMessage {
+	NONE, MOVE, PLAYER_MOVE, DAMAGE
+
+};
+
+typedef struct{
+	float x_pos, y_pos;
+	float x_vec, y_vec;  // motion vector in units per second
+	float u, v;
+	float age;  // how old this particle is, affects the u texture coordinate
+	float maxage; //when to die
+	float drag; // how much it's effected by drag
+	float gravity;
+}glzSimple2DParticle;
+
+class glzSimple2DParticleSystem{
+private: 
+	
+	float gx, gy;
+	float drag;
+	float noise;
+	float scale;
+	vector<glzSimple2DParticle> p;
+
+public:
+	glzSimple2DParticleSystem();
+	void set_environment(float gx_in, float gy_in, float drag_in, float noise_in, float scale_in);
+	void spawn_burst(unsigned int num, float x_in, float y_in, float v_in, float mag, float maxage_in, float agediff, float drag_in, float dragdiff, float gravity);
+	bool run(float t);
+	void render_out();
+};
+
+// todo, add particle spawn limitation
+// move environmental variables to the particles themselves
 
 
+
+// units - well at least it's a beginning, will continue at a later date, probably will be rewritten once visual studio gets user defined literals
+
+
+class glzsecond;
+class glzlength;
+class glzspeed;
+
+
+class glzsecond{ //time in secconds
+	double S;
+
+public:
+	glzsecond(double sec) : S(sec) {}
+	double get() { return S; }
+	double glzsecond::operator= (glzsecond b) { return b.get(); }
+};
+
+class glzlength{ // length in meters
+	double L;
+
+public:
+	glzlength(double meter) : L(meter) {}
+	double get() { return L; }
+	double glzlength::operator= (glzlength b) { return b.get(); }
+
+	glzspeed glzlength::operator/ (glzsecond b);
+};
+
+class glzspeed{ // speed in meters per second
+	double S;
+
+public:
+	glzspeed(double mps) : S(mps) {}
+	double get() { return S; }
+	double glzspeed::operator= (glzspeed b) { return b.get(); }
+
+	
+};
 
 
 #endif /* __glztype__ */

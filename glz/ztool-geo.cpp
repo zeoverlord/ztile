@@ -1857,6 +1857,22 @@ void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, 
 }
 
 
+void glzDirectPointArrayRender(float v[], float t[], int E)
+{
+
+	unsigned int localVAO;
+
+
+	float n[] = {0.0f, 0.0f, 1.0f};
+		glzVAOMakeFromArray(v, t, n, E, &localVAO, glzVAOType::VERTEX_TEXTURE);
+
+
+	glzDrawVAO(0, E, localVAO, GL_POINTS);
+	glzKillVAO(localVAO, glzVAOType::VERTEX_TEXTURE);
+
+	return;
+}
+
 
 
 
