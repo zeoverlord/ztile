@@ -81,27 +81,27 @@ typedef struct{
 	float maxage; //when to die
 	float drag; // how much it's effected by drag
 	float gravity;
+	float noise;
 }glzSimple2DParticle;
 
 class glzSimple2DParticleSystem{
 private: 
 	
-	float gx, gy;
-	float drag;
-	float noise;
+	float gx, gy;	
 	float scale;
+	bool running;
+	unsigned int pc;
 	vector<glzSimple2DParticle> p;
 
 public:
 	glzSimple2DParticleSystem();
-	void set_environment(float gx_in, float gy_in, float drag_in, float noise_in, float scale_in);
-	void spawn_burst(unsigned int num, float x_in, float y_in, float v_in, float mag, float maxage_in, float agediff, float drag_in, float dragdiff, float gravity);
+	void set_environment(float gx_in, float gy_in, float scale_in);
+	void spawn_burst(unsigned int num, float x_in, float y_in, float v_in, float mag, float maxage_in, float agediff, float drag_in, float dragdiff, float gravity, float noise_in);
 	bool run(float t);
 	void render_out();
 };
 
-// todo, add particle spawn limitation
-// move environmental variables to the particles themselves
+// todo, move to own cpp file
 
 
 

@@ -190,10 +190,14 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 0.7f, text_tt, &textvao[12]);
 
+	// sprite screen
+
+	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 0.7f, text_tt, &textvao[13]);
+
 
 
 // all screens
-	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5", mt3, 0.7f, text_tt, &textvao[15]);
+	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 0.7f, text_tt, &textvao[15]);
 
 
 
@@ -304,7 +308,7 @@ if (gamestate == 6)
 	if (g_keys->keyDown[VK_SPACE] == TRUE)
 	{
 	
-		ps->spawn_burst(100, 0.0f, 0.0f, 0.0f, 2.0f, 10.0f, 5.0f, 3.0f, 0.3f, glzRandf());
+		ps->spawn_burst(100, 0.0f, 0.0f, 0.1f, 2.0f, 10.0f, 5.0f, 3.0f, 0.3f, glzRandf(),5.0f);
 }
 ps->run(seconds);
 
@@ -545,7 +549,7 @@ void Draw (void)
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
 
-		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
 
 
 		glPointSize(3.0f);
@@ -554,7 +558,7 @@ void Draw (void)
 
 
 
-		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
+		draw_text(-3.9f, 1.9f, 13, 2, ProgramObject, COL_WHITE);
 		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
 
 	}

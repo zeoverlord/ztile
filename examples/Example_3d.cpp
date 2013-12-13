@@ -63,7 +63,7 @@ float q[4] ={1,0,0,0};
 float q2[4] ={1,0,0,0};
 float q3[4] ={1,0,0,0};
 
-int gamestate=1;
+int gamestate=4;
 
 img_head img;
 unsigned char *data;
@@ -294,10 +294,17 @@ if (gamestate==3)
 		glzRotateQuaternionf(q3,seconds*50,0.0f,1.0f,0.0f);	
 	}
 
+if (gamestate == 4)
+{
 
-	if (g_keys->keyDown ['1'] == TRUE) gamestate=1;
-	if (g_keys->keyDown ['2'] == TRUE) gamestate=2;
-	if (g_keys->keyDown ['3'] == TRUE) gamestate=3;
+	glzRotateQuaternionf(q3, seconds * 50, 0.0f, 1.0f, 0.0f);
+}
+
+
+	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
+	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
+	if (g_keys->keyDown['3'] == TRUE) gamestate = 3;
+	if (g_keys->keyDown['4'] == TRUE) gamestate = 4;
 
 }
 
@@ -426,6 +433,26 @@ void Draw (void)
 		draw_text(-3.9f, 1.9f,2,0,ProgramObject,COL_WHITE);
 		draw_text(1.7f, -1.8f,15,0,ProgramObject,COL_WHITE);
 	}
+
+	if (gamestate == 4)
+	{
+		texture_transform box_tt = glzMakeTTDefault();
+		// draw direct box
+		glzLoadIdentity(m);
+		glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
+		glzTranslatef(m, 0, -1, -7);
+		glzQuaternionToMatrixf(m, q3);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+
+		glBindTexture(GL_TEXTURE_2D, texture[4]);
+
+		glzDirectCubeRender(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, box_tt, 1);
+		//glzDrawVAO(vao_num[9], vao[9], GL_TRIANGLES);
+
+		draw_text(-3.9f, 1.9f, 2, 0, ProgramObject, COL_WHITE);
+		draw_text(1.7f, -1.8f, 15, 0, ProgramObject, COL_WHITE);
+	}
+
 
 	
 

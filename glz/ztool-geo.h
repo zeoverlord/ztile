@@ -123,6 +123,8 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
 	void glzDirectPointArrayRender(float v[], float t[], int E);
 
+	void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, texture_transform tt, unsigned int atlas); // does exactly you think it does
+
 	void glzKillVAO(unsigned int vao, glzVAOType type);
 	void glzKillAllVAO(void);
 

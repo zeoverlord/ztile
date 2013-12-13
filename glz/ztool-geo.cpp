@@ -1874,6 +1874,32 @@ void glzDirectPointArrayRender(float v[], float t[], int E)
 }
 
 
+void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, texture_transform tt, unsigned int atlas)
+{
+
+	unsigned int localVAO;
+
+	float v[36 * 3], t[36 * 2], n[36 * 3];
+
+	float m[16];
+	glzLoadIdentity(m);
+	glzScalef(m, W,H,D);
+
+	glzPrimCubeverts(v, t, n);
+
+	glzAtlasUVarrayRemap(atlas, 36, tt.atlas_width, tt.atlas_height, tt.origin, t);
+	glzProjectVertexArray(v, m, 36);
+
+	glzVAOMakeFromArray(v, t, n, 36, &localVAO, glzVAOType::AUTO);
+	
+	
+	glzDrawVAO(0, 36, localVAO, GL_TRIANGLES);
+	glzKillVAO(localVAO, glzVAOType::AUTO);
+
+
+	return;
+}
+
 
 
 
