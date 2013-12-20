@@ -63,6 +63,153 @@ static int active_vao[1024];
 // but if you like to make your own primitive there are two easy ways, either copy the arrays in primitives.h or set something up like the below function glzPrimCubeverts
 
 
+
+long glzPrimCubeverts(float *v, float *t, float *n)
+{
+	float vt[] =
+	{
+		-0.5f, 0.5f, -0.5f, //top
+		-0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+
+		-0.5f, -0.5f, -0.5f, // bottom
+		0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, 0.5f,
+
+		-0.5f, -0.5f, 0.5f, // front
+		0.5f, -0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, -0.5f, 0.5f,
+		0.5f, 0.5f, 0.5f,
+
+		0.5f, -0.5f, -0.5f, // right
+		0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+		0.5f, -0.5f, 0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, 0.5f,
+
+		-0.5f, -0.5f, -0.5f, // back
+		-0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+
+		-0.5f, -0.5f, -0.5f, // left
+		-0.5f, -0.5f, 0.5f,
+		-0.5f, 0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, 0.5f, 0.5f
+	};
+
+
+	float tt[] =
+	{
+		0.0f, 1.0f, //top
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		1.0f, 0.0f,
+
+		1.0f, 1.0f, // bottom
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+
+		0.0f, 0.0f, // front
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f,
+
+		1.0f, 0.0f, // right
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+
+		1.0f, 0.0f, // back
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+
+		0.0f, 0.0f, // left
+		1.0f, 0.0f,
+		1.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f
+	};
+
+	float nt[] =
+	{
+		0.0f, 1.0f, 0.0f, //top
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+
+		0.0f, -1.0f, 0.0f, // bottom
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+
+		0.0f, 0.0f, 1.0f, // front
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+
+		1.0f, 0.0f, 0.0f, // right
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+
+		0.0f, 0.0f, -1.0f, // back
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+		0.0f, 0.0f, -1.0f,
+
+		-1.0f, 0.0f, 0.0f, // left
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f,
+		-1.0f, 0.0f, 0.0f
+	};
+
+	memcpy(v, vt, 36 * 3 * 4);
+	memcpy(t, tt, 36 * 2 * 4);
+	memcpy(n, nt, 36 * 3 * 4);
+
+	return 36;
+}
+
+
 long glzCountFromIndexArrays(long vert_face[],int enteries)
 {
 
@@ -491,8 +638,7 @@ void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, t
 	glzScalef(m, W,H,D);
 
 
-	//fix this
-	//glzPrimCubeverts(v, t, n);
+	glzPrimCubeverts(v, t, n);
 
 	glzAtlasUVarrayRemap(atlas, 36, tt.atlas_width, tt.atlas_height, tt.origin, t);
 	glzProjectVertexArray(v, m, 36);

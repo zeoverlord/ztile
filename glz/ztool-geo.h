@@ -34,6 +34,7 @@ using namespace std;
 		//every function that creates a VAO returns the amount of Vertics to output
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
+long glzPrimCubeverts(float *v, float *t, float *n);
 
 
 image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
