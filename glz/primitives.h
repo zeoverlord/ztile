@@ -26,6 +26,16 @@
 // then i load that obj file into a program called crossroads 3D which is so old that the kid in the baby picture that shows up on load is old enough to drive a car
 // but that program is the only one i could find that exports into readable c++ code, i might have to write one myself pretty soon though that cuts out all but the first step
 
+
+using namespace std;
+
+#include "ztool-type.h"
+
+#ifndef __glzprimitive__
+#define __glzprimitive__
+
+
+
 Point3 cube_vertex[] = {
 	{ -0.500000, -0.500000,  0.500000}, {  0.500000, -0.500000,  0.500000}, {  0.500000,  0.500000,  0.500000},
 	{ -0.500000,  0.500000,  0.500000}, {  0.500000,  0.500000, -0.500000}, { -0.500000,  0.500000, -0.500000},
@@ -597,3 +607,5 @@ long pyramid_uvface[] = {
 	8,9,10,-1
 };
 
+
+#endif /* __glzprimitive__ */

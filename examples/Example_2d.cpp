@@ -32,6 +32,8 @@
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
 #include "..\glz\ztool-tex.h"
+#include "..\glz\ztool-geo-2d.h"
+#include "..\glz\ztool-geo-generate.h"
 
 using namespace std;										
 
@@ -65,10 +67,9 @@ int gamestate=6;
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
 texture_transform text_tt;
 
-//glzSimple2DParticleSystem ps;
 
 
-glzSimple2DParticleSystem *ps = new glzSimple2DParticleSystem;
+glzSimpleParticleSystem ps;
 
 static PFNGLUSEPROGRAMPROC						glUseProgram;
 static PFNGLUNIFORM1IPROC                       glUniform1i;
@@ -304,13 +305,16 @@ if (gamestate==3)
 
 if (gamestate == 6)
 {
+	ps.set_clamp(false, false, false);
+
 
 	if (g_keys->keyDown[VK_SPACE] == TRUE)
 	{
 	
-		ps->spawn_burst(100, 0.0f, 0.0f, 0.1f, 2.0f, 10.0f, 5.0f, 3.0f, 0.3f, glzRandf(),5.0f);
+		ps.spawn_burst(100, 0.0f, 0.0f, 0.0f, 0.1f, 2.0f, 3.0f, 0.5f, 3.0f, 0.3f, 1.0, 2.0f);
+		
 }
-ps->run(seconds);
+ps.run(seconds);
 
 }
 	
@@ -553,7 +557,7 @@ void Draw (void)
 
 
 		glPointSize(3.0f);
-		ps->render_out();
+		ps.render_out();
 
 
 

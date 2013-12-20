@@ -74,29 +74,33 @@ enum class glzSceneGraphSubMessage {
 };
 
 typedef struct{
-	float x_pos, y_pos;
-	float x_vec, y_vec;  // motion vector in units per second
+	float x_pos, y_pos, z_pos;
+	float x_vec, y_vec, z_vec;  // motion vector in units per second
 	float u, v;
 	float age;  // how old this particle is, affects the u texture coordinate
 	float maxage; //when to die
 	float drag; // how much it's effected by drag
 	float gravity;
 	float noise;
-}glzSimple2DParticle;
+	bool active;
+}glzSimpleParticle;
 
-class glzSimple2DParticleSystem{
+class glzSimpleParticleSystem{
 private: 
 	
-	float gx, gy;	
+	float gx, gy, gz;
 	float scale;
 	bool running;
 	unsigned int pc;
-	vector<glzSimple2DParticle> p;
+	bool clampx, clampy, clampz;
+	vector<glzSimpleParticle> p;
 
 public:
-	glzSimple2DParticleSystem();
-	void set_environment(float gx_in, float gy_in, float scale_in);
-	void spawn_burst(unsigned int num, float x_in, float y_in, float v_in, float mag, float maxage_in, float agediff, float drag_in, float dragdiff, float gravity, float noise_in);
+	glzSimpleParticleSystem();
+	void set_environment(float gx_in, float gy_in, float gz_in, float scale_in);
+	void set_clamp(bool clampx_in, bool clampy_in, bool clampz_in);
+
+	void spawn_burst(unsigned int num, float x_in, float y_in, float z_in, float v_in, float mag, float maxage_in, float agediff, float drag_in, float dragdiff, float gravity, float noise_in);
 	bool run(float t);
 	void render_out();
 };
@@ -143,6 +147,62 @@ public:
 
 	
 };
+
+
+
+typedef struct Point2Struct {
+	double x, y;
+} Point2;
+
+typedef struct Point3Struct {
+	double x, y, z;
+} Point3;
+
+
+
+typedef struct
+{
+	glzIGTType type;
+	unsigned int width;
+	unsigned int height;
+	unsigned int bpp;
+	float x_offset;
+	float y_offset;
+	float z_offset;
+	float scale;
+	float tscale;
+	glzAxis axis;
+	unsigned char *data;
+} image_geo_transform;
+
+typedef struct
+{
+	glzTTType type;
+	float u_scale;
+	float v_scale;
+	float u_offset;
+	float v_offset;
+	unsigned int atlas_width;
+	unsigned int atlas_height;
+	glzAxis axis;
+	unsigned int firstatlas;
+	unsigned int *atlas;
+	glzOrigin origin;
+} texture_transform;
+
+typedef struct
+{
+	glzPrimitive type;
+	float matrix[16];
+	texture_transform tt;
+	float variation_1;
+	float variation_2;
+	unsigned int resolution_x;
+	unsigned int resolution_y;
+	unsigned int resolution_z;
+
+} primitive_gen;
+
 
 
 #endif /* __glztype__ */

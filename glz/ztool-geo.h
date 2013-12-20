@@ -25,66 +25,15 @@ using namespace std;
 #include "ztool-type.h"
 
 
-
-typedef struct Point2Struct {
-	double x, y;
-} Point2;
-
-typedef struct Point3Struct {
-	double x, y, z;
-} Point3;
-
-
-typedef struct
-	{
-		glzIGTType type;
-		unsigned int width;
-		unsigned int height;
-		unsigned int bpp;
-		float x_offset;
-		float y_offset;
-		float z_offset;
-		float scale;
-		float tscale;
-		glzAxis axis;
-		unsigned char *data;
-	} image_geo_transform;
-
-typedef struct
-	{
-		glzTTType type;
-		float u_scale;
-		float v_scale;
-		float u_offset;
-		float v_offset;
-		unsigned int atlas_width;
-		unsigned int atlas_height;		
-		glzAxis axis;
-		unsigned int firstatlas;
-		unsigned int *atlas;
-		glzOrigin origin;
-	} texture_transform;
-
-typedef struct
-	{
-		glzPrimitive type;
-		float matrix[16];
-		texture_transform tt;
-		float variation_1;
-		float variation_2;
-		unsigned int resolution_x;
-		unsigned int resolution_y;
-		unsigned int resolution_z;
-
-	} primitive_gen;
-
-
+#ifndef __glz_geo__
+#define __glz_geo__
 
 
 		//type signifies the type of data to choose from, if set at GLZ_AUTO it chooses the default settings
 		//vao always returns the created VAO
 		//every function that creates a VAO returns the amount of Vertics to output
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
+
 
 
 image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
@@ -104,25 +53,15 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 	primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 
-	
-	long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao);
+	void glzIGT(float *vert, image_geo_transform igt, long num);
+	void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long num);
+
+	long glzCountFromIndexArrays(long vert_face[], int enteries);
 	void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao, glzVAOType type);
 
-	long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, unsigned int *vao);
-	
-	long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, unsigned int *vao);	
-	long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, image_geo_transform igt, unsigned int *vao);
 
-	long glzVAOCountPrimitiveVerts(float varation, float resuloution, unsigned int primitive, texture_transform tt);
-	long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao);
-	long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao);
 
-	void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin orientation);  // mirroring GL_DrawTextureNV somewhat
-	void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
-	void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
-	void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
 	void glzDirectPointArrayRender(float v[], float t[], int E);
-
 	void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, texture_transform tt, unsigned int atlas); // does exactly you think it does
 
 	void glzKillVAO(unsigned int vao, glzVAOType type);
@@ -131,6 +70,8 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	void glzDrawVAO(long enteties, unsigned int vao, unsigned int type);
 	void glzDrawVAO(long offset, long enteties, unsigned int vao, unsigned int type);
 
+
+#endif /* __glz_geo__ */
 
 	/* 
 	not implemented, is subject to change
