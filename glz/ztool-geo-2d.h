@@ -31,4 +31,17 @@ void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float sp
 void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
 void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
 void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
+
+/*
+plan:
+
+1. change glzDirectSpriteRender to use more origins
+2. change glzOrigin orientation to glzOrigin origin
+3. create more overloads and generally clean up the glzDirectSpriteRender interface
+4. add rotation to glzDirectSpriteRender or similar function
+5. add all the FSQ rendering stuff as well, along with text and text boxes
+6. add sprite map and sprite animation structures and functions
+7. make an advanced glzDirectSpriteRender for sprites with depth information
+8. make a auto animated sprite entety
+*/
 #endif /* __glz_geo2d__ */

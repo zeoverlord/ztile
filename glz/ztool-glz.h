@@ -66,7 +66,7 @@ float glzDotproductf(float a[3], float b[3]);
 double glzDotproductd(double a[3], double b[3]);
 float glzMagnitudef(float a[3]);
 double glzMagnituded(double a[3]);
-void glzNormalizef(float *a, float le); //le is the length to normalizr to, normaly should be left at 1.0
+void glzNormalizef(float *a, float le); //le is the length to normaliz to, normaly should be left at 1.0
 void glzNormalized(double *a, double le);
 void glzCrossproductf(float a[3], float b[3], float *r);
 void glzCrossproductd(double a[3], double b[3], double *r);
