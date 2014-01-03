@@ -94,13 +94,18 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 
 void glzProjectVertex(float  *vert, float Matrix[16]);
 void glzProjectVertexArray(float  *vert, float Matrix[16], int num);
+float glzScanVertexArray(float  *vert, long num, glzBoundingScan scan);
+
 void glzMultMatrix(float *MatrixB,float  MatrixA[16]);
 void glzLoadIdentity(float *m);
 void glzPerspective(float *m, float fov, float aspect,float zNear, float zFar);
 void glzOrtho(float *m, float left, float right, float bottom, float top, float Znear, float Zfar);
+void glzOrtho2D(float *m, float left, float right, float bottom, float top);
+void glzOrtho2DPixelspace(float *m, int x, int y, glzOrigin origin);
 void glzTranslatef(float *m,float x,float y, float z);
 void glzScalef(float *m,float x,float y, float z);
 void glzRotatef(float *m, float a, float x,float y, float z);
+
 
 // Quaternion stuff
 void glzLoadQuaternionIdentity(float *q);

@@ -27,21 +27,30 @@ using namespace std;
 #ifndef __glz_geo2d__
 #define __glz_geo2d__
 
-void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin orientation);  // mirroring GL_DrawTextureNV somewhat
-void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
-void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin orientation);
-void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin orientation);
+long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
+long glzVAOMakeText2d(char text[255], float scale, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
+void glzDirectDrawText(char text[255], float scale, float kern, glzOrigin textorigin);
+void glzDrawTexture(unsigned  texture, unsigned  sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1);  // mirroring GL_DrawTextureNV somewhat
+void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin);  // mirroring GL_DrawTextureNV somewhat
+void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin origin);
+void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin origin);
+void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin origin);
 
 /*
 plan:
 
-1. change glzDirectSpriteRender to use more origins
-2. change glzOrigin orientation to glzOrigin origin
-3. create more overloads and generally clean up the glzDirectSpriteRender interface
-4. add rotation to glzDirectSpriteRender or similar function
-5. add all the FSQ rendering stuff as well, along with text and text boxes
-6. add sprite map and sprite animation structures and functions
-7. make an advanced glzDirectSpriteRender for sprites with depth information
-8. make a auto animated sprite entety
+* change glzDirectSpriteRender to use more origins
+DONE * change glzOrigin orientation to glzOrigin origin
+* create more overloads and generally clean up the glzDirectSpriteRender interface
+* add rotation to glzDirectSpriteRender or similar function
+* add all the FSQ rendering stuff as well, along with text and text boxes
+* add sprite map and sprite animation structures and functions
+* make an advanced glzDirectSpriteRender for sprites with depth information
+* make a auto animated sprite entety
+DONE * move text generation to 2d
+DONE * add direct rendering to text
+DONE * improve text rendering
+DONE * move atlas lookup to the pre computation stage
+
 */
 #endif /* __glz_geo2d__ */

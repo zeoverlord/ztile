@@ -28,7 +28,9 @@
 
 unsigned int glzShaderLoad(char file_vert[255], char file_geo[255], char file_frag[255], glzVAOType type);
 unsigned int glzShaderLoad(char file_vert[255], char file_frag[255], glzVAOType type);
-	void glzShaderLink(unsigned int program);
+unsigned int glzShaderLoadString(char *vert, char *frag, glzVAOType type);
+void glzShaderLink(unsigned int program);
+void glzShaderUsePasstrough(void);
 
 // for now just call one of the two first ones with "glzVAOType::AUTO" as the type then the last one, there will be much more here in future versions
 

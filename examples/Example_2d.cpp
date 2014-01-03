@@ -61,7 +61,7 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=6;
+int gamestate=5;
 
 
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
@@ -165,40 +165,40 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 // text screen
-	textvao_num[0]=glzVAOMakeText("Normal text", mt, 0.7f, text_tt, &textvao[0]);
-	textvao_num[1]=glzVAOMakeText("Tabs and endlines work just as well\nTab\t\t\t\\t\nEndline \t\t\\n", mt, 0.7f, text_tt, &textvao[1]);
-	textvao_num[2]=glzVAOMakeText("fast changing text:0000", mt, 0.7f, text_tt, &textvao[2]);
-	textvao_num[3]=glzVAOMakeText("slow changing text:0000", mt, 0.7f, text_tt, &textvao[3]);
-	textvao_num[4]=glzVAOMakeText("You can also play with the kerning if you want", mt, 0.4f, text_tt, &textvao[4]);
-	textvao_num[5]=glzVAOMakeText("Using", mt, 0.7f, text_tt, &textvao[5]);
-	textvao_num[6]=glzVAOMakeText("all kinds", mt, 0.7f, text_tt, &textvao[6]);
-	textvao_num[7]=glzVAOMakeText("of fonts", mt, 0.7f, text_tt, &textvao[7]);
-	textvao_num[8]=glzVAOMakeText("Fancy text is fancy", mt2, 0.6f, text_tt, &textvao[8]);
+	textvao_num[0] = glzVAOMakeText("Normal text", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[0]);
+	textvao_num[1] = glzVAOMakeText("Tabs and endlines work just as well\nTab\t\t\t\\t\nEndline \t\t\\n", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[1]);
+	textvao_num[2] = glzVAOMakeText("fast changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);
+	textvao_num[3] = glzVAOMakeText("slow changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);
+	textvao_num[4] = glzVAOMakeText("You can also play with the kerning if you want", mt, 0.7f, text_tt, glzOrigin::TOP_LEFT, &textvao[4]);
+	textvao_num[5] = glzVAOMakeText("Using", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[5]);
+	textvao_num[6] = glzVAOMakeText("all kinds", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[6]);
+	textvao_num[7] = glzVAOMakeText("of fonts", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[7]);
+	textvao_num[8] = glzVAOMakeText("Fancy text is fancy", mt2, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[8]);
 
 // fsq screen
 
-	textvao_num[9]=glzVAOMakeText("Full screen quads", mt, 0.7f, text_tt, &textvao[9]);
+	textvao_num[9] = glzVAOMakeText("Full screen quads", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[9]);
 	
 // Sprite screen
 
-	textvao_num[10]=glzVAOMakeText("Sprites", mt, 0.7f, text_tt, &textvao[10]);
+	textvao_num[10] = glzVAOMakeText("Sprites", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[10]);
 
 // grid screen
 
-	textvao_num[11]=glzVAOMakeText("Atlas grid", mt, 0.7f, text_tt, &textvao[11]);
+	textvao_num[11] = glzVAOMakeText("Atlas grid", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[11]);
 
 // sprite screen
 
-	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 0.7f, text_tt, &textvao[12]);
+	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[12]);
 
 	// sprite screen
 
-	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 0.7f, text_tt, &textvao[13]);
+	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[13]);
 
 
 
 // all screens
-	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 0.7f, text_tt, &textvao[15]);
+	textvao_num[15] = glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[15]);
 
 
 
@@ -282,12 +282,12 @@ void Update (float seconds)								// Perform Motion Updates Here
 
 		
 		sprintf_s (tbuffer,160,"fast changing text:%f", angle);  
-		textvao_num[2]=glzVAOMakeText(tbuffer, mt, 0.7f, text_tt, &textvao[2]);  // this updates text once every frame
+		textvao_num[2] = glzVAOMakeText(tbuffer, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);  // this updates text once every frame
 
 		if (texttimer>1.0)
 		{
 			sprintf_s (tbuffer2,160,"slow changing text:%f", angle); 
-			textvao_num[3]=glzVAOMakeText(tbuffer2, mt, 0.7f, text_tt, &textvao[3]);  // this updates text once every second
+			textvao_num[3] = glzVAOMakeText(tbuffer2, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);  // this updates text once every second
 			texttimer=0.0f;
 		}
 		texttimer+=seconds;
@@ -328,6 +328,7 @@ ps.run(seconds);
 
 }
 
+
 void draw_text(float x, float y, int text, int font, unsigned int po, unsigned int col)
 {
 	glUseProgram(po);
@@ -348,6 +349,7 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 	if (col==COL_BLUE)	glUniform4f(loc3, 0.0f,0.0f,1.0f,1.0f);
 
 
+	
 
 	glBindTexture(GL_TEXTURE_2D,fonttexture[font]);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -356,6 +358,40 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 	glDisable(GL_BLEND);
 
 }
+
+void draw_text2(char text[255], float x, float y, float scale, float kern, int font, unsigned int po, unsigned int col)
+{
+	glUseProgram(po);
+
+	unsigned int loc1 = glGetUniformLocation(po, "projMat");
+	unsigned int loc2 = glGetUniformLocation(po, "texunit0");
+	unsigned int loc3 = glGetUniformLocation(po, "tint");
+	glzLoadIdentity(m);
+	glzOrtho2DPixelspace(m, WINDOW_HEIGHT, WINDOW_WIDTH, glzOrigin::BOTTOM_LEFT);
+	
+	glzTranslatef(m, x, y, 0);
+
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+
+	if (col == COL_BLACK)	glUniform4f(loc3, 0.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_WHITE)	glUniform4f(loc3, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (col == COL_RED)	glUniform4f(loc3, 1.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_GREEN)	glUniform4f(loc3, 0.0f, 1.0f, 0.0f, 1.0f);
+	if (col == COL_BLUE)	glUniform4f(loc3, 0.0f, 0.0f, 1.0f, 1.0f);
+
+
+
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, fonttexture[font]);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glzDirectDrawText(text, scale, kern, glzOrigin::BOTTOM_LEFT);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
+}
+
+
 
 // custom sprite rendering function, if you have a lot of sprites then one of these is probably usefull
 void draw_sprite(float x, float y, float s, int sprite, int tx, int offset, unsigned int po, float col[4])
@@ -527,16 +563,20 @@ void Draw (void)
 
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 	
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+	//	glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
+		//glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
+	//	glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+
+		glzDrawTexture(texture[3], 0, 0, 0, 400.5, 400.5, 1, 0, 0, 1, 1);
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
-		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, glzOrigin::CENTERED);
+	//	glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, glzOrigin::CENTERED);
 
-		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
-		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
+
+
 
 		
 		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
@@ -560,6 +600,7 @@ void Draw (void)
 		ps.render_out();
 
 
+		draw_text2("abcdefghijklmnopqrstuvxyz\nABCDEFGHIJKLMNOPQRSTUVXYZ\n1234567890", 1.0f,210.0f, 32.0f, 1.0f, 2, ProgramObject, COL_WHITE);
 
 
 		draw_text(-3.9f, 1.9f, 13, 2, ProgramObject, COL_WHITE);

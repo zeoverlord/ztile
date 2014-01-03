@@ -35,6 +35,8 @@ enum class glzAxis { X, Y, Z };
 enum class glzTexFilter { NONE, NEAREST, LINEAR, BILINEAR, TRILINEAR, ANSIO_2, ANSIO_4, ANSIO_8, ANSIO_16, ANSIO_MAX };
 enum class glzTexCompression { UNCOMPRESSED, COMPRESSED };
 
+enum class glzBoundingScan { CENTER_X, CENTER_Y, LEFT, RIGHT, TOP, BOTTOM, WIDTH, HEIGHT};
+
 
 enum class glzColorChannels { RED, GREEN, BLUE, ALPHA, HUE, HUE2, CROMA, CROMA2, VALUE, LIGHTNESS, INTENSITY, LUMA, SHSV, SHSL, SHSI };
 enum class glzColorType { RGB_8, RGB_32F, RGBA_8, RGBA_32F, HSL_8, HSL_32F, HSV_8, HSV_32F, HSI_8, HSI_32F, HCY_8, HCY_32F };

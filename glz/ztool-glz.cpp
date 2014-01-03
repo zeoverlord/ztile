@@ -976,6 +976,141 @@ void glzProjectVertexArray(float  *vert, float Matrix[16], int num)
 }
 
 
+
+float glzScanVertexArray(float *vert, long num, glzBoundingScan scan)
+{
+
+	float r = 0, r2 = 0, r3 = 0;
+
+
+	// set initial conditiona
+
+	switch (scan)
+	{
+
+	case glzBoundingScan::LEFT:
+	case glzBoundingScan::RIGHT:
+	case glzBoundingScan::WIDTH:
+	case glzBoundingScan::CENTER_X:
+
+		r = vert[0];
+		r2 = vert[0];
+		r3 = vert[0];
+
+		break;
+
+
+	case glzBoundingScan::TOP:
+	case glzBoundingScan::BOTTOM:
+	case glzBoundingScan::HEIGHT:
+	case glzBoundingScan::CENTER_Y:
+
+		r = vert[1];
+		r2 = vert[1];
+		r3 = vert[1];
+
+		break;
+
+
+	}
+
+
+
+	int i = 0;
+	for (i = 0; i<num; i++)
+	{
+
+		switch (scan)
+		{
+		
+			case glzBoundingScan::LEFT:
+				
+				if (r < vert[i * 3])
+					r = vert[i * 3];
+
+				break;
+
+			case glzBoundingScan::RIGHT:
+
+				if (r > vert[i * 3])
+					r = vert[i * 3];
+
+				break;
+
+			case glzBoundingScan::TOP:
+
+				if (r > vert[i * 3+1])
+					r = vert[i * 3+1];
+
+				break;
+
+			case glzBoundingScan::BOTTOM:
+
+				if (r < vert[i * 3+1])
+					r = vert[i * 3+1];
+
+				break;
+
+			case glzBoundingScan::WIDTH:
+
+				if (r2 > vert[i * 3])
+					r2 = vert[i * 3];	
+
+				if (r3 < vert[i * 3])
+					r3 = vert[i * 3];
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::HEIGHT:
+
+				if (r2 > vert[i * 3 + 1])
+					r2 = vert[i * 3 + 1];
+
+				if (r3 < vert[i * 3 + 1])
+					r3 = vert[i * 3 + 1];
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::CENTER_X:
+
+				if (r2 > vert[i * 3])
+					r2 = vert[i * 3];
+
+				if (r3 < vert[i * 3])
+					r3 = vert[i * 3];
+
+				r = r3 + r2*0.5;
+
+				break;
+
+			case glzBoundingScan::CENTER_Y:
+
+				if (r2 > vert[i * 3 + 1])
+					r2 = vert[i * 3 + 1];
+
+				if (r3 < vert[i * 3 + 1])
+					r3 = vert[i * 3 + 1];
+
+				r = r3 + r2*0.5;
+
+				break;
+		}
+		
+
+
+		
+
+	}
+
+
+return r;
+}
+
+
 void glzMultMatrix(float *MatrixB,float  MatrixA[16])
 {
    float  NewMatrix[16];
@@ -1090,6 +1225,63 @@ glzMultMatrix(m,m2);
 return;
 
 }
+
+void glzOrtho2D(float *m, float left, float right, float bottom, float top)
+{
+
+	float Znear = -1.0f, Zfar = 1.0f;
+	float m2[16] = { 0 };
+
+	m2[0] = 2 / (right - left);
+	m2[1] = 0;
+	m2[2] = 0;
+	m2[3] = -((right + left) / (right - left));
+
+	m2[4] = 0;
+	m2[5] = 2 / (top - bottom);
+	m2[6] = 0;
+	m2[7] = -((top + bottom) / (top - bottom));
+
+	m2[8] = 0;
+	m2[9] = 0;
+	m2[10] = 2 / (Zfar - Znear);
+	m2[11] = -((Zfar + Znear) / (Zfar - Znear));
+
+	m2[12] = 0;
+	m2[13] = 0;
+	m2[14] = 0;
+	m2[15] = 1;
+
+	glzMultMatrix(m, m2);
+
+	return;
+
+}
+
+void glzOrtho2DPixelspace(float *m, int x, int y, glzOrigin origin)
+{
+
+	float m2[16];
+	glzLoadIdentity(m2);
+
+	if (origin == glzOrigin::BOTTOM_LEFT)
+	{
+		glzOrtho2D(m2, -(x*0.5f), (x*0.5f), -(y*0.5f), (y*0.5f));
+		glzTranslatef(m2, -(x*0.5f), -(y*0.5f), 0);
+	}
+
+	if (origin == glzOrigin::TOP_LEFT)
+	{
+		glzOrtho2D(m2, (x*0.5f), -(x*0.5f), -(y*0.5f), (y*0.5f));
+		glzTranslatef(m2, -(x*0.5f), (y*0.5f), 0);
+	}
+
+	glzMultMatrix(m, m2);
+
+	return;
+
+}
+
 
 
 

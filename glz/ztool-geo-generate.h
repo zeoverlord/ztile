@@ -26,7 +26,6 @@ using namespace std;
 #define __glz_geogenerate__
 
 long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao);
-long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, unsigned int *vao);
 
 long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, unsigned int *vao);
 long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, image_geo_transform igt, unsigned int *vao);
