@@ -135,6 +135,17 @@ void glzNormalizef(float *a, float le)
 	return;
 }
 
+void glzNormalize(vec3 *a, float le)
+{
+
+	float l = le / (float)sqrt((a->x * a->x) + (a->y * a->y) + (a->z * a->z));
+
+	a->x *= l;
+	a->y *= l;
+	a->z *= l;
+	return;
+}
+
 void glzNormalized(double *a, double le)
 {
 
@@ -890,6 +901,40 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw,
 
 }
 
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group)
+{
+	// i use this to make normally mapped objects into atlas mapped objects
+	float quv[8];
+
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
+
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	i2 = 0; 
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+	++i;
+	i2++;
+	}
+	return;
+
+}
+
 void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv)
 {
 	// same as above except i now also rotate the original uv coordinates
@@ -973,6 +1018,80 @@ void glzProjectVertexArray(float  *vert, float Matrix[16], int num)
 	{
 		glzProjectVertex(&vert[i*3], Matrix);
 	}	
+}
+
+
+void glzProjectVertex(poly3 *p, float Matrix[16], int group)
+{
+	float v[3];
+	if (p->group != group) return;
+	v[0] = (p->a.v.x * Matrix[0]) + (p->a.v.y * Matrix[4]) + (p->a.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->a.v.x * Matrix[1]) + (p->a.v.y * Matrix[5]) + (p->a.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->a.v.x * Matrix[2]) + (p->a.v.y * Matrix[6]) + (p->a.v.z * Matrix[10]) + Matrix[14];
+
+	p->a.v.x = v[0];
+	p->a.v.y = v[1];
+	p->a.v.z = v[2];
+
+	v[0] = (p->b.v.x * Matrix[0]) + (p->b.v.y * Matrix[4]) + (p->b.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->b.v.x * Matrix[1]) + (p->b.v.y * Matrix[5]) + (p->b.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->b.v.x * Matrix[2]) + (p->b.v.y * Matrix[6]) + (p->b.v.z * Matrix[10]) + Matrix[14];
+
+	p->b.v.x = v[0];
+	p->b.v.y = v[1];
+	p->b.v.z = v[2];
+
+	v[0] = (p->c.v.x * Matrix[0]) + (p->c.v.y * Matrix[4]) + (p->c.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->c.v.x * Matrix[1]) + (p->c.v.y * Matrix[5]) + (p->c.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->c.v.x * Matrix[2]) + (p->c.v.y * Matrix[6]) + (p->c.v.z * Matrix[10]) + Matrix[14];
+
+	p->c.v.x = v[0];
+	p->c.v.y = v[1];
+	p->c.v.z = v[2];
+
+}
+
+
+void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group)
+{
+
+	float v[3];
+	int i2 = 0;
+
+	auto i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+		
+			v[0] = (p->at(i2).a.v.x * Matrix[0]) + (p->at(i2).a.v.y * Matrix[4]) + (p->at(i2).a.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).a.v.x * Matrix[1]) + (p->at(i2).a.v.y * Matrix[5]) + (p->at(i2).a.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).a.v.x * Matrix[2]) + (p->at(i2).a.v.y * Matrix[6]) + (p->at(i2).a.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).a.v.x = v[0];
+			p->at(i2).a.v.y = v[1];
+			p->at(i2).a.v.z = v[2];
+
+			v[0] = (p->at(i2).b.v.x * Matrix[0]) + (p->at(i2).b.v.y * Matrix[4]) + (p->at(i2).b.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).b.v.x * Matrix[1]) + (p->at(i2).b.v.y * Matrix[5]) + (p->at(i2).b.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).b.v.x * Matrix[2]) + (p->at(i2).b.v.y * Matrix[6]) + (p->at(i2).b.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).b.v.x = v[0];
+			p->at(i2).b.v.y = v[1];
+			p->at(i2).b.v.z = v[2];
+
+			v[0] = (p->at(i2).c.v.x * Matrix[0]) + (p->at(i2).c.v.y * Matrix[4]) + (p->at(i2).c.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).c.v.x * Matrix[1]) + (p->at(i2).c.v.y * Matrix[5]) + (p->at(i2).c.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).c.v.x * Matrix[2]) + (p->at(i2).c.v.y * Matrix[6]) + (p->at(i2).c.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).c.v.x = v[0];
+			p->at(i2).c.v.y = v[1];
+			p->at(i2).c.v.z = v[2];
+		}
+		++i;
+		i2++;
+	}
 }
 
 

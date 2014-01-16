@@ -152,13 +152,28 @@ public:
 
 
 
-typedef struct Point2Struct {
-	double x, y;
-} Point2;
 
-typedef struct Point3Struct {
+
+typedef struct vertex2 {
+	double u, v;
+} vec2;
+
+typedef struct vertex3 {
 	double x, y, z;
-} Point3;
+} vec3;
+
+typedef struct point_3 {
+	vec3 v;
+	vec2 t;
+	vec3 n;	
+} point3;
+
+typedef struct polygon3 {
+	point3 a, b, c;
+	int group;
+} poly3;
+
+// todo : convert poly 3 to using points inssteand of individual coordinates
 
 
 

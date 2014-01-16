@@ -23,6 +23,7 @@
 using namespace std;
 
 #include "ztool-type.h"
+#include <vector>
 
 
 #ifndef __glz_geo__
@@ -59,6 +60,9 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 
 	long glzCountFromIndexArrays(long vert_face[], int enteries);
 	void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao, glzVAOType type);
+	void glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao, glzVAOType type);
+
+	long glzConvertVectorToArray(float *v, float *t, float *n, vector<poly3> pdata);
 
 
 

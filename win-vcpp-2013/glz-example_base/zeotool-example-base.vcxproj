@@ -57,7 +57,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -74,7 +74,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
@@ -93,10 +93,13 @@
     <ClCompile Include="..\..\examples\Example_base.cpp" />
     <ClCompile Include="..\..\examples\stdafx.cpp" />
     <ClCompile Include="..\..\examples\zeobase2.cpp" />
+    <ClCompile Include="..\..\glz\ztool-geo-2d.cpp" />
+    <ClCompile Include="..\..\glz\ztool-geo-generate.cpp" />
     <ClCompile Include="..\..\glz\ztool-geo.cpp" />
     <ClCompile Include="..\..\glz\ztool-glz.cpp" />
     <ClCompile Include="..\..\glz\ztool-shader.cpp" />
     <ClCompile Include="..\..\glz\ztool-tex.cpp" />
+    <ClCompile Include="..\..\glz\ztool_type.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\glz\primitives.h" />
@@ -104,10 +107,13 @@
     <ClInclude Include="..\..\examples\stdafx.h" />
     <ClInclude Include="..\..\examples\targetver.h" />
     <ClInclude Include="..\..\examples\zeobase2.h" />
+    <ClInclude Include="..\..\glz\ztool-geo-2d.h" />
+    <ClInclude Include="..\..\glz\ztool-geo-generate.h" />
     <ClInclude Include="..\..\glz\ztool-geo.h" />
     <ClInclude Include="..\..\glz\ztool-glz.h" />
     <ClInclude Include="..\..\glz\ztool-shader.h" />
     <ClInclude Include="..\..\glz\ztool-tex.h" />
+    <ClInclude Include="..\..\glz\ztool-type.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\examples\small.ico" />

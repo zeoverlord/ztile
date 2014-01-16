@@ -29,6 +29,8 @@
 #include <fstream>
 #include <math.h>
 #include "..\glz\ztool-geo.h"
+#include "..\glz\ztool-geo-generate.h"
+#include "..\glz\ztool-geo-2d.h"
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
 #include "..\glz\ztool-tex.h"
@@ -156,7 +158,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 
-	vao_num[0]=glzVAOMakeText("Geometry generation test, try the arrow keys.", mt, 0.7f, text_tt, &vao[0]);
+	vao_num[0] = glzVAOMakeText("Geometry generation test, try the arrow keys.", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &vao[0]);
 	vao_num[1]=glzVAOMakePrimitives(1,prim_pg, &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 	vao_num[2]=glzVAOMakeFromFile("data\\objects\\cv9040c.obj",mo, obj_tt, &vao[2]);
 	vao_num[3]=glzVAOMakeAtlasGrid(4, 4, mg, grid_tt, &vao[3]);

@@ -68,6 +68,7 @@ float glzMagnitudef(float a[3]);
 double glzMagnituded(double a[3]);
 void glzNormalizef(float *a, float le); //le is the length to normaliz to, normaly should be left at 1.0
 void glzNormalized(double *a, double le);
+void glzNormalize(vec3 *a, float le);
 void glzCrossproductf(float a[3], float b[3], float *r);
 void glzCrossproductd(double a[3], double b[3], double *r);
 
@@ -87,6 +88,7 @@ void glzCubicCurve(float pos, float l, float p1[3], float v1[3], float p2[3], fl
 void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin, float *uvOut);
 void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout);
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group);
 void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
 
 
@@ -94,6 +96,10 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 
 void glzProjectVertex(float  *vert, float Matrix[16]);
 void glzProjectVertexArray(float  *vert, float Matrix[16], int num);
+void glzProjectVertex(poly3 *p, float Matrix[16], int group);
+void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group);
+
+
 float glzScanVertexArray(float  *vert, long num, glzBoundingScan scan);
 
 void glzMultMatrix(float *MatrixB,float  MatrixA[16]);

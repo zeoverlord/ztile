@@ -30,8 +30,9 @@ using namespace std;
 long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
 long glzVAOMakeText2d(char text[255], float scale, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
 void glzDirectDrawText(char text[255], float scale, float kern, glzOrigin textorigin);
-void glzDrawTexture(unsigned  texture, unsigned  sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1);  // mirroring GL_DrawTextureNV somewhat
-void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin);  // mirroring GL_DrawTextureNV somewhat
+void glzDrawTexture(unsigned  texture, unsigned  sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1);  // mirroring GL_DrawTextureNV exactly
+void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin);
+void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin);
 void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin origin);
 void glzDirectSpriteRenderAtlasPixelPerfect(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, glzOrigin origin);
 void glzDirectSpriteRenderAtlasPixelPerfectQuantized(float X, float Y, float Z, int textureW, int textureH, unsigned int atlasW, unsigned int atlasH, unsigned int atlasN, float q, glzOrigin origin);

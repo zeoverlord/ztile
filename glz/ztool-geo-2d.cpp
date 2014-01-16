@@ -513,6 +513,98 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 	return;
 }
 
+void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
+{
+
+	unsigned int localVAO;
+
+	GLint viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	
+	X -= m[12];
+	Y -= m[13];
+
+	X /= m[0];
+	Y /= m[5];
+
+	// xy is now in -1 +1 space
+
+	X /= viewport[2] * 0.5;
+	Y /= viewport[3] * 0.5;
+
+	X += viewport[2] * 0.5;
+	Y += viewport[3] * 0.5;
+
+	//xy should now be in pixel space
+
+
+
+	W = (W / (m[0] * (viewport[2] * 0.5)));
+	H = (H / (m[5] * (viewport[3] * 0.5)));
+
+
+	float x0 = X, y0 = Y, x1 = X + W, y1 = Y + H;
+
+
+
+
+	switch (origin)
+	{
+
+
+	case glzOrigin::CENTERED:
+
+		x0 = X - W*0.5f;
+		x1 = X + W*0.5f;
+		y0 = Y - H*0.5f;
+		y1 = Y + W*0.5f;
+
+		break;
+
+	case glzOrigin::TOP_RIGHT:
+	
+		x0 = X - W;
+		x1 = X;
+		y0 = Y - H;
+		y1 = Y;
+		
+		break;
+
+	case glzOrigin::BOTTOM_RIGHT:
+
+		x0 = X - W;
+		x1 = X;
+		y0 = Y;
+		y1 = Y + H;
+
+		break;
+
+	case glzOrigin::TOP_LEFT:
+
+		x0 = X;
+		x1 = X + W;
+		y0 = Y - H;
+		y1 = Y;
+		break;
+
+	case glzOrigin::BOTTOM_LEFT:
+	default:
+
+		// do nothing
+
+		break;
+
+	}	
+	
+	
+	glzDrawTexture(texture, 0, x0, y0, x1, y1, Z, spriteX, spriteY, spriteX + spriteW, spriteY + spriteH);
+//	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
+//	glzKillVAO(localVAO, glzVAOType::AUTO);
+
+	return;
+}
+
 void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
 {
 

@@ -162,19 +162,19 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
 // primitive screen
-	textvao_num[0]=glzVAOMakeText("Primitives", mt, 0.7f, text_tt, &textvao[0]);
+	textvao_num[0] = glzVAOMakeText("Primitives", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[0]);
  
 // wavefront objects screen
 
-	textvao_num[1]=glzVAOMakeText(".obj loading, try using the arrow keys", mt, 0.7f, text_tt, &textvao[1]);
+	textvao_num[1] = glzVAOMakeText(".obj loading, try using the arrow keys", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[1]);
 	
 // heigth grid screen
 
-	textvao_num[2]=glzVAOMakeText("Heightfield", mt, 0.7f, text_tt, &textvao[2]);
+	textvao_num[2] = glzVAOMakeText("Heightfield", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[2]);
 
 
 // all screens
-	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3", mt3, 0.7f, text_tt, &textvao[15]);
+	textvao_num[15] = glzVAOMakeText("Switch screens with 1, 2, 3", mt3, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[15]);
 
 
 	
