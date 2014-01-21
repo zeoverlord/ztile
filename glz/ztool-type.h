@@ -171,6 +171,7 @@ typedef struct point_3 {
 typedef struct polygon3 {
 	point3 a, b, c;
 	int group;
+	int atlas;
 } poly3;
 
 // todo : convert poly 3 to using points inssteand of individual coordinates

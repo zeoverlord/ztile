@@ -211,6 +211,64 @@ long glzPrimCubeverts(float *v, float *t, float *n)
 }
 
 
+void glzPrimCubeVector(vector<poly3> *pdata, int group)
+{
+	vec3 v1 = { -0.500000, -0.500000, 0.500000 };
+	vec3 v2 = { 0.500000, -0.500000, 0.500000 };
+	vec3 v3 = { 0.500000, 0.500000, 0.500000 };
+	vec3 v4 = { -0.500000, 0.500000, 0.500000 };
+	vec3 v5 = { 0.500000, 0.500000, -0.500000 };
+	vec3 v6 = { -0.500000, 0.500000, -0.500000 };
+	vec3 v7 = { 0.500000, -0.500000, -0.500000 };
+	vec3 v8 = { -0.500000, -0.500000, -0.500000 };
+	
+
+	vec3 n1 = { 0.000000, 0.000000, 1.000000 };
+	vec3 n2 = { 0.000000, 1.000000, 0.000000 };
+	vec3 n3 = { 0.000000, 0.000000, -1.000000 };
+	vec3 n4 = { 0.000000, -1.000000, 0.000000 };
+	vec3 n5 = { 1.000000, 0.000000, 0.000000 };
+	vec3 n6 = { -1.000000, 0.000000, 0.000000 };
+
+	vec2 t1 = { 0.000000, 0.000000 };
+	vec2 t2 = { 1.000000, 0.000000 };	
+	vec2 t3 = { 0.000000, 1.000000 };
+	vec2 t4 = { 1.000000, 1.000000 };
+
+	poly3 p1 = { v6, t3, n2, v4, t1, n2, v3, t2, n2, group, 0 };
+	poly3 p2 = { v5, t4, n2, v6, t3, n2, v3, t2, n2, group, 0 };
+
+	poly3 p3 = { v8, t4, n4, v7, t3, n4, v2, t1, n4, group, 1 };
+	poly3 p4 = { v1, t2, n4, v8, t4, n4, v2, t1, n4, group, 1 };	
+
+	poly3 p5 = { v1, t1, n1, v2, t2, n1, v3, t4, n1, group, 2 };
+	poly3 p6 = { v4, t3, n1, v1, t1, n1, v3, t4, n1, group, 2 };
+
+	poly3 p7 = { v7, t2, n5, v5, t4, n5, v3, t3, n5, group, 3 };
+	poly3 p8 = { v2, t1, n5, v7, t2, n5, v3, t3, n5, group, 3 };
+
+	poly3 p9 = { v8, t2, n3, v6, t4, n3, v5, t3, n3, group, 4 };
+	poly3 p10 = { v7, t1, n3, v8, t2, n3, v5, t3, n3, group, 4 };
+
+	poly3 p11 = { v8, t1, n6, v1, t2, n6, v4, t4, n6, group, 5 };
+	poly3 p12 = { v6, t3, n6, v8, t1, n6, v4, t4, n6, group, 5 };
+	pdata->push_back(p1);
+	pdata->push_back(p2);
+	pdata->push_back(p3);
+	pdata->push_back(p4);
+	pdata->push_back(p5);
+	pdata->push_back(p6);
+	pdata->push_back(p7);
+	pdata->push_back(p8);
+	pdata->push_back(p9);
+	pdata->push_back(p10);
+	pdata->push_back(p11);
+	pdata->push_back(p12);
+
+	
+	
+}
+
 long glzCountFromIndexArrays(long vert_face[],int enteries)
 {
 
@@ -516,6 +574,99 @@ void glzIGT(float *vert, image_geo_transform igt, long num)
 	return;
 }
 
+void glzIGT(vector<poly3> *pdata, int group, image_geo_transform igt)
+{
+	int step = igt.bpp;
+	float x = 0, y = 0, z = 0;
+
+	vec3 a,b,c;
+	int i2 = 0;
+	auto i = pdata->begin();
+
+	switch (igt.type)
+	{
+	case glzIGTType::DISPLACE_ADD:
+
+
+
+		i = pdata->begin();
+		i2 = 0;
+		while (i < pdata->end()) {
+
+			if (pdata->at(i2).group == group)
+			{
+
+				a = pdata->at(i2).a.v;
+				b = pdata->at(i2).b.v;
+				c = pdata->at(i2).c.v;
+
+
+				a.x += igt.x_offset;
+				a.y += igt.y_offset;
+				a.z += igt.z_offset;
+
+				b.x += igt.x_offset;
+				b.y += igt.y_offset;
+				b.z += igt.z_offset;
+
+				c.x += igt.x_offset;
+				c.y += igt.y_offset;
+				c.z += igt.z_offset;
+
+				a.x *= igt.tscale;
+				a.y *= igt.tscale;
+				a.z *= igt.tscale;
+
+				b.x *= igt.tscale;
+				b.y *= igt.tscale;
+				b.z *= igt.tscale;
+
+				c.x *= igt.tscale;
+				c.y *= igt.tscale;
+				c.z *= igt.tscale;
+
+
+
+				if (igt.axis == glzAxis::X) 
+				{
+					pdata->at(i2).a.v.x += glzImageReadBilinear(a.y, a.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.x += glzImageReadBilinear(b.y, b.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.x += glzImageReadBilinear(c.y, c.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+
+				if (igt.axis == glzAxis::Y) 
+				{
+					pdata->at(i2).a.v.y += glzImageReadBilinear(a.x, a.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.y += glzImageReadBilinear(b.x, b.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.y += glzImageReadBilinear(c.x, c.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+
+				if (igt.axis == glzAxis::Z) 
+				{
+					pdata->at(i2).a.v.z += glzImageReadBilinear(a.x, a.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.z += glzImageReadBilinear(b.x, b.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.z += glzImageReadBilinear(c.x, c.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+				
+
+			}
+			++i;
+			i2++;
+		}
+
+
+
+		break;
+	default:
+		break;
+
+	}
+
+
+	return;
+}
+
+
 
 void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long num)
 {
@@ -543,6 +694,66 @@ void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long
 
 		i++;
 		}
+
+
+	return;
+}
+
+
+void glzVert2TexcoordRescale(vector<poly3> *pdata, int group, texture_transform tt)
+{
+	int i2 = 0;
+
+	auto i = pdata->begin();
+	i2 = 0;
+	while (i < pdata->end()) {
+
+		if (pdata->at(i2).group == group)
+		{
+
+			if (tt.axis == glzAxis::X)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.y / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.y / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.y / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.z - 1) / tt.v_scale;
+
+			}
+
+			if (tt.axis == glzAxis::Y)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.x / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.x / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.x / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.z - 1) / tt.v_scale;
+
+			}
+			if (tt.axis == glzAxis::Z)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.x / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.y - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.x / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.y - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.x / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.y - 1) / tt.v_scale;
+
+			}
+
+
+		}
+		++i;
+		i2++;
+	}
 
 
 	return;

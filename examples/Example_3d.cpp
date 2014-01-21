@@ -65,7 +65,7 @@ float q[4] ={1,0,0,0};
 float q2[4] ={1,0,0,0};
 float q3[4] ={1,0,0,0};
 
-int gamestate=4;
+int gamestate=3;
 
 img_head img;
 unsigned char *data;

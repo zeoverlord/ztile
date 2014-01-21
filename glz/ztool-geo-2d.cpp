@@ -516,7 +516,6 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
 {
 
-	unsigned int localVAO;
 
 	GLint viewport[4];
 

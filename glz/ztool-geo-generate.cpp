@@ -47,7 +47,7 @@ void ini_geo_generate(void)
 	isinited_geo_generate = true;
 }
 
-
+/*
 long glzPrimFSQ(float *v, float *t, float *n)
 {
 	float vt[] = {
@@ -82,19 +82,19 @@ long glzPrimFSQ(float *v, float *t, float *n)
 
 
 	return 6;
-}
+}*/
 
-void glzPrimFSQVector(vector<poly3> *pdata, int group)
+void glzPrimFSQVector(vector<poly3> *pdata, int group, int atlas)
 {
 
-	poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group };
-	poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group };
+	poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
+	poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
 	pdata->push_back(p1);
 	pdata->push_back(p2);
 	
 
 }
-
+/*
 long glzPrimRandom(float *v, float *t, float *n, int num)
 {
 	int i = 0;
@@ -123,9 +123,9 @@ long glzPrimRandom(float *v, float *t, float *n, int num)
 
 	return (long)num;
 }
+*/
 
-
-void glzPrimRandomVector(vector<poly3> *pdata, int group, int num)
+void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 {
 	int i = 0;
 
@@ -170,12 +170,16 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int num)
 		p.c.n.z = glzRandfs();
 		glzNormalize(&p.c.n, 1.0f);
 
+		p.group = group;
+		p.atlas = atlas;
+
+
 		pdata->push_back(p);
 	}
 
 	return;
 }
-
+/*
 long glzPrimTetra(float *v, float *t, float *n)
 {
 
@@ -247,10 +251,10 @@ long glzPrimTetra(float *v, float *t, float *n)
 
 	return 12;
 }
+*/
 
 
-
-void glzPrimTetraVector(vector<poly3> *pdata, int group)
+void glzPrimTetraVector(vector<poly3> *pdata, int group, int atlas)
 {
 
 
@@ -270,10 +274,10 @@ void glzPrimTetraVector(vector<poly3> *pdata, int group)
 	vec3 n3 = { 0.5f, 0.5f, sqrt(3.0f) / 2.0f };
 	vec3 n4 = { -1.0f, 0.5f, 0.0f };
 
-	poly3 p1 = { v1, t5, n1, v2, t2, n1, v3, t3, n1, group };
-	poly3 p2 = { v3, t1, n2, v2, t5, n2, v4, t4, n2, group };
-	poly3 p3 = { v4, t4, n3, v2, t3, n3, v1, t5, n3, group };
-	poly3 p4 = { v1, t5, n4, v3, t2, n4, v4, t1, n4, group };
+	poly3 p1 = { v1, t5, n1, v2, t2, n1, v3, t3, n1, group, atlas };
+	poly3 p2 = { v3, t1, n2, v2, t5, n2, v4, t4, n2, group, atlas };
+	poly3 p3 = { v4, t4, n3, v2, t3, n3, v1, t5, n3, group, atlas };
+	poly3 p4 = { v1, t5, n4, v3, t2, n4, v4, t1, n4, group, atlas };
 
 	pdata->push_back(p1);
 	pdata->push_back(p2);
@@ -283,7 +287,7 @@ void glzPrimTetraVector(vector<poly3> *pdata, int group)
 	return;
 }
 
-
+/*
 long glzPrimFromIndexArrays(float *v, float *t, float *n, vec3 vert[], vec2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
 {
 	float vt[6000];
@@ -361,9 +365,9 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, vec3 vert[], vec2 uv[]
 
 
 }
+*/
 
-
-void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, vec3 vert[], vec2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
+void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, int atlas, vec3 vert[], vec2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
 {
 	poly3 p;	
 
@@ -396,6 +400,7 @@ void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, vec3 vert[], 
 			p.c.t = uv[uv_face[i]];
 			p.c.n = norm[norm_face[i]];
 			p.group = group;
+			p.atlas = atlas;
 
 			pdata->push_back(p);
 		}
@@ -409,7 +414,7 @@ void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, vec3 vert[], 
 
 }
 
-
+/*
 
 long glzPrimGrid(texture_transform tt, unsigned int x, unsigned int y, glzOrigin origin, float *v, float *t, float *n)
 {
@@ -529,6 +534,7 @@ long glzPrimGrid(texture_transform tt, unsigned int x, unsigned int y, glzOrigin
 	return c * 6;
 }
 
+*/
 
 void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glzOrigin origin, vector<poly3> *pdata, int group)
 {
@@ -548,6 +554,8 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 	p.b.n = nt;
 	p.c.n = nt;
 
+	p.group = group;
+
 
 	while (yi<y)
 	{
@@ -566,8 +574,9 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 
 				if (tt.type == glzTTType::ATLASARRAY) {
 					glzAtlasQuad(tt.atlas_width, tt.atlas_height, tt.atlas[(yi*y) + xi], origin, quv);
+					p.atlas = tt.atlas[(yi*y) + xi];
 				}
-				else { glzAtlasQuad(1, 1, 0, glzOrigin::BOTTOM_RIGHT, quv); }
+				else { glzAtlasQuad(1, 1, 0, glzOrigin::BOTTOM_RIGHT, quv); p.atlas = 0; }
 
 				// face 1 (124)
 				p.a.v.x = 0.0f + xi;
@@ -629,7 +638,7 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 // the name glzLoafFileGeometryObj is a strong hint that i will add more formats
 
 
-void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int group)
+void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int group, int atlas)
 {
 
 
@@ -755,6 +764,7 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 				ptemp.c.n = ndata[vn_c - 1];
 
 				ptemp.group = group;
+				ptemp.atlas = atlas;
 			
 				pdata->push_back(ptemp);
 
@@ -771,6 +781,7 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 				ptemp.c.n = ndata[vn_d - 1];
 
 				ptemp.group = group;
+				ptemp.atlas = atlas;
 
 				pdata->push_back(ptemp);
 
@@ -802,7 +813,9 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 				ptemp.a.n = ndata[vn_a - 1];
 				ptemp.b.n = ndata[vn_b - 1];
 				ptemp.c.n = ndata[vn_c - 1];
+
 				ptemp.group = group;
+				ptemp.atlas = atlas;
 
 				pdata->push_back(ptemp);
 			}
@@ -833,7 +846,7 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 
 }
 
-
+/*
 long glzLoadFileGeometryObj(char filename[255], float *v, float *t, float *n)
 {
 	// this function is not in use
@@ -841,7 +854,7 @@ long glzLoadFileGeometryObj(char filename[255], float *v, float *t, float *n)
 
 	vector<poly3> pdata;
 
-	glzLoadFileGeometryObjVector(filename, &pdata,0);
+	glzLoadFileGeometryObjVector(filename, &pdata,0,0);
 
 	int i=0;
 
@@ -888,7 +901,7 @@ long glzLoadFileGeometryObj(char filename[255], float *v, float *t, float *n)
 	return (i * 3);
 }
 
-
+*/
 
 
 long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao)
@@ -903,7 +916,7 @@ long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt
 
 	vector<poly3> pdata;
 
-	glzLoadFileGeometryObjVector(filename, &pdata,0);
+	glzLoadFileGeometryObjVector(filename, &pdata,0,0);
 
 
 
@@ -968,33 +981,21 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 	unsigned int vaopoint;
 	vaopoint = *vao;
 	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
-	float *v, *t, *n;
-
-	long verts = (x*y * 6);
-
-	v = new float[verts * 3];
-	t = new float[verts * 2];
-	n = new float[verts * 3];
-
-	glzPrimGrid(tt, x, y, tt.origin, v, t, n);
-
-	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(v, igt, verts);
-
-	if (tt.type == glzTTType::VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(v, t, tt, verts);
-
-	glzProjectVertexArray(v, matrix, verts);
-
-	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
 
 
-	delete[] v;
-	delete[] t;
-	delete[] n;
-	v = NULL;
-	t = NULL;
-	n = NULL;
+	vector<poly3> p;
+	
+	glzPrimGridVector(tt, x, y, tt.origin,&p,0);
 
-	return verts;
+	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(&p,0, igt);
+
+	if (tt.type == glzTTType::VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(&p, 0, tt);
+
+	glzProjectVertexArray(&p,matrix, 0);
+
+	glzVAOMakeFromVector(p, vao, glzVAOType::AUTO);
+	
+	return p.size() * 3;
 }
 
 
@@ -1065,7 +1066,7 @@ long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao)
 	return verts;
 
 }
-
+/*
 long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
@@ -1247,4 +1248,164 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 	n = NULL;
 
 	return verts;
+}
+*/
+
+
+long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
+{
+	if (!isinited_geo_generate) ini_geo_generate();
+
+
+
+	unsigned int vaopoint;
+	vaopoint = *vao;
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+
+	int i = 0;
+
+	vector<poly3> p;
+	
+
+	int saic = 0, sai = 0;
+	i = 0;
+	while (i<num)
+	{
+
+		switch (pg[i].type)
+		{
+
+		case glzPrimitive::CUBE:
+		case glzPrimitive::HEXAHEDRON:
+			//curvert = glzPrimCubeverts(v + oldcurvert * 3, t + oldcurvert * 2, n + oldcurvert * 3);
+
+			//glzPrimFromIndexArraysVector(&p,i,0, cube_vertex, cube_uv, cube_normal, cube_face, cube_uvface, cube_nface, sizeof(cube_face) / sizeof(long));
+			glzPrimCubeVector(&p, i);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+
+
+			if ((pg[i].tt.atlas_height>1) || (pg[i].tt.atlas_width>1))
+			{
+				int aw = pg[i].tt.atlas_width;
+
+				if (pg[i].tt.type == glzTTType::ATLAS_CUBE_TBS)
+				{
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 0, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_INDFACE)
+				{
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 0, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 3, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 4, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 5, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_CROSS)
+				{
+					glzAtlasUVarrayRemapRotate(3, pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemapRotate(3, pg[i].tt.firstatlas + aw + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemapRotate(2, pg[i].tt.firstatlas + aw + aw + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else {
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i);
+				}
+
+			}
+
+
+
+			break;
+
+
+
+		case glzPrimitive::TETRAHEDRON:
+			glzPrimTetraVector(&p, i, 0);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+
+		case glzPrimitive::PYRAMID:
+			glzPrimFromIndexArraysVector(&p, i, 0, pyramid_vertex, pyramid_uv, pyramid_normal, pyramid_face, pyramid_uvface, pyramid_nface, sizeof(pyramid_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::OCTAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, octahedron_vertex, octahedron_uv, octahedron_normal, octahedron_face, octahedron_uvface, octahedron_nface, sizeof(octahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::DODECAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, dodecahedron_vertex, dodecahedron_uv, dodecahedron_normal, dodecahedron_face, dodecahedron_uvface, dodecahedron_nface, sizeof(dodecahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::ICOSAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, icosahedron_vertex, icosahedron_uv, icosahedron_normal, icosahedron_face, icosahedron_uvface, icosahedron_nface, sizeof(icosahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::ICOSIDODECAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, icosidodecahederon_vertex, icosidodecahederon_uv, icosidodecahederon_normal, icosidodecahederon_face, icosidodecahederon_uvface, icosidodecahederon_nface, sizeof(icosidodecahederon_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+
+
+		case glzPrimitive::FSQ:
+			glzPrimFSQVector(&p, i, 0);
+			break;
+
+		case glzPrimitive::RANDOM_POINT:
+			glzPrimRandomVector(&p, i, 0, pg[i].resolution_x);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::SPRITE_ATLAS_ARRAY:
+
+			saic = pg[i].tt.atlas_width*pg[i].tt.atlas_height;
+			sai = 0;
+
+			while (sai<saic)
+			{
+				glzPrimFSQVector(&p, i, sai);
+
+				glzAtlasUVarrayRemap(sai, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, sai);
+				
+				sai++;
+			}
+
+			break;
+
+		default:
+			break;
+
+		}
+
+		if ((pg[i].tt.atlas_width + pg[i].tt.atlas_height>2) && (pg[i].type != glzPrimitive::CUBE) && (pg[i].type != glzPrimitive::HEXAHEDRON) && (pg[i].type != glzPrimitive::SPRITE_ATLAS_ARRAY))
+		{
+			glzAtlasUVarrayRemap(pg[i].tt.firstatlas, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i);
+		}
+
+		i++;
+	}
+
+
+
+	glzVAOMakeFromVector(p, vao, glzVAOType::AUTO);
+
+	return p.size()*3;
 }

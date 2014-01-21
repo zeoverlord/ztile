@@ -36,6 +36,7 @@ using namespace std;
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
 long glzPrimCubeverts(float *v, float *t, float *n);
+void glzPrimCubeVector(vector<poly3> *pdata, int group);
 
 
 image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);
@@ -56,7 +57,9 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 
 	void glzIGT(float *vert, image_geo_transform igt, long num);
+	void glzIGT(vector<poly3> *pdata, int group, image_geo_transform igt);
 	void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long num);
+	void glzVert2TexcoordRescale(vector<poly3> *pdata, int group, texture_transform tt);
 
 	long glzCountFromIndexArrays(long vert_face[], int enteries);
 	void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigned int *vao, glzVAOType type);

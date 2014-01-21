@@ -903,6 +903,38 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw,
 
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group)
 {
+	float quv[8];
+
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
+
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+		++i;
+		i2++;
+	}
+	return;
+}
+
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side)
+{
 	// i use this to make normally mapped objects into atlas mapped objects
 	float quv[8];
 
@@ -915,7 +947,7 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, 
 	i2 = 0; 
 	while (i < p->end()) {
 
-		if (p->at(i2).group == group)
+		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
 		{
 			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
 			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
@@ -996,6 +1028,97 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 }
 
 
+
+void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side)
+{
+	// same as above except i now also rotate the original uv coordinates
+
+	float rm[4] = { 1, 0, 0, 1 };
+
+
+	if (r == 1)  //90 degrees
+	{
+		rm[0] = 0;
+		rm[1] = -1;
+		rm[2] = 1;
+		rm[3] = 0;
+	}
+	if (r == 2)  //180 degrees
+	{
+		rm[0] = -1;
+		rm[1] = 0;
+		rm[2] = 0;
+		rm[3] = -1;
+	}
+	if (r == 3)  //270 degrees
+	{
+		rm[0] = 0;
+		rm[1] = 1;
+		rm[2] = -1;
+		rm[3] = 0;
+	}
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	float u, v;
+
+
+	i2 = 0;
+	while (i < p->end()) {
+
+		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
+		{
+
+			u = ((p->at(i2).a.t.u - 0.5f)*rm[0]) + ((p->at(i2).a.t.v - 0.5f)*rm[1]);
+			v = ((p->at(i2).a.t.u - 0.5f)*rm[2]) + ((p->at(i2).a.t.v - 0.5f)*rm[3]);
+			p->at(i2).a.t.u = u + 0.5f;
+			p->at(i2).a.t.v = v + 0.5f;
+
+			u = ((p->at(i2).b.t.u - 0.5f)*rm[0]) + ((p->at(i2).b.t.v - 0.5f)*rm[1]);
+			v = ((p->at(i2).b.t.u - 0.5f)*rm[2]) + ((p->at(i2).b.t.v - 0.5f)*rm[3]);
+			p->at(i2).b.t.u = u + 0.5f;
+			p->at(i2).b.t.v = v + 0.5f;
+
+			u = ((p->at(i2).c.t.u - 0.5f)*rm[0]) + ((p->at(i2).c.t.v - 0.5f)*rm[1]);
+			v = ((p->at(i2).c.t.u - 0.5f)*rm[2]) + ((p->at(i2).c.t.v - 0.5f)*rm[3]);
+			p->at(i2).c.t.u = u + 0.5f;
+			p->at(i2).c.t.v = v + 0.5f;
+
+		}
+
+		++i;
+		i2++;
+	}
+
+	
+	float quv[8];
+	i2 = 0;
+
+
+	i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+		++i;
+		i2++;
+	}
+	return;
+
+}
 // matrix stuff
 // all these matrix functions behave exactly as ther openGL counterparts besides the matrix component that you need to pass around, it makes it a bit more flexible though
 
