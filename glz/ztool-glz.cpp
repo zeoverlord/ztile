@@ -947,7 +947,7 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, 
 	i2 = 0; 
 	while (i < p->end()) {
 
-		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
 		{
 			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
 			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
@@ -1067,7 +1067,7 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 	i2 = 0;
 	while (i < p->end()) {
 
-		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
 		{
 
 			u = ((p->at(i2).a.t.u - 0.5f)*rm[0]) + ((p->at(i2).a.t.v - 0.5f)*rm[1]);
@@ -1095,12 +1095,13 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 	float quv[8];
 	i2 = 0;
 
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
 
 	i = p->begin();
 	i2 = 0;
 	while (i < p->end()) {
 
-		if ((p->at(i2).group == group) || (p->at(i2).atlas == side))
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
 		{
 			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
 			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
