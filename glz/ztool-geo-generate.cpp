@@ -87,12 +87,16 @@ long glzPrimFSQ(float *v, float *t, float *n)
 void glzPrimFSQVector(vector<poly3> *pdata, int group, int atlas)
 {
 
-	poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
-	poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
+	poly3 p1 = { vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, -1.0f, 1.0f), tex2(1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), group, atlas };
+	poly3 p2 = { vert3(-1.0f, 1.0f, 1.0f), tex2(0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), group, atlas };
+
+
+
+	//poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
+	//poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
 	pdata->push_back(p1);
 	pdata->push_back(p2);
 	
-
 }
 /*
 long glzPrimRandom(float *v, float *t, float *n, int num)
@@ -137,6 +141,9 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.a.v.x = glzRandfs()*0.5f;
 		p.a.v.y = glzRandfs()*0.5f;
 		p.a.v.z = glzRandfs()*0.5f;
+		p.a.v.normalizeOrigin(1.0);
+		p.a.v *= 2.0f;
+		
 
 		p.a.t.u = glzRandfs();
 		p.a.t.v = glzRandfs();
@@ -144,7 +151,7 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.a.n.x = glzRandfs();
 		p.a.n.y = glzRandfs();
 		p.a.n.z = glzRandfs();
-		glzNormalize(&p.a.n, 1.0f);
+		p.a.n.normalize(1.0);
 
 		p.b.v.x = glzRandfs()*0.5f;
 		p.b.v.y = glzRandfs()*0.5f;
@@ -156,7 +163,7 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.b.n.x = glzRandfs();
 		p.b.n.y = glzRandfs();
 		p.b.n.z = glzRandfs();
-		glzNormalize(&p.b.n, 1.0f);
+		p.b.n.normalize(1.0);
 
 		p.c.v.x = glzRandfs()*0.5f;
 		p.c.v.y = glzRandfs()*0.5f;
@@ -168,7 +175,7 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.c.n.x = glzRandfs();
 		p.c.n.y = glzRandfs();
 		p.c.n.z = glzRandfs();
-		glzNormalize(&p.c.n, 1.0f);
+		p.b.n.normalize(1.0);
 
 		p.group = group;
 		p.atlas = atlas;
@@ -258,16 +265,16 @@ void glzPrimTetraVector(vector<poly3> *pdata, int group, int atlas)
 {
 
 
-	vec3 v1 = { 0, -0.5f, (sqrt(3.0f) - (1 / sqrt(3.0f)))*0.5f };
-	vec3 v2 = { 0.5, -0.5f, -0.5f / sqrt(3.0f) };
-	vec3 v3 = { -0.5, -0.5f, -0.5f / sqrt(3.0f) };
-	vec3 v4 = { 0, 1 * sqrt(2.0f / 3.0f) - 0.5f, 0 };
+	vert3 v1 = { 0, -0.5f, (sqrt(3.0f) - (1 / sqrt(3.0f)))*0.5f };
+	vert3 v2 = { 0.5, -0.5f, -0.5f / sqrt(3.0f) };
+	vert3 v3 = { -0.5, -0.5f, -0.5f / sqrt(3.0f) };
+	vert3 v4 = { 0, 1 * sqrt(2.0f / 3.0f) - 0.5f, 0 };
 
-	vec2 t1 = { 0, 0 };
-	vec2 t2 = { 0, 1 };
-	vec2 t3 = { 1, 1 };
-	vec2 t4 = { 1, 0 };
-	vec2 t5 = { 0.5, 0.5 };
+	tex2 t1 = { 0, 0 };
+	tex2 t2 = { 0, 1 };
+	tex2 t3 = { 1, 1 };
+	tex2 t4 = { 1, 0 };
+	tex2 t5 = { 0.5, 0.5 };
 
 	vec3 n1 = { 0.5f, 0.5f, -sqrt(3.0f) / 2.0f };
 	vec3 n2 = { 0.0f, -1.0f, 0.0f };
@@ -367,7 +374,7 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, vec3 vert[], vec2 uv[]
 }
 */
 
-void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, int atlas, vec3 vert[], vec2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
+void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, int atlas, vert3 vert[], tex2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
 {
 	poly3 p;	
 
@@ -544,7 +551,7 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 	poly3 p;
 
 	vec3 nt = { 0.0, 1.0, 0.0 };
-	vec3 vt = { 0.0, 0.0, 0.0 };
+	vert3 vt = { 0.0, 0.0, 0.0 };
 
 	p.a.v = vt;
 	p.b.v = vt;
@@ -582,20 +589,20 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 				p.a.v.x = 0.0f + xi;
 				p.a.v.y = 0.0f - yi;
 
-				p.b.v.x = 0.0f + xi;
-				p.b.v.y = 1.0f - yi;
+				p.c.v.x = 0.0f + xi;
+				p.c.v.y = 1.0f - yi;
 
-				p.c.v.x = 1.0f + xi;
-				p.c.v.y = 0.0f - yi;
+				p.b.v.x = 1.0f + xi;
+				p.b.v.y = 0.0f - yi;
 
 				p.a.t.u = quv[0];
 				p.a.t.v = quv[1];
 
-				p.b.t.u = quv[2];
-				p.b.t.v = quv[3];
+				p.c.t.u = quv[2];
+				p.c.t.v = quv[3];
 
-				p.c.t.u = quv[6];
-				p.c.t.v = quv[7];
+				p.b.t.u = quv[6];
+				p.b.t.v = quv[7];
 
 				pdata->push_back(p);
 
@@ -603,20 +610,20 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 				p.a.v.x = 0.0f + xi;
 				p.a.v.y = 1.0f - yi;
 
-				p.b.v.x = 1.0f + xi;
-				p.b.v.y = 1.0f - yi;
-
 				p.c.v.x = 1.0f + xi;
-				p.c.v.y = 0.0f - yi;
+				p.c.v.y = 1.0f - yi;
+
+				p.b.v.x = 1.0f + xi;
+				p.b.v.y = 0.0f - yi;
 
 				p.a.t.u = quv[2];
 				p.a.t.v = quv[3];
 
-				p.b.t.u = quv[4];
-				p.b.t.v = quv[5];
+				p.c.t.u = quv[4];
+				p.c.t.v = quv[5];
 
-				p.c.t.u = quv[6];
-				p.c.t.v = quv[7];
+				p.b.t.u = quv[6];
+				p.b.t.v = quv[7];
 
 				pdata->push_back(p);
 			}
@@ -642,8 +649,8 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 {
 
 
-	vector<vec3> vdata;
-	vector<vec2> tdata;
+	vector<vert3> vdata;
+	vector<tex2> tdata;
 	vector<vec3> ndata;
 		
 	
@@ -785,11 +792,10 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 
 				pdata->push_back(ptemp);
 
-
 				// these lines cause intellisense to lable them as bugs, but they compile fine, so the above code is a workaround
-/*
-				pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group });
-				pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], vdata[v_d - 1], tdata[vt_d - 1], ndata[vn_d - 1], group });*/
+
+	/*			pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group ,atlas });
+				pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], vdata[v_d - 1], tdata[vt_d - 1], ndata[vn_d - 1], group, atlas });*/
 
 				
 
@@ -799,7 +805,7 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 			if (ii == 6)
 			{
 				sscanf_s(line + 1, "%d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c);
-				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group });*/
+				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group, atlas });*/
 
 				
 				ptemp.a.v = vdata[v_a - 1];
@@ -1280,7 +1286,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 			//curvert = glzPrimCubeverts(v + oldcurvert * 3, t + oldcurvert * 2, n + oldcurvert * 3);
 
 			//glzPrimFromIndexArraysVector(&p,i,0, cube_vertex, cube_uv, cube_normal, cube_face, cube_uvface, cube_nface, sizeof(cube_face) / sizeof(long));
-			glzPrimCubeVector(&p, i);
+			glzPrimCubeVector(&p, i,63);
 			glzProjectVertexArray(&p, pg[i].matrix, i);
 
 

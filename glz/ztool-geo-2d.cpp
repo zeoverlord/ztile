@@ -98,7 +98,7 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 {
 	
 	float kern = k*0.2500f;
-	float medium_kern = kern*0.75;
+	float medium_kern = kern*0.75f;
 	float small_kern = kern*0.5f;
 	float st = 0.33f, x = 0.0f, y = 0.0f;
 	float xp = 0, yp = -1.0f;
@@ -191,21 +191,25 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 			t[it + 0] = textkern[text[c]][0];
 			t[it + 1] = textkern[text[c]][1];
 
-			t[it + 2] = textkern[text[c]][2];
-			t[it + 3] = textkern[text[c]][3];
+			t[it + 2] = textkern[text[c]][6];
+			t[it + 3] = textkern[text[c]][7];
 
-			t[it + 4] = textkern[text[c]][6];
-			t[it + 5] = textkern[text[c]][7];
+			t[it + 4] = textkern[text[c]][2];
+			t[it + 5] = textkern[text[c]][3];
+
+			
 
 			// t face 2 (234)
 			t[it + 6] = textkern[text[c]][2];
 			t[it + 7] = textkern[text[c]][3];
 
-			t[it + 8] = textkern[text[c]][4];
-			t[it + 9] = textkern[text[c]][5];
+			t[it + 8] = textkern[text[c]][6];
+			t[it + 9] = textkern[text[c]][7];
 
-			t[it + 10] = textkern[text[c]][6];
-			t[it + 11] = textkern[text[c]][7];
+			t[it + 10] = textkern[text[c]][4];
+			t[it + 11] = textkern[text[c]][5];
+
+			
 			it += 12;
 
 
@@ -213,13 +217,15 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 			v[iv + 1] = 0 + y + yp;
 			v[iv + 2] = 0.0f;
 
-			v[iv + 3] = 0 + x + xp;
-			v[iv + 4] = 1 + y + yp;
+			v[iv + 3] = 1 + x + xp;
+			v[iv + 4] = 0 + y + yp;
 			v[iv + 5] = 0.0f;
 
-			v[iv + 6] = 1 + x + xp;
-			v[iv + 7] = 0 + y + yp;
+			v[iv + 6] = 0 + x + xp;
+			v[iv + 7] = 1 + y + yp;
 			v[iv + 8] = 0.0f;
+
+			
 
 			// v face 2 (234)
 
@@ -228,12 +234,14 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 			v[iv + 11] = 0.0f;
 
 			v[iv + 12] = 1 + x + xp;
-			v[iv + 13] = 1 + y + yp;
+			v[iv + 13] = 0 + y + yp;
 			v[iv + 14] = 0.0f;
 
 			v[iv + 15] = 1 + x + xp;
-			v[iv + 16] = 0 + y + yp;
+			v[iv + 16] = 1 + y + yp;
 			v[iv + 17] = 0.0f;
+
+			
 
 
 
@@ -529,18 +537,18 @@ void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, 
 
 	// xy is now in -1 +1 space
 
-	X /= viewport[2] * 0.5;
-	Y /= viewport[3] * 0.5;
+	X /= viewport[2] * 0.5f;
+	Y /= viewport[3] * 0.5f;
 
-	X += viewport[2] * 0.5;
-	Y += viewport[3] * 0.5;
+	X += viewport[2] * 0.5f;
+	Y += viewport[3] * 0.5f;
 
 	//xy should now be in pixel space
 
 
 
-	W = (W / (m[0] * (viewport[2] * 0.5)));
-	H = (H / (m[5] * (viewport[3] * 0.5)));
+	W = (W / (m[0] * (viewport[2] * 0.5f)));
+	H = (H / (m[5] * (viewport[3] * 0.5f)));
 
 
 	float x0 = X, y0 = Y, x1 = X + W, y1 = Y + H;

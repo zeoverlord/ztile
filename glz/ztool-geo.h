@@ -36,7 +36,7 @@ using namespace std;
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
 long glzPrimCubeverts(float *v, float *t, float *n);
-void glzPrimCubeVector(vector<poly3> *pdata, int group);
+void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides);
 
 
 image_geo_transform glzMakeIGT(glzIGTType type, unsigned int width, unsigned int height, unsigned int bpp, float x_offset, float y_offset, float z_offset, float scale, float tscale, glzAxis axis, unsigned char *data);

@@ -211,17 +211,19 @@ long glzPrimCubeverts(float *v, float *t, float *n)
 }
 
 
-void glzPrimCubeVector(vector<poly3> *pdata, int group)
+void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides)
 {
-	vec3 v1 = { -0.500000, -0.500000, 0.500000 };
-	vec3 v2 = { 0.500000, -0.500000, 0.500000 };
-	vec3 v3 = { 0.500000, 0.500000, 0.500000 };
-	vec3 v4 = { -0.500000, 0.500000, 0.500000 };
-	vec3 v5 = { 0.500000, 0.500000, -0.500000 };
-	vec3 v6 = { -0.500000, 0.500000, -0.500000 };
-	vec3 v7 = { 0.500000, -0.500000, -0.500000 };
-	vec3 v8 = { -0.500000, -0.500000, -0.500000 };
-	
+
+	// a sides of 63 should give all sides
+	vert3 v1 = { -0.500000, -0.500000, 0.500000 };
+	vert3 v2 = { 0.500000, -0.500000, 0.500000 };
+	vert3 v3 = { 0.500000, 0.500000, 0.500000 };
+	vert3 v4 = { -0.500000, 0.500000, 0.500000 };
+	vert3 v5 = { 0.500000, 0.500000, -0.500000 };
+	vert3 v6 = { -0.500000, 0.500000, -0.500000 };
+	vert3 v7 = { 0.500000, -0.500000, -0.500000 };
+	vert3 v8 = { -0.500000, -0.500000, -0.500000 };
+
 
 	vec3 n1 = { 0.000000, 0.000000, 1.000000 };
 	vec3 n2 = { 0.000000, 1.000000, 0.000000 };
@@ -230,40 +232,64 @@ void glzPrimCubeVector(vector<poly3> *pdata, int group)
 	vec3 n5 = { 1.000000, 0.000000, 0.000000 };
 	vec3 n6 = { -1.000000, 0.000000, 0.000000 };
 
-	vec2 t1 = { 0.000000, 0.000000 };
-	vec2 t2 = { 1.000000, 0.000000 };	
-	vec2 t3 = { 0.000000, 1.000000 };
-	vec2 t4 = { 1.000000, 1.000000 };
+	tex2 t1 = { 0.000000, 0.000000 };
+	tex2 t2 = { 1.000000, 0.000000 };
+	tex2 t3 = { 0.000000, 1.000000 };
+	tex2 t4 = { 1.000000, 1.000000 };
 
-	poly3 p1 = { v6, t3, n2, v4, t1, n2, v3, t2, n2, group, 0 };
+	poly3 p1 = { v6, t3, n2, v4, t1, n2, v3, t2, n2, group, 0 };//top
 	poly3 p2 = { v5, t4, n2, v6, t3, n2, v3, t2, n2, group, 0 };
 
-	poly3 p3 = { v8, t4, n4, v7, t3, n4, v2, t1, n4, group, 1 };
-	poly3 p4 = { v1, t2, n4, v8, t4, n4, v2, t1, n4, group, 1 };	
+	poly3 p3 = { v8, t4, n4, v7, t3, n4, v2, t1, n4, group, 1 };// bottom
+	poly3 p4 = { v1, t2, n4, v8, t4, n4, v2, t1, n4, group, 1 };
 
-	poly3 p5 = { v1, t1, n1, v2, t2, n1, v3, t4, n1, group, 2 };
+	poly3 p5 = { v1, t1, n1, v2, t2, n1, v3, t4, n1, group, 2 };// front
 	poly3 p6 = { v4, t3, n1, v1, t1, n1, v3, t4, n1, group, 2 };
 
-	poly3 p7 = { v7, t2, n5, v5, t4, n5, v3, t3, n5, group, 3 };
+	poly3 p7 = { v7, t2, n5, v5, t4, n5, v3, t3, n5, group, 3 };// right
 	poly3 p8 = { v2, t1, n5, v7, t2, n5, v3, t3, n5, group, 3 };
 
-	poly3 p9 = { v8, t2, n3, v6, t4, n3, v5, t3, n3, group, 4 };
+	poly3 p9 = { v8, t2, n3, v6, t4, n3, v5, t3, n3, group, 4 };// back
 	poly3 p10 = { v7, t1, n3, v8, t2, n3, v5, t3, n3, group, 4 };
 
-	poly3 p11 = { v8, t1, n6, v1, t2, n6, v4, t4, n6, group, 5 };
+	poly3 p11 = { v8, t1, n6, v1, t2, n6, v4, t4, n6, group, 5 };// left
 	poly3 p12 = { v6, t3, n6, v8, t1, n6, v4, t4, n6, group, 5 };
-	pdata->push_back(p1);
-	pdata->push_back(p2);
-	pdata->push_back(p3);
+
+	if (sides & 1)
+	{
+		pdata->push_back(p1);//top
+		pdata->push_back(p2);
+	}
+
+	if (sides & 2)
+	{
+	pdata->push_back(p3);// bottom
 	pdata->push_back(p4);
-	pdata->push_back(p5);
+	}
+
+	if (sides & 4)
+	{
+		pdata->push_back(p5);// front
 	pdata->push_back(p6);
-	pdata->push_back(p7);
+	}
+
+	if (sides & 8)
+	{
+		pdata->push_back(p7);// right
 	pdata->push_back(p8);
-	pdata->push_back(p9);
+	}
+
+	if (sides & 16)
+	{
+		pdata->push_back(p9);// back
 	pdata->push_back(p10);
-	pdata->push_back(p11);
+	}
+
+	if (sides & 32)
+	{
+		pdata->push_back(p11);// left
 	pdata->push_back(p12);
+	}
 
 	
 	
@@ -579,7 +605,7 @@ void glzIGT(vector<poly3> *pdata, int group, image_geo_transform igt)
 	int step = igt.bpp;
 	float x = 0, y = 0, z = 0;
 
-	vec3 a,b,c;
+	vert3 a, b, c;
 	int i2 = 0;
 	auto i = pdata->begin();
 

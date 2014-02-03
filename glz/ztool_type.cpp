@@ -6,7 +6,7 @@ using namespace std;
 #include "ztool-geo.h"
 
 
-glzspeed glzlength::operator/ (glzsecond b) { glzspeed sp(L / b.get()); return sp; }
+//glzspeed glzlength::operator/ (glzsecond b) { glzspeed sp(L / b.get()); return sp; }
 
 
 
@@ -257,4 +257,77 @@ void glzSimpleParticleSystem::render_out(void)
 
 	glzDirectPointArrayRender(v, t, i3);
 
+}
+
+/**/
+void glzMatrix::LoadIdentity(void)
+{
+m[0] = 1;
+m[1] = 0;
+m[2] = 0;
+m[3] = 0;
+
+m[4] = 0;
+m[5] = 1;
+m[6] = 0;
+m[7] = 0;
+
+m[8] = 0;
+m[9] = 0;
+m[10] = 1;
+m[11] = 0;
+
+m[12] = 0;
+m[13] = 0;
+m[14] = 0;
+m[15] = 1;
+return;
+}
+
+glzMatrix glzMatrix::operator*= (glzMatrix b)
+{
+	glzMatrix  nm,a(m); // should be done with doubles some day
+	int v[] = { 0, 1, 2, 3};
+
+	for (auto i : v){  //Cycle through each vector of first matrix.
+		m[i * 4 + 0] = a.m[i * 4] * b.m[0] + a.m[i * 4 + 1] * b.m[4] + a.m[i * 4 + 2] * b.m[8] + a.m[i * 4 + 3] * b.m[12];
+		m[i * 4 + 1] = a.m[i * 4] * b.m[1] + a.m[i * 4 + 1] * b.m[5] + a.m[i * 4 + 2] * b.m[9] + a.m[i * 4 + 3] * b.m[13];
+		m[i * 4 + 2] = a.m[i * 4] * b.m[2] + a.m[i * 4 + 1] * b.m[6] + a.m[i * 4 + 2] * b.m[10] + a.m[i * 4 + 3] * b.m[14];
+		m[i * 4 + 3] = a.m[i * 4] * b.m[3] + a.m[i * 4 + 1] * b.m[7] + a.m[i * 4 + 2] * b.m[11] + a.m[i * 4 + 3] * b.m[15];
+	}
+
+
+	return glzMatrix(m);
+}
+
+
+void glzMatrix::rotate(double a, double x, double y, double z)
+{
+
+	double angle = a*PI_OVER_180;
+	glzMatrix m2;
+
+	m2.m[0] = 1 + (1 - cos(angle))*(x*x - 1);
+	m2.m[1] = -z*sin(angle) + (1 - cos(angle))*x*y;
+	m2.m[2] = y*sin(angle) + (1 - cos(angle))*x*z;
+	m2.m[3] = 0;
+
+	m2.m[4] = z*sin(angle) + (1 - cos(angle))*x*y;
+	m2.m[5] = 1 + (1 - cos(angle))*(y*y - 1);
+	m2.m[6] = -x*sin(angle) + (1 - cos(angle))*y*z;
+	m2.m[7] = 0;
+
+	m2.m[8] = -y*sin(angle) + (1 - cos(angle))*x*z;
+	m2.m[9] = x*sin(angle) + (1 - cos(angle))*y*z;
+	m2.m[10] = 1 + (1 - cos(angle))*(z*z - 1);
+	m2.m[11] = 0;
+
+	m2.m[12] = 0;
+	m2.m[13] = 0;
+	m2.m[14] = 0;
+	m2.m[15] = 1;
+
+	multThis(m2);
+
+	return;
 }

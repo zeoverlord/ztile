@@ -105,6 +105,11 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glShadeModel (GL_SMOOTH);									// Select Smooth Shading
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);			// Set Perspective Calculations To Most Accurate
 
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+
+	glFrontFace(GL_CCW);
+
 
 
 	glUseProgram				= (PFNGLUSEPROGRAMPROC) wglGetProcAddress("glUseProgram");

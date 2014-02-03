@@ -61,7 +61,7 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-float q[4] ={1,0,0,0};
+float q[4] = { 1, 0, 0, 0 };
 float q2[4] ={1,0,0,0};
 float q3[4] ={1,0,0,0};
 
@@ -105,6 +105,10 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glEnable (GL_DEPTH_TEST);									// Enable Depth Testing
 	glShadeModel (GL_SMOOTH);									// Select Smooth Shading
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);			// Set Perspective Calculations To Most Accurate
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	
+	glFrontFace(GL_CCW);
 
 
 
@@ -201,6 +205,10 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	primitives[6] = glzMakePGDefault(glzPrimitive::ICOSIDODECAHEDRON);
 	primitives[6].tt=glzMakeTTDefault();
 
+	primitives[7] = glzMakePGDefault(glzPrimitive::RANDOM_POINT);
+	primitives[7].resolution_x = 100000;
+	primitives[7].tt = glzMakeTTDefault();
+
 
 
 
@@ -211,6 +219,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	vao_num[5]=glzVAOMakePrimitive(primitives[4], &vao[5]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 	vao_num[6]=glzVAOMakePrimitive(primitives[5], &vao[6]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 	vao_num[7]=glzVAOMakePrimitive(primitives[6], &vao[7]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
+
+	vao_num[10] = glzVAOMakePrimitive(primitives[7], &vao[10]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 
 
 	texture_transform obj_tt=glzMakeTTDefault();
@@ -274,8 +284,8 @@ void Update (float seconds)								// Perform Motion Updates Here
 	if (gamestate==1)
 	{
 
-		glzRotateQuaternionf(q,seconds*50,0.0f,1.0f,0.0f);	
-		glzRotateQuaternionf(q,seconds*40,1.0f,0.0f,0.0f);	
+		glzRotateQuaternionf(q, seconds * 50, 0.0, 1.0, 0.0);	
+		glzRotateQuaternionf(q, seconds * 40, 1.0, 0.0, 0.0);
 
 
 	}
@@ -299,14 +309,23 @@ if (gamestate==3)
 if (gamestate == 4)
 {
 
-	glzRotateQuaternionf(q3, seconds * 50, 0.0f, 1.0f, 0.0f);
+	glzRotateQuaternionf(q3, seconds * 50, 0.0, 1.0, 0.0);
 }
+if (gamestate == 5)
+{
+
+	glzRotateQuaternionf(q, seconds * 50, 0.0, 1.0, 0.0);
+	glzRotateQuaternionf(q, seconds * 40, 1.0, 0.0, 0.0);
+}
+
+
 
 
 	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
 	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
 	if (g_keys->keyDown['3'] == TRUE) gamestate = 3;
 	if (g_keys->keyDown['4'] == TRUE) gamestate = 4;
+	if (g_keys->keyDown['5'] == TRUE) gamestate = 5;
 
 }
 
@@ -356,6 +375,24 @@ void draw_object(unsigned int tx,int prim, float x, float y)
 
     glBindTexture(GL_TEXTURE_2D,texture[tx]);
 	glzDrawVAO(vao_num[prim],vao[prim],GL_TRIANGLES);
+}
+
+void draw_object2(unsigned int tx, int prim, float x, float y)
+{
+	unsigned int loc1 = glGetUniformLocation(ProgramObject, "projMat");
+	// draw objects
+	glzLoadIdentity(m);
+	glzPerspective(m, 45.0f, 1.618f, 1.0f, 1000.0f);
+
+	glzTranslatef(m, x, y, -7);
+	//glzScalef(m,0.1,0.1,0.1);
+	glzQuaternionToMatrixf(m, q);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	glPointSize(1);
+
+
+	glBindTexture(GL_TEXTURE_2D, texture[tx]);
+	glzDrawVAO(vao_num[prim], vao[prim], GL_POINTS);
 }
 
 
@@ -450,6 +487,17 @@ void Draw (void)
 
 		glzDirectCubeRender(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, box_tt, 1);
 		//glzDrawVAO(vao_num[9], vao[9], GL_TRIANGLES);
+
+		draw_text(-3.9f, 1.9f, 2, 0, ProgramObject, COL_WHITE);
+		draw_text(1.7f, -1.8f, 15, 0, ProgramObject, COL_WHITE);
+	}
+
+	if (gamestate == 5)
+	{
+
+		
+
+		draw_object2(0, 10, 0.0f, 0.5f);
 
 		draw_text(-3.9f, 1.9f, 2, 0, ProgramObject, COL_WHITE);
 		draw_text(1.7f, -1.8f, 15, 0, ProgramObject, COL_WHITE);
