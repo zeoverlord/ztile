@@ -110,7 +110,7 @@ public:
 
 // todo, move to own cpp file
 
-
+class glzQuaternion;
 
 // units - well at least it's a beginning, will continue at a later date, probably will be rewritten once visual studio gets user defined literals
 /*
@@ -150,6 +150,9 @@ public:
 
 	
 };
+
+glzspeed glzlength::operator/ (glzsecond b) { glzspeed sp(L / b.get()); return sp; }
+
 */
 
 class vec2{ //vector2 class
@@ -306,27 +309,36 @@ void normalize(double l) { if (!this->magnitude()) return; double m = l / this->
 class glzMatrix{ //matrix class
 
 private:
-	void multThis(glzMatrix b) {glzMatrix  a(m); a *= b; glzMatrix(a.m);	}
+	void multThis(glzMatrix b) {*this *= b;}
 	
 //glzMatrix() : glzMatrix((double[16]){ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 }) {}
 public:
 	double m[16];
-	glzMatrix() { this->LoadIdentity(); }	
+	glzMatrix() { this->LoadIdentity(); }
 	
 	glzMatrix(double b[16]) { int v[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}; for (auto i : v ) m[i] = b[i]; }
 	void LoadIdentity(void);
+	void LoadIdentityzero(void);
+	void transferMatrix(float *b); // possibly a temporary method untill i can figure out something better
+	//operators
 	glzMatrix glzMatrix::operator*= (glzMatrix b);
-	// continue adding stuff here
-	void translate(double x, double y, double z) {m[12] += x; m[13] += y;  m[14] += z;}
+	glzMatrix glzMatrix::operator*= (glzQuaternion b);
+	// movements
+	void translate(double x, double y, double z);// {m[12] += x; m[13] += y;  m[14] += z; }
 	void scale(double x, double y, double z) { m[0] *= x; m[5] *= y;  m[10] *= z; }
 	void rotate(double a, double x, double y, double z);
-	
-
-	//glzMatrix glzMatrix::operator= (glzMatrix b) {  glzMatrix(b.m); }
+	void loadQuanternion(float q[4]);
+	// views
+	void perspective(double fov, double aspect, double zNear, double zFar);
+	void ortho(double left, double right, double bottom, double top, double Znear, double Zfar);
+	void ortho2D(double left, double right, double bottom, double top);
+	void ortho2DPixelspace(int x, int y, glzOrigin origin);	
 
 };
 
 inline glzMatrix operator* (glzMatrix lhs, glzMatrix rhs) {lhs *= rhs;	return lhs;}
+
+
 
 // vertex projection
 inline vert3 operator* (glzMatrix a, vert3 b) 
@@ -345,6 +357,26 @@ inline vec3 operator* (glzMatrix a, vec3 b)
 				(b.x * a.m[2]) + (b.y * a.m[6]) + (b.z * a.m[10]) + a.m[14]);
 }
 
+
+
+
+class glzQuaternion{ //Quaternion class
+
+private:
+	
+	void multQuaternion(glzQuaternion b);
+
+public:
+	double w, x, y, z;
+	glzQuaternion() : w(1.0), x(0.0), y(0.0), z(0.0) {}
+	glzQuaternion(double win, double xin, double yin, double zin) : w{ win }, x{ xin }, y{ yin }, z{ zin } {}
+
+	void identity(void) { glzQuaternion(1.0,0.0,0.0,0.0); }
+	void normalize(void) { double n = sqrt(w * w + x * x + y * y + z * z);	w /= n;	x /= n;	y /= n;	z /= n; }	
+	void rotate(double a, double x, double y, double z);
+};
+
+inline glzMatrix operator* (glzMatrix lhs, glzQuaternion rhs) { lhs *= rhs;	return lhs; }
 
 
 

@@ -52,6 +52,7 @@ Keys*		g_keys;
 float		angle=0,width,height;												// Used To Rotate The Triangles
 unsigned int vao[16],vao_num[16],textvao[16],textvao_num[16];
 float m[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+glzMatrix mnew;
 unsigned int texture[5],fonttexture[15];
 
 
@@ -64,8 +65,9 @@ int spriteframe=0;
 float q[4] = { 1, 0, 0, 0 };
 float q2[4] ={1,0,0,0};
 float q3[4] ={1,0,0,0};
+glzQuaternion qn;
 
-int gamestate=3;
+int gamestate=4;
 
 img_head img;
 unsigned char *data;
@@ -77,6 +79,7 @@ texture_transform text_tt;
 static PFNGLUSEPROGRAMPROC						glUseProgram;
 static PFNGLUNIFORM1IPROC                       glUniform1i;
 static PFNGLUNIFORMMATRIX4FVPROC                glUniformMatrix4fv;
+static PFNGLUNIFORMMATRIX4DVPROC                glUniformMatrix4dv;
 static PFNGLUNIFORM4FARBPROC                    glUniform4f;
 static PFNGLGETUNIFORMLOCATIONPROC              glGetUniformLocation;
 
@@ -117,6 +120,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glUniform1i= (PFNGLUNIFORM1IPROC) wglGetProcAddress("glUniform1i");
 	glUniform4f= (PFNGLUNIFORM4FARBPROC) wglGetProcAddress("glUniform4fARB");
 	glUniformMatrix4fv= (PFNGLUNIFORMMATRIX4FVPROC) wglGetProcAddress("glUniformMatrix4fv");
+	glUniformMatrix4dv = (PFNGLUNIFORMMATRIX4DVPROC)wglGetProcAddress("glUniformMatrix4dv");
 
 
 
@@ -310,6 +314,7 @@ if (gamestate == 4)
 {
 
 	glzRotateQuaternionf(q3, seconds * 50, 0.0, 1.0, 0.0);
+	qn.rotate(seconds * 50, 0.0, 1.0, 0.0);
 }
 if (gamestate == 5)
 {
@@ -320,6 +325,8 @@ if (gamestate == 5)
 
 
 
+angle += seconds * 50;
+if (angle > 360) angle -= 360;
 
 	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
 	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
@@ -478,9 +485,19 @@ void Draw (void)
 		texture_transform box_tt = glzMakeTTDefault();
 		// draw direct box
 		glzLoadIdentity(m);
-		glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
-		glzTranslatef(m, 0, -1, -7);
-		glzQuaternionToMatrixf(m, q3);
+		mnew.LoadIdentity();
+		mnew.perspective( 45.0f, 1.618f, 1.0f, 100.0f);
+		mnew.translate(0, -1, -7);
+		//mnew.rotate(angle, 0, 1, 0);
+		//mnew.loadQuanternion(q3);
+		mnew *= qn;
+
+	//	int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	//	for (auto i : v)
+	//		m[i] = (float)mnew.m[i];
+
+		mnew.transferMatrix(&m[0]);
+
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
 
 		glBindTexture(GL_TEXTURE_2D, texture[4]);
