@@ -31,6 +31,7 @@
 #include "..\glz\ztool-geo.h"
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
+#include "..\glz\ztool-vectormath.h"
 #include "..\glz\ztool-tex.h"
 #include "..\glz\ztool-geo-2d.h"
 #include "..\glz\ztool-geo-generate.h"

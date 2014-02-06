@@ -99,7 +99,7 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 	
 	float kern = k*0.2500f;
 	float medium_kern = kern*0.75f;
-	float small_kern = kern*0.5f;
+	float small_kern = kern*0.6f;
 	float st = 0.33f, x = 0.0f, y = 0.0f;
 	float xp = 0, yp = -1.0f;
 	unsigned int c = 0, iv = 0, it = 0, i = 0;
@@ -365,7 +365,8 @@ long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transfor
 
 }
 
-long glzVAOMakeText2d(char text[255], float scale, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao)
+
+long glzVAOMakeText2d(char text[255], float scale, float aspect, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao)
 {
 	if (!isinited_geo_2d) ini_geo_2d();
 
@@ -425,7 +426,7 @@ long glzVAOMakeText2d(char text[255], float scale, float kern, texture_transform
 			break;
 	}
 	// get scaling right
-	glzScalef(m, scale, scale, 1.0f);
+	glzScalef(m, scale, scale*aspect, 1.0f);
 	glzProjectVertexArray(v, m, verts);	
 	
 		
@@ -444,11 +445,11 @@ long glzVAOMakeText2d(char text[255], float scale, float kern, texture_transform
 }
 
 
-void glzDirectDrawText(char text[255], float scale, float kern, glzOrigin textorigin)
+void glzDirectDrawText(char text[255], float scale, float aspect, float kern, glzOrigin textorigin)
 {
 	unsigned int localVAO;
 	long verts;
-	verts = glzVAOMakeText2d(text, scale, kern, glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT), textorigin, &localVAO);
+	verts = glzVAOMakeText2d(text, scale, aspect, kern, glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT), textorigin, &localVAO);
 	glzDrawVAO(0, verts, localVAO, GL_TRIANGLES);
 	glzKillVAO(localVAO, glzVAOType::AUTO);
 

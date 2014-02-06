@@ -23,6 +23,7 @@
 using namespace std;
 
 #include "ztool-type.h"
+#include "ztool-vectormath.h"
 #include <vector>
 
 

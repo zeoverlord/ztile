@@ -31,9 +31,11 @@
 #include "..\glz\ztool-geo.h"
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
+#include "..\glz\ztool-vectormath.h"
 #include "..\glz\ztool-tex.h"
 #include "..\glz\ztool-geo-2d.h"
 #include "..\glz\ztool-geo-generate.h"
+
 
 using namespace std;										
 
@@ -159,7 +161,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzScalef(mt,0.17f,0.17f,0.17f);
 	glzScalef(mt2,0.3f,0.3f,0.3f);
-	glzScalef(mt3,0.13f,0.13f,0.13f);
+	glzScalef(mt3,0.17f,0.17f,0.17f);
 	glzScalef(mg,32.0f,32.0f,32.0f);
 	glzScalef(mh,0.4f,0.4f,0.4f);
 
@@ -169,20 +171,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
-// primitive screen
-	textvao_num[0] = glzVAOMakeText("Primitives", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[0]);
- 
-// wavefront objects screen
-
-	textvao_num[1] = glzVAOMakeText(".obj loading, try using the arrow keys", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[1]);
-	
-// heigth grid screen
-
-	textvao_num[2] = glzVAOMakeText("Heightfield", mt, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[2]);
-
-
 // all screens
-	textvao_num[15] = glzVAOMakeText("Switch screens with 1, 2, 3", mt3, 0.7f, text_tt, glzOrigin::BOTTOM_LEFT, &textvao[15]);
+	textvao_num[0] = glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5", mt3, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[0]);
 
 
 	
@@ -249,7 +239,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glzShaderLink(ProgramObject);
 
 	// load the textures
-	fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
+	fonttexture[0] = glzLoadTexture("data\\fonts\\ms_gothic.tga", glzTexFilter::LINEAR);
+	//fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
 
 	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::ANSIO_MAX);
 	texture[2] = glzLoadTexture("data\\cv90base.tga", glzTexFilter::ANSIO_MAX);
@@ -367,6 +358,38 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 
 }
 
+void draw_text2(char text[255], float x, float y, float scale, float kern, int font, unsigned int po, unsigned int col)
+{
+	glUseProgram(po);
+
+	unsigned int loc1 = glGetUniformLocation(po, "projMat");
+	unsigned int loc2 = glGetUniformLocation(po, "texunit0");
+	unsigned int loc3 = glGetUniformLocation(po, "tint");
+	glzLoadIdentity(m);
+	glzOrtho2DPixelspace(m, WINDOW_HEIGHT, WINDOW_WIDTH, glzOrigin::BOTTOM_LEFT);
+
+	glzTranslatef(m, x, y, 0);
+
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+
+	if (col == COL_BLACK)	glUniform4f(loc3, 0.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_WHITE)	glUniform4f(loc3, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (col == COL_RED)	glUniform4f(loc3, 1.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_GREEN)	glUniform4f(loc3, 0.0f, 1.0f, 0.0f, 1.0f);
+	if (col == COL_BLUE)	glUniform4f(loc3, 0.0f, 0.0f, 1.0f, 1.0f);
+
+	float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+	
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, fonttexture[font]);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glzDirectDrawText(text, scale, aspect, kern, glzOrigin::BOTTOM_LEFT);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
+}
+
 
 void draw_object(unsigned int tx,int prim, float x, float y)
 {
@@ -435,9 +458,8 @@ void Draw (void)
 		draw_object(0,7,2.5f,-1.5f);
 
 
-
-		draw_text(-3.9f, 1.9f,0,0,ProgramObject,COL_WHITE);
-		draw_text(1.7f, -1.8f,15,0,ProgramObject,COL_WHITE);
+		draw_text2("Primitives", 1.0f, 790.0f, 16.0f, 1.0f, 0, ProgramObject, COL_WHITE);
+		draw_text(1.5f, -1.7f,0,0,ProgramObject,COL_WHITE);
 	}
 
 
@@ -457,8 +479,8 @@ void Draw (void)
     glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glzDrawVAO(vao_num[8],vao[8],GL_TRIANGLES);
 			
-		draw_text(-3.9f, 1.9f,1,0,ProgramObject,COL_WHITE);
-		draw_text(1.7f, -1.8f,15,0,ProgramObject,COL_WHITE);
+		draw_text2(".obj loading, try using the arrow keys", 1.0f, 790.0f, 16.0f, 1.0f, 0, ProgramObject, COL_WHITE);
+		draw_text(1.5f, -1.7f,0,0,ProgramObject,COL_WHITE);
 	
 	}	
 
@@ -476,8 +498,8 @@ void Draw (void)
 		glBindTexture(GL_TEXTURE_2D,texture[4]);
 		glzDrawVAO(vao_num[9],vao[9],GL_TRIANGLES);
 		
-		draw_text(-3.9f, 1.9f,2,0,ProgramObject,COL_WHITE);
-		draw_text(1.7f, -1.8f,15,0,ProgramObject,COL_WHITE);
+		draw_text2("Heightfield", 1.0f, 790.0f, 16.0f, 1.0f, 0, ProgramObject, COL_WHITE);
+		draw_text(1.5f, -1.7f,0,0,ProgramObject,COL_WHITE);
 	}
 
 	if (gamestate == 4)
@@ -490,7 +512,7 @@ void Draw (void)
 		mnew.translate(0, -1, -7);
 		//mnew.rotate(angle, 0, 1, 0);
 		//mnew.loadQuanternion(q3);
-		mnew *= qn;
+		mnew.loadQuanternion(qn);
 
 	//	int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	//	for (auto i : v)
@@ -505,8 +527,8 @@ void Draw (void)
 		glzDirectCubeRender(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, box_tt, 1);
 		//glzDrawVAO(vao_num[9], vao[9], GL_TRIANGLES);
 
-		draw_text(-3.9f, 1.9f, 2, 0, ProgramObject, COL_WHITE);
-		draw_text(1.7f, -1.8f, 15, 0, ProgramObject, COL_WHITE);
+		draw_text2("A lonely cube rotating in nothingness", 1.0f, 790.0f, 16.0f, 1.0f, 0, ProgramObject, COL_WHITE);
+		draw_text(1.5f, -1.7f, 0, 0, ProgramObject, COL_WHITE);
 	}
 
 	if (gamestate == 5)
@@ -516,8 +538,8 @@ void Draw (void)
 
 		draw_object2(0, 10, 0.0f, 0.5f);
 
-		draw_text(-3.9f, 1.9f, 2, 0, ProgramObject, COL_WHITE);
-		draw_text(1.7f, -1.8f, 15, 0, ProgramObject, COL_WHITE);
+		draw_text2("Particle cube using random dots", 1.0f, 790.0f, 16.0f, 1.0f, 0, ProgramObject, COL_WHITE);
+		draw_text(1.5f, -1.7f, 0, 0, ProgramObject, COL_WHITE);
 	}
 
 

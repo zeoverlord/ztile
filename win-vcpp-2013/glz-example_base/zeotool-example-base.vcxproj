@@ -99,6 +99,7 @@
     <ClCompile Include="..\..\glz\ztool-glz.cpp" />
     <ClCompile Include="..\..\glz\ztool-shader.cpp" />
     <ClCompile Include="..\..\glz\ztool-tex.cpp" />
+    <ClCompile Include="..\..\glz\ztool-vectormath.cpp" />
     <ClCompile Include="..\..\glz\ztool_type.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +115,7 @@
     <ClInclude Include="..\..\glz\ztool-shader.h" />
     <ClInclude Include="..\..\glz\ztool-tex.h" />
     <ClInclude Include="..\..\glz\ztool-type.h" />
+    <ClInclude Include="..\..\glz\ztool-vectormath.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\examples\small.ico" />

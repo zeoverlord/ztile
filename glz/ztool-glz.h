@@ -20,6 +20,7 @@
 // https://github.com/zeoverlord/glz.git
 
 #include "ztool-type.h"
+#include "ztool-vectormath.h"
 
 const unsigned int  GLZ_MIRROR_X = 1;
 const unsigned int  GLZ_MIRROR_Y = 2;
