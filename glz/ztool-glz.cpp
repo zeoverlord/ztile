@@ -96,7 +96,7 @@ std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
 std::normal_distribution<float> dist_n(0.0, 1.0);
 std::gamma_distribution<float> dist_g(1.0, 1.0);
 std::exponential_distribution<float> dist_e(1.0);
-std::uniform_int_distribution<int> dist_i(0.0, 1.0);
+std::uniform_int_distribution<int> dist_i(0, 1);
 
 int sign = 1;
 if (dist_i(mt)) sign = -1;
@@ -123,7 +123,7 @@ if (dist_i(mt)) sign = -1;
 }
 
 
-// static noise functions
+// static noise functions, works but is slower than random because of overhead, still they are pretty good for generation of pseudorandom data that needs to be the same every time
 
 
 float glzMersienneNoise(float seed)

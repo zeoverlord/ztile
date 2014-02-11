@@ -87,10 +87,10 @@ long glzPrimFSQ(float *v, float *t, float *n)
 void glzPrimFSQVector(vector<poly3> *pdata, int group, int atlas)
 {
 
-	poly3 p1 = { vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, -1.0f, 1.0f), tex2(1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), group, atlas };
-	poly3 p2 = { vert3(-1.0f, 1.0f, 1.0f), tex2(0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f), group, atlas };
+	poly3 p1(point3(vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, -1.0f, 1.0f), tex2(1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), group, atlas);
+	poly3 p2(point3(vert3(-1.0f, 1.0f, 1.0f), tex2(0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), group, atlas);
 
-
+	
 
 	//poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
 	//poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
@@ -140,13 +140,10 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 	{
 		p.a.v.x = glzRandfs()*0.5f;
 		p.a.v.y = glzRandfs()*0.5f;
-		p.a.v.z = glzRandfs()*0.5f;
-		p.a.v.normalizeOrigin(1.0);
-		p.a.v *= 2.0f;
-		
+		p.a.v.z = glzRandfs()*0.5f;		
 
-		p.a.t.u = glzRandfs();
-		p.a.t.v = glzRandfs();
+		p.a.t.u = glzRandf();
+		p.a.t.v = glzRandf();
 
 		p.a.n.x = glzRandfs();
 		p.a.n.y = glzRandfs();
@@ -157,8 +154,8 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.b.v.y = glzRandfs()*0.5f;
 		p.b.v.z = glzRandfs()*0.5f;
 
-		p.b.t.u = glzRandfs();
-		p.b.t.v = glzRandfs();
+		p.b.t.u = glzRandf();
+		p.b.t.v = glzRandf();
 
 		p.b.n.x = glzRandfs();
 		p.b.n.y = glzRandfs();
@@ -169,8 +166,8 @@ void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
 		p.c.v.y = glzRandfs()*0.5f;
 		p.c.v.z = glzRandfs()*0.5f;
 
-		p.c.t.u = glzRandfs();
-		p.c.t.v = glzRandfs();
+		p.c.t.u = glzRandf();
+		p.c.t.v = glzRandf();
 
 		p.c.n.x = glzRandfs();
 		p.c.n.y = glzRandfs();
@@ -281,10 +278,10 @@ void glzPrimTetraVector(vector<poly3> *pdata, int group, int atlas)
 	vec3 n3 = { 0.5f, 0.5f, sqrt(3.0f) / 2.0f };
 	vec3 n4 = { -1.0f, 0.5f, 0.0f };
 
-	poly3 p1 = { v1, t5, n1, v2, t2, n1, v3, t3, n1, group, atlas };
-	poly3 p2 = { v3, t1, n2, v2, t5, n2, v4, t4, n2, group, atlas };
-	poly3 p3 = { v4, t4, n3, v2, t3, n3, v1, t5, n3, group, atlas };
-	poly3 p4 = { v1, t5, n4, v3, t2, n4, v4, t1, n4, group, atlas };
+	poly3 p1(point3(v1, t5, n1), point3(v2, t2, n1), point3(v3, t3, n1), group, atlas);
+	poly3 p2(point3(v3, t1, n2), point3(v2, t5, n2), point3(v4, t4, n2), group, atlas);
+	poly3 p3(point3(v4, t4, n3), point3(v2, t3, n3), point3(v1, t5, n3), group, atlas);
+	poly3 p4(point3(v1, t5, n4), point3(v3, t2, n4), point3(v4, t1, n4), group, atlas);
 
 	pdata->push_back(p1);
 	pdata->push_back(p2);
@@ -648,11 +645,14 @@ void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glz
 void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int group, int atlas)
 {
 
-
+	ifstream file;
 	vector<vert3> vdata;
 	vector<tex2> tdata;
 	vector<vec3> ndata;
 		
+	vdata.push_back(vert3(0.0, 0.0, 0.0));
+	tdata.push_back(tex2(0.0, 0.0));
+	ndata.push_back(vec3(0.0, 0.0, 0.0));
 	
 	char mat[1000][120];					// material names - 0 terminated
 	int s_num = 0;
@@ -666,25 +666,22 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 	int vt_a = 0, vt_b = 0, vt_c = 0, vt_d = 0, vt_e = 0;
 	int vn_a = 0, vn_b = 0, vn_c = 0, vn_d = 0, vn_e = 0;
 
-	FILE *file;
+
 	char line[120];
 
-	fopen_s(&file, filename, "r");
+	file.open(filename, ios::in);
+	if (!file) { return; }
 
-	if (file == NULL) /* Trying to open file */
-	{
-		return;
-	}
-	
 
-	fseek(file, 0, SEEK_SET);
+	file.seekg(0);
 
 	// first pass - get all the vertex data
 
+	file.clear();
 	int lt = 0;
-	while (!feof(file)) /* Count lines */
+	while (!file.eof()) /* Count lines */
 	{
-		fgets(line, 80, file);
+		file.getline(line, 120);
 
 		if (!strncmp(line, "v ", 2)) lt = 1;
 		if (!strncmp(line, "vt ", 3)) lt = 2;
@@ -715,26 +712,85 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 	}
 
 			
-	fseek(file, 0, SEEK_SET);
+	file.seekg(0);
 
 	//Second pass - get the polygon data
 
 	lt = 0;
 
+	float success=0;
+	bool generatenormal = false;
+	bool generatetexture = false;
+	bool isquad = false;
+	int parse = 0;
 	poly3 ptemp;
 
-	while (!feof(file)) /* Count lines */
-	{
-		fgets(line, 80, file);
-		
+	file.clear();
+	file.seekg(0);
+
+	while (!file.eof()) /* Count lines */
+	{		
+		file.getline(line, 120);
+		lt = 0;
 		if (!strncmp(line, "f ", 2)) lt = 4;
 		if (!strncmp(line, "usemtl ", 7)) lt = 5;
 		if (!strncmp(line, "s ", 2)) lt = 6;
 		if (!strncmp(line, "s off", 5)) lt = 7;
+		if (!strncmp(line, "g ", 2)) lt = 8;
+
+		if (lt == 4)
+		{
+			generatenormal = false;
+			generatetexture = false;
+			isquad = false;
+			parse = 0;
+
+			// determine wich f is requires
+			if (sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 9)
+			{
+				generatenormal = false;	generatetexture = false; isquad = false; parse = 1;
+			}
+
+			if (sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 12)
+			{
+				generatenormal = false;	generatetexture = false; isquad = true; parse = 2;
+			}
+
+			if (sscanf_s(line, "f %d/%d %d/%d %d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 6)
+			{
+				generatenormal = true;	generatetexture = false; isquad = false; parse = 3;
+			}
+
+			if (sscanf_s(line, "f %d/%d %d/%d %d/%d %d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 8)
+			{
+				generatenormal = true;	generatetexture = false; isquad = true; parse = 4;
+			}
+
+			if (sscanf_s(line, "f %d//%d %d//%d %d//%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 6)
+			{
+				generatenormal = false;	generatetexture = true; isquad = false; parse = 5;
+			}
+
+			if (sscanf_s(line, "f %d//%d %d//%d %d//%d %d//%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 8)
+			{
+				generatenormal = false;	generatetexture = true; isquad = true; parse = 6;
+			}
+
+			if (sscanf_s(line, "f %d %d %d", &v_a, &v_a, &v_a) == 3)
+			{
+				generatenormal = true;	generatetexture = true; isquad = false; parse = 7;
+			}
+
+			if (sscanf_s(line, "f %d %d %d %d", &v_a, &v_a, &v_a, &v_a) == 4)
+			{
+				generatenormal = true;	generatetexture = true; isquad = true; parse = 8;
+			}
+		}
 
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 		float u = 0.0f, v = 0.0f;
 
+		if (parse == 0) lt = 99;
 
 
 		switch (lt)
@@ -742,89 +798,78 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 		
 		case 4:
 
-			i = 0;
-			ii = 0;
-			while (i<(int)strlen(line))
-			{
-				if (line[i] == '/')
-				{
-					ii++;
-				}
-				i++;
-			}
+
+				if (parse == 1) sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c);
+				if (parse == 2) sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c, &v_d, &vt_d, &vn_d);
+
+				if (parse == 3) sscanf_s(line, "f %d/%d %d/%d %d/%d", &v_a, &vt_a, &v_b, &vt_b, &v_c, &vt_c);
+				if (parse == 4) sscanf_s(line, "f %d/%d %d/%d %d/%d %d/%d", &v_a, &vt_a, &v_b, &vt_b, &v_c, &vt_c, &v_d, &vt_d);
+
+				if (parse == 5) sscanf_s(line, "f %d//%d %d//%d %d//%d", &v_a, &vn_a, &v_b, &vn_b, &v_c, &vn_c);					
+				if (parse == 6) sscanf_s(line, "%d//%d %d//%d %d//%d %d//%d", &v_a, &vn_a, &v_b, &vn_b, &v_c, &vn_c, &v_d, &vn_d);
+
+				if (parse == 7) sscanf_s(line, "f %d %d %d", &v_a, &v_b, &v_c);
+				if (parse == 8) sscanf_s(line, "f %d %d %d %d", &v_a, &v_b, &v_c, &v_d);
+
+				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group, atlas });*/
 
 
-			if (ii == 8)
-			{
-				sscanf_s(line + 1, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c, &v_d, &vt_d, &vn_d);
-				
-				ptemp.a.v = vdata[v_a - 1];
-				ptemp.b.v = vdata[v_b - 1];
-				ptemp.c.v = vdata[v_c - 1];
-
-				ptemp.a.t = tdata[vt_a - 1];
-				ptemp.b.t = tdata[vt_b - 1];
-				ptemp.c.t = tdata[vt_c - 1];
-
-				ptemp.a.n = ndata[vn_a - 1];
-				ptemp.b.n = ndata[vn_b - 1];
-				ptemp.c.n = ndata[vn_c - 1];
-
-				ptemp.group = group;
-				ptemp.atlas = atlas;
 			
-				pdata->push_back(ptemp);
 
-				ptemp.a.v = vdata[v_a - 1];
-				ptemp.b.v = vdata[v_c - 1];
-				ptemp.c.v = vdata[v_d - 1];
+					ptemp.a.v = vdata[v_a];
+					ptemp.b.v = vdata[v_b];
+					ptemp.c.v = vdata[v_c];
 
-				ptemp.a.t = tdata[vt_a - 1];
-				ptemp.b.t = tdata[vt_c - 1];
-				ptemp.c.t = tdata[vt_d - 1];
+					ptemp.a.t = tdata[vt_a];
+					ptemp.b.t = tdata[vt_b];
+					ptemp.c.t = tdata[vt_c];
 
-				ptemp.a.n = ndata[vn_a - 1];
-				ptemp.b.n = ndata[vn_c - 1];
-				ptemp.c.n = ndata[vn_d - 1];
+					ptemp.a.n = ndata[vn_a];
+					ptemp.b.n = ndata[vn_b];
+					ptemp.c.n = ndata[vn_c];
+
+					ptemp.group = group;
+					ptemp.atlas = atlas;
+
+
+					if (generatenormal)	ptemp.generateNormal();
+					if (generatetexture) ptemp.generateTexture(1.0);
+					//ptemp.tempAddNormalToVertex();
+
+					pdata->push_back(ptemp);
+
+		
+
+
+			if (isquad == true)
+			{
+				
+				ptemp.a.v = vdata[v_a];
+				ptemp.b.v = vdata[v_c];
+				ptemp.c.v = vdata[v_d];
+
+				ptemp.a.t = tdata[vt_a];
+				ptemp.b.t = tdata[vt_c];
+				ptemp.c.t = tdata[vt_d];
+
+				ptemp.a.n = ndata[vn_a];
+				ptemp.b.n = ndata[vn_c];
+				ptemp.c.n = ndata[vn_d];
 
 				ptemp.group = group;
 				ptemp.atlas = atlas;
-
+				if (generatenormal)	ptemp.generateNormal();
+				if (generatetexture) ptemp.generateTexture(1.0);
+				//ptemp.tempAddNormalToVertex();
 				pdata->push_back(ptemp);
 
 				// these lines cause intellisense to lable them as bugs, but they compile fine, so the above code is a workaround
 
-	/*			pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group ,atlas });
-				pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], vdata[v_d - 1], tdata[vt_d - 1], ndata[vn_d - 1], group, atlas });*/
-
-				
+				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], vdata[v_d - 1], tdata[vt_d - 1], ndata[vn_d - 1], group, atlas });*/
 
 			}
 
-
-			if (ii == 6)
-			{
-				sscanf_s(line + 1, "%d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c);
-				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group, atlas });*/
-
-				
-				ptemp.a.v = vdata[v_a - 1];
-				ptemp.b.v = vdata[v_b - 1];
-				ptemp.c.v = vdata[v_c - 1];
-
-				ptemp.a.t = tdata[vt_a - 1];
-				ptemp.b.t = tdata[vt_b - 1];
-				ptemp.c.t = tdata[vt_c - 1];
-
-				ptemp.a.n = ndata[vn_a - 1];
-				ptemp.b.n = ndata[vn_b - 1];
-				ptemp.c.n = ndata[vn_c - 1];
-
-				ptemp.group = group;
-				ptemp.atlas = atlas;
-
-				pdata->push_back(ptemp);
-			}
+			
 			break;
 
 		case 5:
@@ -848,7 +893,8 @@ void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int 
 	}
 
 
-	fclose(file);
+//	if (file) fclose(file);
+	file.close();
 
 }
 

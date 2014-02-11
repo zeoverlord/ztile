@@ -28,6 +28,8 @@ using namespace std;
 #define __glzvectormath__
 
 
+// todo, change all instances to return *this instead
+
 class vec2{ //vector2 class
 
 
@@ -78,22 +80,27 @@ public:
 	double x, y, z;
 	vec3() : x(0.0), y(0.0), z(0.0) {}
 	vec3(double xin, double yin, double zin) : x{ xin }, y{ yin }, z{ zin } {}
-	vec3 vec3::operator+ (vec3 b) { return vec3(x + b.x, y + b.y, z + b.z); }
-	vec3 vec3::operator+ (double b) { return vec3(x + b, y + b, z + b); }
-	vec3 vec3::operator+= (vec3 b) { return vec3(b.x + x, b.y + y, b.z + z); }
-	vec3 vec3::operator+= (double b) { return vec3(x + b, y + b, z + b); }
-	vec3 vec3::operator- (vec3 b) { return vec3(x - b.x, y - b.y, z - b.z); }
-	vec3 vec3::operator- (double b) { return vec3(x - b, y - b, z - b); }
-	vec3 vec3::operator-= (vec3 b) { return vec3(b.x - x, b.y - y, b.z - z); }
-	vec3 vec3::operator-= (double b) { return vec3(x - b, y - b, z - b); }
-	vec3 vec3::operator* (vec3 b) { return vec3(b.x * x, b.y * y, b.z * z); }
-	vec3 vec3::operator* (double b) { return vec3(b * x, b * y, b * z); }
-	vec3 vec3::operator*= (vec3 b) { return vec3(b.x * x, b.y * y, b.z * z); }
-	vec3 vec3::operator*= (double b) { return vec3(b * x, b * y, b * z); }
-	vec3 vec3::operator/ (vec3 b) { return vec3(x / b.x, y / b.y, z / b.z); }
-	vec3 vec3::operator/ (double b) { return vec3(x / b, y / b, z / b); }
-	vec3 vec3::operator/= (vec3 b) { return vec3(x / b.x, y / b.y, z / b.z); }
-	vec3 vec3::operator/= (double b) { return vec3(x / b, y / b, z / b); }
+
+	vec3 vec3::operator+ (vec3 b) { x += b.x; y += b.y; z += b.z; return *this; }
+	vec3 vec3::operator+ (double b) { x += b; y += b; z += b; return *this; }
+	vec3 vec3::operator+= (vec3 b) { x += b.x; y += b.y; z += b.z; return *this; }
+	vec3 vec3::operator+= (double b) { x += b; y += b; z += b; return *this; }
+	vec3 vec3::operator- (vec3 b) { x -= b.x; y -= b.y; z -= b.z; return *this; }
+	vec3 vec3::operator- (double b) { x -= b; y -= b; z -= b; return *this; }
+	vec3 vec3::operator-= (vec3 b) { x -= b.x; y -= b.y; z -= b.z; return *this; }
+	vec3 vec3::operator-= (double b) { x -= b; y -= b; z -= b; return *this; }
+
+	//vec3 vec3::operator* (vert3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vec3 vec3::operator* (vec3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vec3 vec3::operator* (double b) { x *= b; y *= b; z *= b; return *this; }
+	//vec3 vec3::operator*= (vert3 b) { a.x *= b.x; a.y *= b.y; a.z *= b.z; return *this; }
+	vec3 vec3::operator*= (vec3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vec3 vec3::operator*= (double b) { x *= b; y *= b; z *= b; return *this; }
+
+	vec3 vec3::operator/ (vec3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vec3 vec3::operator/ (double b) { x /= b; y /= b; z /= b; return *this; }
+	vec3 vec3::operator/= (vec3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vec3 vec3::operator/= (double b) { x /= b; y /= b; z /= b; return *this; }
 
 	double magnitude(void) { return sqrt((x * x) + (y * y) + (z * z)); }
 	//double distance(vec3 a) { return sqrt((x-a.x * x-a.x) + (y-a.y * y-a.y) + (z-a.z * z-a.z)); }
@@ -123,27 +130,29 @@ public:
 	double x, y, z;
 	vert3() : x(0.0), y(0.0), z(0.0) {}
 	vert3(double xin, double yin, double zin) : x{ xin }, y{ yin }, z{ zin } {}
-	vert3 vert3::operator+ (vec3 b) { return vert3(x + b.x, y + b.y, z + b.z); }
-	vert3 vert3::operator+= (vec3 b) { return vert3(b.x + x, b.y + y, b.z + z); }
-	vert3 vert3::operator- (vec3 b) { return vert3(x - b.x, y - b.y, z - b.z); }
-	vert3 vert3::operator-= (vec3 b) { return vert3(b.x - x, b.y - y, b.z - z); }
+	vert3 vert3::operator+ (vec3 b) { x += b.x; y += b.y; z += b.z; return *this; }
+	vert3 vert3::operator+= (vec3 b) { x += b.x; y += b.y; z += b.z; return *this; }
+	vert3 vert3::operator- (vec3 b) { x -= b.x; y -= b.y; z -= b.z; return *this; }
+	vert3 vert3::operator-= (vec3 b) { x -= b.x; y -= b.y; z -= b.z; return *this; }
 
-	vert3 vert3::operator* (vert3 b) { return vert3(b.x * x, b.y * y, b.z * z); }
-	vert3 vert3::operator* (vec3 b) { return vert3(b.x * x, b.y * y, b.z * z); }
-	vert3 vert3::operator* (double b) { return vert3(b * x, b * y, b * z); }
-	vert3 vert3::operator*= (vert3 b) { return vert3(b.x * x, b.y * y, b.z * z); }
-	vert3 vert3::operator*= (vec3 b) { return vert3(b.x * x, b.y * y, b.z * z); }
-	vert3 vert3::operator*= (double b) { return vert3(b * x, b * y, b * z); }
+	vert3 vert3::operator* (vert3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vert3 vert3::operator* (vec3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vert3 vert3::operator* (double b) { x *= b; y *= b; z *= b; return *this; }
+	vert3 vert3::operator*= (vert3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vert3 vert3::operator*= (vec3 b) { x *= b.x; y *= b.y; z *= b.z; return *this; }
+	vert3 vert3::operator*= (double b) { x *= b; y *= b; z *= b; return *this; }
 
-	vert3 vert3::operator/ (vert3 b) { return vert3(x / b.x, y / b.y, z / b.z); }
-	vert3 vert3::operator/ (vec3 b) { return vert3(x / b.x, y / b.y, z / b.z); }
-	vert3 vert3::operator/ (double b) { return vert3(x / b, y / b, z / b); }
-	vert3 vert3::operator/= (vert3 b) { return vert3(x / b.x, y / b.y, z / b.z); }
-	vert3 vert3::operator/= (vec3 b) { return vert3(x / b.x, y / b.y, z / b.z); }
-	vert3 vert3::operator/= (double b) { return vert3(x / b, y / b, z / b); }
+	vert3 vert3::operator/ (vert3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vert3 vert3::operator/ (vec3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vert3 vert3::operator/ (double b) { x /= b; y /= b; z /= b; return *this; }
+	vert3 vert3::operator/= (vert3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vert3 vert3::operator/= (vec3 b) { x /= b.x; y /= b.y; z /= b.z; return *this; }
+	vert3 vert3::operator/= (double b) { x /= b; y/= b; z /= b; return *this; }
+
 
 	double distance(vert3 a) { return sqrt((x - a.x * x - a.x) + (y - a.y * y - a.y) + (z - a.z * z - a.z)); }
 	void normalizeOrigin(double l) { if (!this->magnitude()) return; double m = l / this->magnitude(); x *= m; y *= m; z *= m; }
+	vec3 vectorTo(vert3 b);
 
 };
 
@@ -252,21 +261,60 @@ public:
 
 //inline glzMatrix operator* (glzMatrix lhs, glzQuaternion rhs) { lhs *= rhs;	return lhs; }
 
-
+/*
 typedef struct point_3 {
 	vert3 v;
 	tex2 t;
 	vec3 n;
 } point3;
 
+
 typedef struct polygon3 {
 	point3 a, b, c;
 	int group;
 	int atlas;
-} poly3;
+} poly3;*/
 
 
+class point3{ //polygon3 class
 
+private:
+
+
+public:
+	vert3 v;
+	tex2 t;
+	vec3 n;
+
+	point3() : v(vert3()), t(tex2()), n(vec3()) {}
+	point3(vert3 vin, tex2 tin, vec3 nin) : v{ vin }, t{ tin }, n{ nin }{}
+
+
+};
+
+
+class poly3{ //polygon3 class
+
+private:
+
+
+public:
+	point3 a, b, c;
+	int group;
+	int atlas;
+	
+	poly3() : a(point3()), b(point3()), c(point3()), group(0), atlas(0) {}
+	poly3(point3 ain, point3 bin, point3 cin, int groupin, int atlasin) : a{ ain }, b{ bin }, c{ cin }, group{ groupin }, atlas{ atlasin }{}
+	vec3 getFaceNormal();
+	void generateNormal();
+	void generateTexture(double scale);
+	
+
+	void tempAddNormalToVertex();  // only for testing that normals work
+
+	
+
+};
 
 
 

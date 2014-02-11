@@ -217,8 +217,9 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	vao_num[10] = glzVAOMakePrimitive(primitives[7], &vao[10]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 
 
-	texture_transform obj_tt=glzMakeTTDefault();
+	texture_transform obj_tt = glzMakeTTDefault(); 
 	vao_num[8]=glzVAOMakeFromFile("data\\objects\\cv9040c.obj",mo, obj_tt, &vao[8]);
+	//vao_num[8] = glzVAOMakeFromFile("data\\objects\\lion_med.obj", mo, obj_tt, &vao[8]);
 
 	glzReadTgaHead(&img, "data\\heightmap.tga");
 	data = new unsigned char[img.imageSize];

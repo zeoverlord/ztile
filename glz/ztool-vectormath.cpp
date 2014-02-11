@@ -26,6 +26,17 @@ using namespace std;
 #include "ztool-vectormath.h"
 
 
+vec3 vert3::vectorTo(vert3 b)
+{
+	vec3 c;
+	c.x = b.x - x;
+	c.y = b.y - y;
+	c.z = b.z - z;
+
+	c.normalize(1.0);
+	return c;
+
+}
 
 
 
@@ -344,4 +355,80 @@ void glzQuaternion::rotate(double a, double x, double y, double z)
 	multQuaternion(q2);
 
 	return;
+}
+
+
+vec3 poly3::getFaceNormal()
+{
+
+	vec3 v1 = a.v.vectorTo(b.v);
+	vec3 v2 = a.v.vectorTo(c.v);
+
+	vec3 nv;
+	nv.crossproduct(v2, v1);
+	nv.normalize(1.0);
+
+	return nv;
+
+
+
+}
+
+void poly3::generateNormal()
+{
+	vec3 fn(this->getFaceNormal());
+	a.n = fn;
+	b.n = fn;
+	c.n = fn;
+}
+
+
+void poly3::generateTexture(double scale)
+{
+	vec3 fn(this->getFaceNormal());
+	int l = 0;
+	double largest = abs(fn.x);
+	if (abs(fn.y) > largest) { l = 1; largest = abs(fn.y); }
+	if (abs(fn.z) > largest) { l = 2; largest = abs(fn.z); }
+
+	if (l == 0)
+	{
+		a.t.u = a.v.y / scale;
+		a.t.v = a.v.z / scale;
+		b.t.u = b.v.y / scale;
+		b.t.v = b.v.z / scale;
+		c.t.u = c.v.y / scale;
+		c.t.v = c.v.z / scale;
+	}
+
+	if (l == 1)
+	{
+		a.t.u = a.v.x / scale;
+		a.t.v = a.v.z / scale;
+		b.t.u = b.v.x / scale;
+		b.t.v = b.v.z / scale;
+		c.t.u = c.v.x / scale;
+		c.t.v = c.v.z / scale;
+	}
+
+	if (l == 2)
+	{
+		a.t.u = a.v.x / scale;
+		a.t.v = a.v.y / scale;
+		b.t.u = b.v.x / scale;
+		b.t.v = b.v.y / scale;
+		c.t.u = c.v.x / scale;
+		c.t.v = c.v.y / scale;
+	}
+}
+
+
+
+void poly3::tempAddNormalToVertex()
+
+{
+	vec3 fn(this->getFaceNormal());
+	a.v += a.n;
+	b.v += b.n;
+	c.v += c.n;
 }

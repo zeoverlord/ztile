@@ -237,23 +237,23 @@ void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides)
 	tex2 t3 = { 0.000000, 1.000000 };
 	tex2 t4 = { 1.000000, 1.000000 };
 
-	poly3 p1 = { v6, t3, n2, v4, t1, n2, v3, t2, n2, group, 0 };//top
-	poly3 p2 = { v5, t4, n2, v6, t3, n2, v3, t2, n2, group, 0 };
+	poly3 p1 = { point3(v6, t3, n2), point3(v4, t1, n2), point3(v3, t2, n2), group, 0 };//top
+	poly3 p2 = { point3(v5, t4, n2), point3(v6, t3, n2), point3(v3, t2, n2), group, 0 };
 
-	poly3 p3 = { v8, t4, n4, v7, t3, n4, v2, t1, n4, group, 1 };// bottom
-	poly3 p4 = { v1, t2, n4, v8, t4, n4, v2, t1, n4, group, 1 };
+	poly3 p3 = { point3(v8, t4, n4), point3(v7, t3, n4), point3(v2, t1, n4), group, 1 };// bottom
+	poly3 p4 = { point3(v1, t2, n4), point3(v8, t4, n4), point3(v2, t1, n4), group, 1 };
 
-	poly3 p5 = { v1, t1, n1, v2, t2, n1, v3, t4, n1, group, 2 };// front
-	poly3 p6 = { v4, t3, n1, v1, t1, n1, v3, t4, n1, group, 2 };
+	poly3 p5 = { point3(v1, t1, n1), point3(v2, t2, n1), point3(v3, t4, n1), group, 2 };// front
+	poly3 p6 = { point3(v4, t3, n1), point3(v1, t1, n1), point3(v3, t4, n1), group, 2 };
 
-	poly3 p7 = { v7, t2, n5, v5, t4, n5, v3, t3, n5, group, 3 };// right
-	poly3 p8 = { v2, t1, n5, v7, t2, n5, v3, t3, n5, group, 3 };
+	poly3 p7 = { point3(v7, t2, n5), point3(v5, t4, n5), point3(v3, t3, n5), group, 3 };// right
+	poly3 p8 = { point3(v2, t1, n5), point3(v7, t2, n5), point3(v3, t3, n5), group, 3 };
 
-	poly3 p9 = { v8, t2, n3, v6, t4, n3, v5, t3, n3, group, 4 };// back
-	poly3 p10 = { v7, t1, n3, v8, t2, n3, v5, t3, n3, group, 4 };
+	poly3 p9 = { point3(v8, t2, n3), point3(v6, t4, n3), point3(v5, t3, n3), group, 4 };// back
+	poly3 p10 = { point3(v7, t1, n3), point3(v8, t2, n3), point3(v5, t3, n3), group, 4 };
 
-	poly3 p11 = { v8, t1, n6, v1, t2, n6, v4, t4, n6, group, 5 };// left
-	poly3 p12 = { v6, t3, n6, v8, t1, n6, v4, t4, n6, group, 5 };
+	poly3 p11 = { point3(v8, t1, n6), point3(v1, t2, n6), point3(v4, t4, n6), group, 5 };// left
+	poly3 p12 = { point3(v6, t3, n6), point3(v8, t1, n6), point3(v4, t4, n6), group, 5 };
 
 	if (sides & 1)
 	{
