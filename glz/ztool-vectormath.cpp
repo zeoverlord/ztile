@@ -1,4 +1,4 @@
-// Copyright 2013 Peter Wallström
+// Copyright 2014 Peter Wallström
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 //
@@ -14,7 +14,7 @@
 // 3. If you make something comersiol or at least something you release publicly that relies on this code then i would like to know and maybe use in my CV
 // 4. Please do include me in your credits
 
-// common glz vector an matrix classes
+// common glz vector and matrix classes
 // visit http://www.flashbang.se or contact me at overlord@flashbang.se
 // the entire toolkit should exist in it's entirety at github
 // https://github.com/zeoverlord/glz.git
