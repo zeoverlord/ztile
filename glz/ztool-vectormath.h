@@ -346,7 +346,25 @@ public:
 	glzAtlassprite(tex2 pos, tex2 dim, double depthin) : a{ tex2(pos.u, pos.v) }, b{ tex2(pos.u + dim.u, pos.v) }, c{ tex2(pos.u, pos.v + dim.v) }, d{ tex2(pos.u + dim.u, pos.v + dim.v) }, depth{ depthin }{} // simpler initialization
 
 	glzAtlassprite(unsigned int xdim, unsigned int ydim, unsigned int atlas, double depthin); // grid atlas initialization
+};
 
+
+class glzAtlasMap{ //atlassprite class
+
+private:
+
+
+public:
+
+
+	vector<glzAtlassprite> map;
+
+	//glzAtlassprite() {} // default numbers
+	glzAtlasMap(glzAtlassprite a) { map.push_back(a); } // direct initialization
+	glzAtlasMap(int w, int h); // direct initialization with preset
+
+	
+	void addsprite(glzAtlassprite a) { map.push_back(a); }
 
 };
 

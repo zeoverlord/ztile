@@ -315,6 +315,7 @@ void glzPrimTextVector(char *text, float k, vector<poly3> *pdata, int group, int
 		
 	} font_def;
 
+	
 	font_def textkern[256];
 	//glzAtlassprite testsprite = glzAtlasQuad(16, 16, 'a', origin);
 	poly3 p1, p2;
@@ -416,7 +417,7 @@ void glzPrimTextVector(char *text, float k, vector<poly3> *pdata, int group, int
 
 			
 			// temp coords of a
-
+			
 			p1.a.t = textkern[text[c]].charsprite.a;
 			p1.b.t = textkern[text[c]].charsprite.b;
 			p1.c.t = textkern[text[c]].charsprite.c;
@@ -424,6 +425,9 @@ void glzPrimTextVector(char *text, float k, vector<poly3> *pdata, int group, int
 			p2.a.t = textkern[text[c]].charsprite.c;
 			p2.b.t = textkern[text[c]].charsprite.b;
 			p2.c.t = textkern[text[c]].charsprite.d;
+				
+
+
 
 			p1.a.v = vert3(0.0 + x + xp, 0.0 + y + yp, 0.0);
 			p1.b.v = vert3(1.0 + x + xp, 0.0 + y + yp, 0.0);

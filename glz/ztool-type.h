@@ -51,7 +51,7 @@ enum class glzPrimitive {
 	FSQ, RANDOM_POINT, SPRITE_ATLAS_ARRAY																				// random structures
 };
 
-
+//enum class glzatlasMapType{NONE,GRID};
 enum class glzIGTType { NONE, DISPLACE_ADD };
 
 enum class glzTTType { NONE, VERTEX_COORD_ADOPT, ATLASARRAY, ATLAS_CUBE_TBS, ATLAS_CUBE_INDFACE, ATLAS_CUBE_CROSS };

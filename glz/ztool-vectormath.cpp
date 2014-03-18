@@ -472,3 +472,9 @@ glzAtlassprite::glzAtlassprite(unsigned int xdim, unsigned int ydim, unsigned in
 	depth = depthin;
 
 }
+
+glzAtlasMap::glzAtlasMap(int w, int h) // direct initialization with preset
+{
+	int i = 0;
+	while (i < w*h) { map.push_back(glzAtlasQuad(w, h, i, glzOrigin::BOTTOM_LEFT));	i++; }
+}
