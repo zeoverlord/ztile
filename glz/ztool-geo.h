@@ -36,6 +36,11 @@ using namespace std;
 		//every function that creates a VAO returns the amount of Vertics to output
 		// every VAO funtion resets the vao to 0 to prevent problems unless otherwise specified
 
+typedef struct{
+	int active;
+	glzVAOType type;
+}vaostatus;
+
 long glzPrimCubeverts(float *v, float *t, float *n);
 void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides);
 
@@ -73,7 +78,7 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	void glzDirectPointArrayRender(float v[], float t[], int E);
 	void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, texture_transform tt, unsigned int atlas); // does exactly you think it does
 
-	void glzKillVAO(unsigned int vao, glzVAOType type);
+	void glzKillVAO(unsigned int vao);
 	void glzKillAllVAO(void);
 
 	void glzDrawVAO(long enteties, unsigned int vao, unsigned int type);

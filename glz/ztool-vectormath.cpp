@@ -38,6 +38,32 @@ vec3 vert3::vectorTo(vert3 b)
 
 }
 
+void vert3::project(glzMatrix m)
+{
+
+	double xt = (x * m.m[0]) + (y * m.m[4]) + (z * m.m[8]) + m.m[12];
+	double yt = (x * m.m[1]) + (y * m.m[5]) + (z * m.m[9]) + m.m[13];
+	double zt = (x * m.m[2]) + (y * m.m[6]) + (z * m.m[10]) + m.m[14];
+
+	x = xt;
+	y = yt;
+	z = zt;
+
+}
+
+void vec3::project(glzMatrix m)
+{
+
+	double xt = (x * m.m[0]) + (y * m.m[4]) + (z * m.m[8]);
+	double yt = (x * m.m[1]) + (y * m.m[5]) + (z * m.m[9]);
+	double zt = (x * m.m[2]) + (y * m.m[6]) + (z * m.m[10]);
+
+	x = xt;
+	y = yt;
+	z = zt;
+
+}
+
 
 
 void glzMatrix::LoadIdentity(void)
@@ -431,4 +457,18 @@ void poly3::tempAddNormalToVertex()
 	a.v += a.n;
 	b.v += b.n;
 	c.v += c.n;
+}
+
+
+
+glzAtlassprite::glzAtlassprite(unsigned int xdim, unsigned int ydim, unsigned int atlas, double depthin) // grid atlas initialization
+{
+
+	glzAtlassprite quad = glzAtlasQuad(xdim, ydim, atlas, glzOrigin::BOTTOM_LEFT);
+	a = quad.a;
+	b = quad.b;
+	c = quad.c;
+	d = quad.d;
+	depth = depthin;
+
 }

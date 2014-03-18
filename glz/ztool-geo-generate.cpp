@@ -962,7 +962,7 @@ long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 
 
@@ -994,7 +994,7 @@ long glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 	
 	glzVAOMakeFromVector(pdata, vao, glzVAOType::AUTO);
 
@@ -1032,7 +1032,7 @@ long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], t
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 
 	vector<poly3> p;
@@ -1109,7 +1109,7 @@ long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 	primitive_gen pg2[2];
 	pg2[0] = pg;
@@ -1312,7 +1312,7 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 	int i = 0;
 

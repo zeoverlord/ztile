@@ -57,7 +57,7 @@ static PFNGLISBUFFERARBPROC			glIsBuffer;
 
 
 static bool isinited_geo;
-static int active_vao[1024];
+static vaostatus active_vao[1024];
 
 // most of the functions below are booring stuff and will not be commented on as they are pretty mic self explanatory
 // it's mostly just setting up primitives, generating geometry and setting up structures
@@ -331,17 +331,18 @@ long glzCountFromIndexArrays(long vert_face[],int enteries)
 
 // public stuff
 
-void addToVaoList(unsigned int vao)
+void addToVaoList(unsigned int vao, glzVAOType type)
 {
 	int i=0;
 
-	while (active_vao[i]!=-1)
+	while (active_vao[i].active!=-1)
 	{
 		i++;
 		if (i==1023) return;
 	}
 
-	active_vao[i]=vao;
+	active_vao[i].active = vao;
+	active_vao[i].type = type;
 	return;
 }
 
@@ -349,15 +350,34 @@ void removeFromVaoList(unsigned int vao)
 {
 	int i=0;
 
-	while (active_vao[i]!=vao)
+	while (active_vao[i].active != vao)
 	{
 		i++;
 		if (i==1023) return;
 	}
 
-	active_vao[i]=-1;
+	active_vao[i].active = -1;
+	active_vao[i].type = glzVAOType::NONE;
 	return;
 }
+
+
+
+glzVAOType getTypeFromVaoList(unsigned int vao)
+{
+	int i = 0;
+
+	while (active_vao[i].active != vao)
+	{
+		i++;
+		if (i == 1023) return glzVAOType::NONE;
+	}
+
+	return active_vao[i].type;
+}
+
+
+
 
 
 void ini_geo(void)
@@ -367,7 +387,7 @@ void ini_geo(void)
 
 	while (i<1024)
 	{
-		active_vao[i] = -1;
+		active_vao[i].active = -1;
 		i++;
 	}
 
@@ -797,7 +817,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,type);
+	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint);
 
 	unsigned int vaotemp;
 	unsigned int buffer[3];
@@ -835,7 +855,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	glBindVertexArray(0);
 
 	vao[0]=vaotemp;
-	addToVaoList(vaotemp);
+	addToVaoList(vaotemp,type);
 
 return;
 
@@ -849,7 +869,7 @@ void glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao, glzVAOType typ
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, type);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 	unsigned int vaotemp;
 	unsigned int buffer[3];
@@ -896,7 +916,7 @@ void glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao, glzVAOType typ
 	glBindVertexArray(0);
 
 	vao[0] = vaotemp;
-	addToVaoList(vaotemp);
+	addToVaoList(vaotemp,type);
 
 
 	delete[] v;
@@ -973,7 +993,7 @@ void glzDirectPointArrayRender(float v[], float t[], int E)
 
 
 	glzDrawVAO(0, E, localVAO, GL_POINTS);
-	glzKillVAO(localVAO, glzVAOType::VERTEX_TEXTURE);
+	glzKillVAO(localVAO);
 
 	return;
 }
@@ -1001,7 +1021,7 @@ void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, t
 	
 	
 	glzDrawVAO(0, 36, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, glzVAOType::AUTO);
+	glzKillVAO(localVAO);
 
 
 	return;
@@ -1010,12 +1030,12 @@ void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, t
 
 
 
-void glzKillVAO(unsigned int vao, glzVAOType type)
+void glzKillVAO(unsigned int vao)
 {
 	if (!isinited_geo) ini_geo();
 	if (!glIsVertexArray(vao)) return; // is this a vao
 
-	removeFromVaoList(vao);
+	glzVAOType type = getTypeFromVaoList(vao);
 
 	glBindVertexArray(vao);
 
@@ -1039,6 +1059,7 @@ void glzKillVAO(unsigned int vao, glzVAOType type)
 	glDeleteVertexArrays(1,reinterpret_cast<GLuint *>(&vao));
 	glBindVertexArray(0);
 
+	removeFromVaoList(vao);
 	return;
 }
 
@@ -1051,7 +1072,7 @@ void glzKillAllVAO(void)
 	while (i<1024)
 	{
 		//if(active_vao[i]!=-1)
-		glzKillVAO(active_vao[i], glzVAOType::AUTO);
+		glzKillVAO(active_vao[i].active);
 		i++;
 	}
 

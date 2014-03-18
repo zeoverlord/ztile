@@ -987,6 +987,69 @@ void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzO
 
 }
 
+glzAtlassprite glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin)
+{
+	// generates 4 float[2] coordinates that corresponds to the sub image of an images atlas
+
+	float xwidth = float(1.0f / xres);
+	float ywidth = float(1.0f / yres);
+
+	glzAtlassprite atlasquad;
+
+	unsigned int x = 0, y = 0;
+
+	if (atlas >= xres*yres) x = xres*yres - 1;
+	else x = atlas;
+	//if (x<0) x=0;
+
+	while (x >= xres)
+	{
+		x -= xres;
+		y++;
+	}
+
+	y = yres - y;
+
+	// bottom left
+	// (0,0) a
+	atlasquad.a.u = (x*xwidth);
+	atlasquad.a.v = (y*ywidth) - ywidth;
+
+	// (0,1) c
+	atlasquad.c.u = (x*xwidth);
+	atlasquad.c.v = (y*ywidth);
+
+	// (1,1) d
+	atlasquad.d.u = (x*xwidth) + xwidth;
+	atlasquad.d.v = (y*ywidth);
+
+	// (1,0) b
+	atlasquad.b.u = (x*xwidth) + xwidth;
+	atlasquad.b.v = (y*ywidth) - ywidth;
+
+	if ((origin == glzOrigin::BOTTOM_RIGHT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a x-flip
+		atlasquad.a.u = 1.0f - atlasquad.a.u;
+		atlasquad.b.u = 1.0f - atlasquad.b.u;
+		atlasquad.c.u = 1.0f - atlasquad.c.u;
+		atlasquad.d.u = 1.0f - atlasquad.d.u;
+
+	}
+
+	if ((origin == glzOrigin::TOP_LEFT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a y-flip
+		atlasquad.a.v = 1.0f - atlasquad.a.v;
+		atlasquad.b.v = 1.0f - atlasquad.b.v;
+		atlasquad.c.v = 1.0f - atlasquad.c.v;
+		atlasquad.d.v = 1.0f - atlasquad.d.v;
+
+	}
+
+	return atlasquad;
+}
+
 void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout)
 {
 
@@ -1396,6 +1459,56 @@ void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group)
 }
 
 
+void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group)
+{
+
+	double v[3];
+	int i2 = 0;
+
+	auto i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+
+			p->at(i2).a.v.project(m);
+			p->at(i2).b.v.project(m);
+			p->at(i2).c.v.project(m);
+
+			p->at(i2).a.n.project(m);
+			p->at(i2).b.n.project(m);
+			p->at(i2).c.n.project(m);
+
+			/*
+			v[0] = (p->at(i2).a.v.x * Matrix[0]) + (p->at(i2).a.v.y * Matrix[4]) + (p->at(i2).a.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).a.v.x * Matrix[1]) + (p->at(i2).a.v.y * Matrix[5]) + (p->at(i2).a.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).a.v.x * Matrix[2]) + (p->at(i2).a.v.y * Matrix[6]) + (p->at(i2).a.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).a.v.x = v[0];
+			p->at(i2).a.v.y = v[1];
+			p->at(i2).a.v.z = v[2];
+
+			v[0] = (p->at(i2).b.v.x * Matrix[0]) + (p->at(i2).b.v.y * Matrix[4]) + (p->at(i2).b.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).b.v.x * Matrix[1]) + (p->at(i2).b.v.y * Matrix[5]) + (p->at(i2).b.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).b.v.x * Matrix[2]) + (p->at(i2).b.v.y * Matrix[6]) + (p->at(i2).b.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).b.v.x = v[0];
+			p->at(i2).b.v.y = v[1];
+			p->at(i2).b.v.z = v[2];
+
+			v[0] = (p->at(i2).c.v.x * Matrix[0]) + (p->at(i2).c.v.y * Matrix[4]) + (p->at(i2).c.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).c.v.x * Matrix[1]) + (p->at(i2).c.v.y * Matrix[5]) + (p->at(i2).c.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).c.v.x * Matrix[2]) + (p->at(i2).c.v.y * Matrix[6]) + (p->at(i2).c.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).c.v.x = v[0];
+			p->at(i2).c.v.y = v[1];
+			p->at(i2).c.v.z = v[2];*/
+		}
+		++i;
+		i2++;
+	}
+}
 
 float glzScanVertexArray(float *vert, long num, glzBoundingScan scan)
 {
@@ -1530,6 +1643,205 @@ float glzScanVertexArray(float *vert, long num, glzBoundingScan scan)
 return r;
 }
 
+
+float glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan)
+{
+
+	float r = 0, r2 = 0, r3 = 0;
+
+
+	// set initial conditiona
+
+	switch (scan)
+	{
+
+	case glzBoundingScan::LEFT:
+	case glzBoundingScan::RIGHT:
+	case glzBoundingScan::WIDTH:
+	case glzBoundingScan::CENTER_X:
+
+		r = pdata[0].a.v.x;
+		r2 = pdata[0].a.v.x;
+		r3 = pdata[0].a.v.x;
+
+		break;
+
+
+	case glzBoundingScan::TOP:
+	case glzBoundingScan::BOTTOM:
+	case glzBoundingScan::HEIGHT:
+	case glzBoundingScan::CENTER_Y:
+
+		r = pdata[0].a.v.y;
+		r2 = pdata[0].a.v.y;
+		r3 = pdata[0].a.v.y;
+
+		break;
+
+
+	}
+
+
+
+	for (auto p:pdata)
+	{
+		if (p.group == group)
+		{
+			switch (scan)
+			{
+
+			case glzBoundingScan::LEFT:
+
+				if (r < p.a.v.x)
+					r = p.a.v.x;
+
+				if (r < p.b.v.x)
+					r = p.b.v.x;
+
+				if (r < p.c.v.x)
+					r = p.c.v.x;
+
+				break;
+
+			case glzBoundingScan::RIGHT:
+
+				if (r > p.a.v.x)
+					r = p.a.v.x;
+
+				if (r > p.b.v.x)
+					r = p.b.v.x;
+
+				if (r > p.c.v.x)
+					r = p.c.v.x;
+
+				break;
+
+			case glzBoundingScan::TOP:
+
+				if (r > p.a.v.y)
+					r = p.a.v.y;
+
+				if (r > p.b.v.y)
+					r = p.b.v.y;
+
+				if (r > p.c.v.y)
+					r = p.c.v.y;
+
+				break;
+
+			case glzBoundingScan::BOTTOM:
+
+				if (r < p.a.v.y)
+					r = p.a.v.y;
+
+				if (r < p.b.v.y)
+					r = p.b.v.y;
+
+				if (r < p.c.v.y)
+					r = p.c.v.y;
+
+				break;
+
+			case glzBoundingScan::WIDTH:
+
+				if (r2 > p.a.v.x)
+					r2 = p.a.v.x;
+
+				if (r2 > p.b.v.x)
+					r2 = p.b.v.x;
+
+				if (r2 > p.c.v.x)
+					r2 = p.c.v.x;
+
+				if (r3 < p.a.v.x)
+					r3 = p.a.v.x;
+
+				if (r3 < p.b.v.x)
+					r3 = p.b.v.x;
+
+				if (r3 < p.c.v.x)
+					r3 = p.c.v.x;
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::HEIGHT:
+
+				if (r2 > p.a.v.y)
+					r2 = p.a.v.y;
+
+				if (r2 > p.b.v.y)
+					r2 = p.b.v.y;
+
+				if (r2 > p.c.v.y)
+					r2 = p.c.v.y;
+
+				if (r3 < p.a.v.y)
+					r3 = p.a.v.y;
+
+				if (r3 < p.b.v.y)
+					r3 = p.b.v.y;
+
+				if (r3 < p.c.v.y)
+					r3 = p.c.v.y;
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::CENTER_X:
+
+				if (r2 > p.a.v.x)
+					r2 = p.a.v.x;
+
+				if (r2 > p.b.v.x)
+					r2 = p.b.v.x;
+
+				if (r2 > p.c.v.x)
+					r2 = p.c.v.x;
+
+				if (r3 < p.a.v.x)
+					r3 = p.a.v.x;
+
+				if (r3 < p.b.v.x)
+					r3 = p.b.v.x;
+
+				if (r3 < p.c.v.x)
+					r3 = p.c.v.x;
+
+				r = r3 + r2*0.5f;
+
+				break;
+
+			case glzBoundingScan::CENTER_Y:
+
+				if (r2 > p.a.v.y)
+					r2 = p.a.v.y;
+
+				if (r2 > p.b.v.y)
+					r2 = p.b.v.y;
+
+				if (r2 > p.c.v.y)
+					r2 = p.c.v.y;
+
+				if (r3 < p.a.v.y)
+					r3 = p.a.v.y;
+
+				if (r3 < p.b.v.y)
+					r3 = p.b.v.y;
+
+				if (r3 < p.c.v.y)
+					r3 = p.c.v.y;
+
+				r = r3 + r2*0.5f;
+
+				break;
+			}
+		}
+	}
+	return r;
+}
 
 void glzMultMatrix(float *MatrixB,float  MatrixA[16])
 {

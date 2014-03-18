@@ -30,6 +30,8 @@ using namespace std;
 
 // todo, change all instances to return *this instead
 
+class glzMatrix;
+
 class vec2{ //vector2 class
 
 
@@ -107,6 +109,7 @@ public:
 	double dot(vec3 a) { return x*a.x + y*a.y + z*a.z; }
 	void normalize(double l) { if (!this->magnitude()) return; double m = l / this->magnitude(); x *= m; y *= m; z *= m; }
 	void crossproduct(vec3 a, vec3 b) { x = b.y * a.z - a.y * b.z; y = b.z * a.x - a.z * b.x; z = b.x * a.y - a.x * b.y; }
+	void project(glzMatrix m);
 
 
 
@@ -153,6 +156,7 @@ public:
 	double distance(vert3 a) { return sqrt((x - a.x * x - a.x) + (y - a.y * y - a.y) + (z - a.z * z - a.z)); }
 	void normalizeOrigin(double l) { if (!this->magnitude()) return; double m = l / this->magnitude(); x *= m; y *= m; z *= m; }
 	vec3 vectorTo(vert3 b);
+	void project(glzMatrix m);
 
 };
 
@@ -196,6 +200,9 @@ private:
 	//glzMatrix() : glzMatrix((double[16]){ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 }) {}
 public:
 	double m[16];
+	//double inverted_m[16]; 
+	//todo:: for each operation generate the oposite inverted matrix and heep it at hand if nneded, and it will be nneded if i don't do this
+
 	glzMatrix() { this->LoadIdentity(); }
 
 	glzMatrix(double b[16]) { int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }; for (auto i : v) m[i] = b[i]; }
@@ -313,6 +320,33 @@ public:
 	void tempAddNormalToVertex();  // only for testing that normals work
 
 	
+
+};
+
+
+
+
+class glzAtlassprite{ //atlassprite class
+
+private:
+
+
+public:
+
+	// an atlas is defined by 2 tex coords, depth is used in case a texture array is used, coord are in the following config
+	// c d
+	// a b
+	// with a being 0,0 and d is 1,1
+
+	tex2 a, b, c, d;
+	double depth;
+
+	glzAtlassprite() : a(tex2(0.0, 0.0)), b(tex2(1.0, 0.0)), c(tex2(0.0, 1.0)), d(tex2(1.0, 1.0)), depth(0.0){} // default numbers
+	glzAtlassprite(tex2 ain, tex2 bin, tex2 cin, tex2 din, double depthin) : a{ ain }, b{ bin }, c{ cin }, d{ din }, depth{ depthin }{} // direct initialization
+	glzAtlassprite(tex2 pos, tex2 dim, double depthin) : a{ tex2(pos.u, pos.v) }, b{ tex2(pos.u + dim.u, pos.v) }, c{ tex2(pos.u, pos.v + dim.v) }, d{ tex2(pos.u + dim.u, pos.v + dim.v) }, depth{ depthin }{} // simpler initialization
+
+	glzAtlassprite(unsigned int xdim, unsigned int ydim, unsigned int atlas, double depthin); // grid atlas initialization
+
 
 };
 

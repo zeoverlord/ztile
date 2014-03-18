@@ -129,7 +129,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	float mt[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	float mt2[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mt3[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	glzMatrix mt3;
 	float mo[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	float mg[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	float mh[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -149,7 +149,6 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzLoadIdentity(mt);
 	glzLoadIdentity(mt2);
-	glzLoadIdentity(mt3);
 	glzLoadIdentity(mo);
 	glzLoadIdentity(mg);
 	glzLoadIdentity(mh);
@@ -161,7 +160,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glzScalef(mt,0.17f,0.17f,0.17f);
 	glzScalef(mt2,0.3f,0.3f,0.3f);
-	glzScalef(mt3,0.17f,0.17f,0.17f);
+	mt3.scale(0.17f,0.17f,0.17f);
+
 	glzScalef(mg,32.0f,32.0f,32.0f);
 	glzScalef(mh,0.4f,0.4f,0.4f);
 

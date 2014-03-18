@@ -107,6 +107,9 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 
 
 	float textkern[256][10];
+//	glzAtlassprite testsprite = glzAtlasQuad(16, 16, 'a', origin);
+
+
 	i = 0;
 
 	// precomputation stage
@@ -209,7 +212,11 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 			t[it + 10] = textkern[text[c]][4];
 			t[it + 11] = textkern[text[c]][5];
 
+
+			// temp coords of a
 			
+
+						
 			it += 12;
 
 
@@ -287,33 +294,187 @@ long glzPrimText(char *text, float k, float *v, float *t, float *n, glzOrigin or
 	return i * 6;
 }
 
+void glzPrimTextVector(char *text, float k, vector<poly3> *pdata, int group, int atlas, glzOrigin origin)
+{
 
-long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao)
+	float kern = k*0.2500f;
+	float medium_kern = kern*0.75f;
+	float small_kern = kern*0.6f;
+	float st = 0.33f, x = 0.0f, y = 0.0f;
+	float xp = 0, yp = -1.0f;
+	unsigned int c = 0, iv = 0, it = 0, i = 0;
+	bool newline = true;
+
+
+	typedef struct
+	{
+
+		glzAtlassprite charsprite;
+		float frontkern;
+		float backkern;
+		
+	} font_def;
+
+	font_def textkern[256];
+	//glzAtlassprite testsprite = glzAtlasQuad(16, 16, 'a', origin);
+	poly3 p1, p2;
+
+	p1.atlas = atlas;
+	p2.atlas = atlas;
+
+	p1.group = group;
+	p2.group = group;
+
+	vec3 n(0.0,1.0,0.0);
+
+	p1.a.n = n;
+	p1.b.n = n;
+	p1.c.n = n;
+
+	p2.a.n = n;
+	p2.b.n = n;
+	p2.c.n = n;
+
+	
+	i = 0;
+		// precomputation stage
+	while (i < 256)
+	{
+		// get the uv coordinates
+
+
+		textkern[i].charsprite = glzAtlasQuad(16, 16, i, origin);
+
+		// get the pre and post spacing
+		switch (i)
+		{
+		case 'i':
+
+		case 'I':
+		case 'l':
+		case '1':
+		case 'j':
+		case '!':
+		case '\"':
+		case '\\':
+
+			textkern[i].frontkern = small_kern;//prekern
+			textkern[i].backkern = small_kern;//postkern
+			break;
+
+		case 'r':
+		case 't':
+		case 'f':
+		case '7':
+		case ' ':
+
+			textkern[i].frontkern = medium_kern;//prekern
+			textkern[i].backkern = medium_kern;//postkern
+			break;
+
+		default:
+			textkern[i].frontkern = kern;//prekern
+			textkern[i].backkern = kern;//postkern
+			break;
+		}
+
+
+
+		i++;
+	}
+	
+	i = 0;
+
+	while (c<strlen(text))
+	{
+
+		if (text[c] == '\n') { yp -= 1; xp = 0; newline = true; c++; }
+		else if (text[c] == '\t')
+		{
+			if (xp>90 * st)	xp = 100 * st;
+			else if (xp >= 80 * st)	xp = 90 * st;
+			else if (xp >= 70 * st)	xp = 80 * st;
+			else if (xp >= 60 * st)	xp = 70 * st;
+			else if (xp >= 50 * st)	xp = 60 * st;
+			else if (xp >= 40 * st)	xp = 50 * st;
+			else if (xp >= 30 * st)	xp = 40 * st;
+			else if (xp >= 20 * st)	xp = 30 * st;
+			else if (xp >= 10 * st)	xp = 20 * st;
+			else if (xp >= 0)		xp = 10 * st;
+
+
+			c++;
+			newline = true;
+
+		}
+		else if (text[c] == ' ') { xp += textkern[text[c]].frontkern;  c++; }
+		else
+		{
+			if (!newline) xp += textkern[text[c]].frontkern;
+
+			newline = false;
+
+			
+			// temp coords of a
+
+			p1.a.t = textkern[text[c]].charsprite.a;
+			p1.b.t = textkern[text[c]].charsprite.b;
+			p1.c.t = textkern[text[c]].charsprite.c;
+
+			p2.a.t = textkern[text[c]].charsprite.c;
+			p2.b.t = textkern[text[c]].charsprite.b;
+			p2.c.t = textkern[text[c]].charsprite.d;
+
+			p1.a.v = vert3(0.0 + x + xp, 0.0 + y + yp, 0.0);
+			p1.b.v = vert3(1.0 + x + xp, 0.0 + y + yp, 0.0);
+			p1.c.v = vert3(0.0 + x + xp, 1.0 + y + yp, 0.0);
+
+			p2.a.v = vert3(0.0 + x + xp, 1.0 + y + yp, 0.0);
+			p2.b.v = vert3(1.0 + x + xp, 0.0 + y + yp, 0.0);
+			p2.c.v = vert3(1.0 + x + xp, 1.0 + y + yp, 0.0);
+
+			pdata->push_back(p1);
+			pdata->push_back(p2);
+
+			xp += textkern[text[c]].backkern;
+
+			i++;
+
+			c++;
+
+		}
+
+
+
+	}
+
+
+	return;
+}
+
+
+
+long glzVAOMakeText(char text[255], glzMatrix matrix, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao)
 {
 	if (!isinited_geo_2d) ini_geo_2d();
 
+	glzMatrix m;
+
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
-	float *v, *t, *n;
-
-	long verts = glzCountPrimText(text);
-
-	v = new float[verts * 3];
-	t = new float[verts * 2];
-	n = new float[verts * 3];
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 
-	glzPrimText(text, kern, v, t, n, tt.origin);
+	vector<poly3> p;
 
 
+	glzPrimTextVector(text, kern, &p, 0, 0, tt.origin);
+
+	// text always generate with top_left origin in bottom_left space the folowing code fixes that
 
 	float xo = 0, yo = 0;
 
-	float m[16];
-	glzLoadIdentity(m);
-
-
+	m.LoadIdentity();
 	switch (textorigin)
 	{
 	case glzOrigin::TOP_LEFT:
@@ -322,128 +483,53 @@ long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transfor
 
 	case glzOrigin::BOTTOM_LEFT:
 
-		yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-		glzTranslatef(m, xo, -yo, 0);
+		yo = glzScanVectorArray(p, 0, glzBoundingScan::HEIGHT);
+		m.translate(xo, -yo, 0);
 		break;
 
 	case glzOrigin::BOTTOM_RIGHT:
 
-		xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-		yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-		glzTranslatef(m, xo, -yo, 0);
+		xo = glzScanVectorArray(p, 0, glzBoundingScan::WIDTH);
+		yo = glzScanVectorArray(p, 0, glzBoundingScan::HEIGHT);
+		m.translate(xo, -yo, 0);
 		break;
 
 	case glzOrigin::TOP_RIGHT:
 
-		xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-		glzTranslatef(m, xo, yo, 0);
+		xo = glzScanVectorArray(p, 0, glzBoundingScan::WIDTH);
+		m.translate(xo, yo, 0);
 		break;
 
 	case glzOrigin::CENTERED:
 
-		xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-		yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-		glzTranslatef(m, xo*0.5f, -yo*0.5f, 0);
+		xo = glzScanVectorArray(p, 0, glzBoundingScan::WIDTH);
+		yo = glzScanVectorArray(p, 0, glzBoundingScan::HEIGHT);
+		m.translate(xo*0.5f, -yo*0.5f, 0);
 		break;
 	}
 
+	m *= matrix;
+	glzProjectVertexArray(&p, m, 0);
 
-	glzMultMatrix(matrix, m);
-
-	glzProjectVertexArray(v, matrix, verts);
-	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
+	glzVAOMakeFromVector(p, vao, glzVAOType::AUTO);
 
 
-	delete[] v;
-	delete[] t;
-	delete[] n;
-	v = NULL;
-	t = NULL;
-	n = NULL;
+	return p.size() * 3;
 
-	return verts;
 
 }
-
 
 long glzVAOMakeText2d(char text[255], float scale, float aspect, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao)
 {
-	if (!isinited_geo_2d) ini_geo_2d();
+	glzMatrix m;
 
-	float m[16];
-
-	
-
-	unsigned int vaopoint;
-	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
-	float *v, *t, *n;
-
-	long verts = glzCountPrimText(text);
-
-	v = new float[verts * 3];
-	t = new float[verts * 2];
-	n = new float[verts * 3];
+	m.LoadIdentity();
+	m.scale(scale, scale*aspect, 1.0f);
 
 
-	glzPrimText(text, kern, v, t, n, tt.origin);
-
-	// text always generate with top_left origin in bottom_left space the folowing code fixes that
-
-	float xo = 0, yo = 0;
-
-	glzLoadIdentity(m);
-	switch (textorigin)
-	{
-		case glzOrigin::TOP_LEFT:
-		//do nothing
-			break;
-
-		case glzOrigin::BOTTOM_LEFT:
-			
-			yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-			glzTranslatef(m, xo, -yo, 0);
-			break;
-
-		case glzOrigin::BOTTOM_RIGHT:
-			
-			xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-			yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-			glzTranslatef(m, xo, -yo, 0);
-			break;
-
-		case glzOrigin::TOP_RIGHT:
-
-			xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-			glzTranslatef(m, xo, yo, 0);
-			break;
-
-		case glzOrigin::CENTERED:
-
-			xo = glzScanVertexArray(v, verts, glzBoundingScan::WIDTH);
-			yo = glzScanVertexArray(v, verts, glzBoundingScan::HEIGHT);
-			glzTranslatef(m, xo*0.5f, -yo*0.5f, 0);
-			break;
-	}
-	// get scaling right
-	glzScalef(m, scale, scale*aspect, 1.0f);
-	glzProjectVertexArray(v, m, verts);	
-	
-		
-	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
-
-
-	delete[] v;
-	delete[] t;
-	delete[] n;
-	v = NULL;
-	t = NULL;
-	n = NULL;
-
-	return verts;
+	return glzVAOMakeText(text, m, kern, tt, textorigin, vao);
 
 }
-
 
 void glzDirectDrawText(char text[255], float scale, float aspect, float kern, glzOrigin textorigin)
 {
@@ -451,7 +537,7 @@ void glzDirectDrawText(char text[255], float scale, float aspect, float kern, gl
 	long verts;
 	verts = glzVAOMakeText2d(text, scale, aspect, kern, glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT), textorigin, &localVAO);
 	glzDrawVAO(0, verts, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, glzVAOType::AUTO);
+	glzKillVAO(localVAO);
 
 }
 
@@ -515,7 +601,7 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, glzVAOType::AUTO);
+	glzKillVAO(localVAO);
 
 	glUseProgram(c_program);
 
@@ -702,7 +788,7 @@ void glzDirectSpriteRender(float X, float Y, float Z, float W, float H, float sp
 
 	}
 	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, glzVAOType::AUTO);
+	glzKillVAO(localVAO);
 
 	return;
 }

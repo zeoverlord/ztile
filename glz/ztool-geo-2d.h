@@ -27,7 +27,7 @@ using namespace std;
 #ifndef __glz_geo2d__
 #define __glz_geo2d__
 
-long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
+long glzVAOMakeText(char text[255], glzMatrix matrix, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
 long glzVAOMakeText2d(char text[255], float scale, float aspect, float kern, texture_transform tt, glzOrigin textorigin, unsigned int *vao);
 void glzDirectDrawText(char text[255], float scale, float aspect, float kern, glzOrigin textorigin);
 void glzDrawTexture(unsigned  texture, unsigned  sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1);  // mirroring GL_DrawTextureNV exactly

@@ -107,6 +107,7 @@ void glzRemapToRangeArray(float curmin,float curmax, float rmin, float rmax, flo
 void glzCubicCurve(float pos, float l, float p1[3], float v1[3], float p2[3], float v2[3], float *ret);
 void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin, float *uvOut);
 void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout);
+glzAtlassprite glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin);
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group);
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side);
@@ -120,9 +121,11 @@ void glzProjectVertex(float  *vert, float Matrix[16]);
 void glzProjectVertexArray(float  *vert, float Matrix[16], int num);
 void glzProjectVertex(poly3 *p, float Matrix[16], int group);
 void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group);
+void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group);
 
 
 float glzScanVertexArray(float  *vert, long num, glzBoundingScan scan);
+float glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan);
 
 void glzMultMatrix(float *MatrixB,float  MatrixA[16]);
 void glzLoadIdentity(float *m);
