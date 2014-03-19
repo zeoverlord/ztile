@@ -294,7 +294,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 
 		if (g_keys->keyDown[VK_LEFT] == TRUE)q2.rotate(seconds * 40, 0.0, 1.0, 0.0);
 		if (g_keys->keyDown[VK_RIGHT] == TRUE)q2.rotate(seconds * -40, 0.0, 1.0, 0.0);
-		//q2.normalize();
+		
 	}
 
 

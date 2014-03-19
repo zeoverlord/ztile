@@ -373,7 +373,7 @@ void glzMatrix::loadQuanternion(glzQuaternion b)
 	a.m[7] = 0;
 
 	a.m[8] = (2 * b.x * b.z) + (2 * b.w * b.y);
-	a.m[9] = (2 * b.x * b.z) - (2 * b.w * b.x);
+	a.m[9] = (2 * b.y * b.z) - (2 * b.w * b.x);
 	a.m[10] = 1 - (2 * b.x * b.x) - (2 * b.y * b.y);
 	a.m[11] = 0;
 
@@ -414,7 +414,7 @@ void glzQuaternion::rotate(double a, double x, double y, double z)
 	q2.z = sin(angle)*z;
 
 	this->normalize();
-	multQuaternion(q2);
+	this->multQuaternion(q2);
 
 	return;
 }
