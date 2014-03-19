@@ -25,13 +25,16 @@
 #include <string.h>
 #include "ztool-glz.h"
 #include <stdio.h>
+#include <random>
 #include <windows.h>													// Header File For The Windows Library
 #include <gl/gl.h>														// Header File For The OpenGL32 Library
 #include <gl/glu.h>														// Header File For The GLu32 Library
 #include <gl/glext.h>
 using namespace std;
 
+
 static bool isinited_glz;
+static std::mt19937 mt(1729);
 
 
 // currently this thing is entirely useless since this file doesn't even bother to mess with any APIs, it's almost entirely just math, but it might change someday which is why it's here
@@ -39,6 +42,7 @@ void ini_glz(void)
 {
 	
 	isinited_glz=true;
+
 }
 
 
@@ -46,21 +50,123 @@ void ini_glz(void)
 
 float glzRandf(void)  //produces a value between 1 and 0
 {
-	return (float)(rand() % RAND_MAX)/RAND_MAX;  // you wouldn't belive how often doing this the wrong way have given me strange results
+	std::uniform_real_distribution<float> dist(0.0,1.0);
+	return dist(mt);
+
+	// you wouldn't belive how often doing this the wrong way have given me strange results
 }
 
+float glzRandf(glzDistribution D)  //produces a value between 1 and 0
+{
+	std::uniform_real_distribution<float> dist_u(0.0, 1.0);
+	std::normal_distribution<float> dist_n(0.0, 1.0);
+	std::gamma_distribution<float> dist_g(1.0, 1.0);
+	std::exponential_distribution<float> dist_e(1.0);
+
+	switch (D)
+	{
+	case glzDistribution::UNIFORM:
+		return abs(dist_u(mt));
+		break;
+	case glzDistribution::NORMAL:
+		return dist_n(mt);
+		break;
+	case glzDistribution::GAMMA:
+		return dist_g(mt);
+		break;
+	case glzDistribution::EXPONENTIAL:
+		return dist_e(mt);
+		break;
+	default:
+		return abs(dist_u(mt));
+		break;
+	}
+
+}
 
 float glzRandfs(void)  //produces a value between 1 and -1
 {
-	float r;
-	r=glzRandf();
-
-	if (glzRandf()<0.5)
-	return (r);
-	else
-	return(-1*r);
+	std::uniform_real_distribution<float> dist(-1.0, 1.0);
+	return dist(mt);
 }
 
+float glzRandfs(glzDistribution D)  //produces a value between 1 and -1
+{
+std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
+std::normal_distribution<float> dist_n(0.0, 1.0);
+std::gamma_distribution<float> dist_g(1.0, 1.0);
+std::exponential_distribution<float> dist_e(1.0);
+std::uniform_int_distribution<int> dist_i(0, 1);
+
+int sign = 1;
+if (dist_i(mt)) sign = -1;
+
+	switch (D)
+	{ 
+		case glzDistribution::UNIFORM:			
+			return dist_u(mt);
+			break;
+		case glzDistribution::NORMAL:			
+			return dist_n(mt)*sign;
+			break;
+		case glzDistribution::GAMMA:			
+			return dist_g(mt)*sign;
+			break;
+		case glzDistribution::EXPONENTIAL:			
+			return dist_e(mt)*sign;
+			break;
+		default:
+			return dist_u(mt);
+			break;
+}
+	
+}
+
+
+// static noise functions, works but is slower than random because of overhead, still they are pretty good for generation of pseudorandom data that needs to be the same every time
+
+
+float glzMersienneNoise(float seed)
+{
+	std::mt19937 mtx(seed);
+	std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
+	return dist_u(mtx);
+
+}
+float glzMersienneNoise(float seed, float x)
+{
+	std::mt19937 mtx(seed + x);
+	std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
+	return dist_u(mtx);
+}
+
+float glzMersienneNoise(float seed, float x, float y)
+{
+	std::mt19937 mtx(seed+x);
+	std::uniform_real_distribution<float> dist_x(0.0, 374321.0);
+	std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
+	std::mt19937 mty(y * dist_x(mtx));
+	return dist_u(mty);
+
+}
+
+float glzMersienneNoise(float seed, float x, float y, float z)
+{
+	std::mt19937 mtx(seed + x);
+	std::uniform_real_distribution<float> dist_x(0.0, 374321.0);
+	std::uniform_real_distribution<float> dist_y(0.0, 1729.0);
+	std::uniform_real_distribution<float> dist_u(-1.0, 1.0);
+	std::mt19937 mty(y * dist_x(mtx));
+	std::mt19937 mtz(z * dist_y(mty));
+	return dist_u(mtz); 
+}
+
+
+
+
+
+
+// misc math
 
 
 float glzModF(float f, float m)  //float modulo function
@@ -83,7 +189,7 @@ int glzTimeCounter(float *t, float m)  //timing function
 {
 	int r=0;
 	while(t[0]>m) {t[0]-=abs(m); r++;}
-	return r;
+	return r; // retruns the number of m's that exist in f while decreasing f with r*m
 }
 
 float quantize(float f, float s)
@@ -102,29 +208,36 @@ float quantize(float f, float s)
 // some general math functions
 
 
-float glzDotproductf(float a[3], float b[3])
+float glzDotproduct(float a[3], float b[3])
 {
 	return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
 }
 
-double glzDotproductd(double a[3], double b[3])
+double glzDotproduct(double a[3], double b[3])
 {
 	return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
 }
 
-float glzMagnitudef(float a[3])
+double glzDotproduct(vec3 a, vec3 b)
+{
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+}
+
+
+float glzMagnitude(float a[3])
 {
 
 	return (float)sqrt((a[0]*a[0]) + (a[1]*a[1]) + (a[2]*a[2]));
 }
 
-double glzMagnituded(double a[3])
+
+double glzMagnitude(double a[3])
 {
 
 	return sqrt((a[0]*a[0]) + (a[1]*a[1]) + (a[2]*a[2]));
 }
 
-void glzNormalizef(float *a, float le)
+void glzNormalize(float *a, float le)
 {
 
 	float l=le/(float)sqrt((a[0]*a[0]) + (a[1]*a[1]) + (a[2]*a[2]));
@@ -135,7 +248,7 @@ void glzNormalizef(float *a, float le)
 	return;
 }
 
-void glzNormalized(double *a, double le)
+void glzNormalize(double *a, double le)
 {
 
 	double l=le/(double)sqrt((a[0]*a[0]) + (a[1]*a[1]) + (a[2]*a[2]));
@@ -146,7 +259,7 @@ void glzNormalized(double *a, double le)
 	return;
 }
 
-void glzCrossproductf(float a[3], float b[3], float *r)
+void glzCrossproduct(float a[3], float b[3], float *r)
 	{
 		r[0]=b[1]*a[2]-a[1]*b[2];
 		r[1]=b[2]*a[0]-a[2]*b[0];
@@ -154,13 +267,23 @@ void glzCrossproductf(float a[3], float b[3], float *r)
 		return;
 	}
 
-void glzCrossproductd(double a[3], double b[3], double *r)
+void glzCrossproduct(double a[3], double b[3], double *r)
 	{
 		r[0]=b[1]*a[2]-a[1]*b[2];
 		r[1]=b[2]*a[0]-a[2]*b[0];
 		r[2]=b[0]*a[1]-a[0]*b[1];
 		return;
 	}
+
+
+vec3 glzCrossproduct(vec3 a, vec3 b)
+{
+	vec3 r;
+	r.x = b.y * a.z - a.y * b.z;
+	r.y = b.z * a.x - a.z * b.x;
+	r.z = b.x * a.y - a.x * b.y;
+	return r;
+}
 
 
 //image code
@@ -680,6 +803,71 @@ float glzRemapToRange(float curmin,float cur,float curmax, float rmin, float rma
 	return rmin+(curpercent*rmagnitude);
 }
 
+float glzLerpRange(float curmin, float cur, float curmax, float rmin, float rmax)
+{
+	return glzRemapToRange( curmin,  cur,  curmax,  rmin,  rmax);
+}
+
+float glzLerpRange2D(float curmin[2], float cur[2], float curmax[2], float rmin[2], float rmax[2])
+{
+	// remaps one 2d coordinate space to another
+	// much like the glzRemapToRange but with two rows that are in turn interpolated with each other
+
+	float a1 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[0], rmax[0]);
+
+	float a2 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[1], rmax[1]);
+
+	float a3 = glzRemapToRange(curmin[1], cur[1], curmax[1], a1, a2);
+
+	return a3;
+
+}
+
+float glzLerpRange3D(float curmin[4], float cur[3], float curmax[4], float rmin[4], float rmax[4])
+{
+	// remaps one 3d coordinate space to another
+	// much like the 2D version but with two rows that are in turn interpolated with each other
+
+	float a1 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[0], rmax[0]);
+
+	float a2 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[1], rmax[1]);
+
+	float a3 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[2], rmax[2]);
+
+	float a4 = glzRemapToRange(curmin[0], cur[0], curmax[0], rmin[3], rmax[3]);
+
+	float b1 = glzRemapToRange(curmin[1], cur[1], curmax[1], a1, a2);
+
+	float b2 = glzRemapToRange(curmin[1], cur[1], curmax[1], a3, a4);
+
+	float r = glzRemapToRange(curmin[2], cur[2], curmax[2], b1, b2);
+
+	return r;
+
+}
+
+float glzLerp(float cur, float rmin, float rmax)
+{
+
+	return glzRemapToRange(0.0, cur, 1.0, rmin, rmax);
+}
+
+float glzLerp2D(float cur[2], float rmin[2], float rmax[2])
+{
+	float a[2] = { 0.0, 0.0 };
+	float b[2] = { 1.0, 1.0 };
+
+	return glzLerpRange2D(a, cur, b, rmin, rmax);
+}
+
+float glzLerp3D(float cur[3], float rmin[4], float rmax[4])
+{	
+	float a[4] = { 0.0, 0.0, 0.0,0.0 };
+	float b[4] = { 1.0, 1.0, 1.0,1.0 };	
+
+	return glzLerpRange3D(a, cur, b, rmin, rmax);
+}
+
 
 void glzRemapToRangeArray(float curmin,float curmax, float rmin, float rmax, float *curdata, unsigned int num)
 {
@@ -799,6 +987,69 @@ void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzO
 
 }
 
+glzAtlassprite glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin)
+{
+	// generates 4 float[2] coordinates that corresponds to the sub image of an images atlas
+
+	float xwidth = float(1.0f / xres);
+	float ywidth = float(1.0f / yres);
+
+	glzAtlassprite atlasquad;
+
+	unsigned int x = 0, y = 0;
+
+	if (atlas >= xres*yres) x = xres*yres - 1;
+	else x = atlas;
+	//if (x<0) x=0;
+
+	while (x >= xres)
+	{
+		x -= xres;
+		y++;
+	}
+
+	y = yres - y;
+
+	// bottom left
+	// (0,0) a
+	atlasquad.a.u = (x*xwidth);
+	atlasquad.a.v = (y*ywidth) - ywidth;
+
+	// (0,1) c
+	atlasquad.c.u = (x*xwidth);
+	atlasquad.c.v = (y*ywidth);
+
+	// (1,1) d
+	atlasquad.d.u = (x*xwidth) + xwidth;
+	atlasquad.d.v = (y*ywidth);
+
+	// (1,0) b
+	atlasquad.b.u = (x*xwidth) + xwidth;
+	atlasquad.b.v = (y*ywidth) - ywidth;
+
+	if ((origin == glzOrigin::BOTTOM_RIGHT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a x-flip
+		atlasquad.a.u = 1.0f - atlasquad.a.u;
+		atlasquad.b.u = 1.0f - atlasquad.b.u;
+		atlasquad.c.u = 1.0f - atlasquad.c.u;
+		atlasquad.d.u = 1.0f - atlasquad.d.u;
+
+	}
+
+	if ((origin == glzOrigin::TOP_LEFT) || (origin == glzOrigin::TOP_RIGHT))
+	{
+		// preform a y-flip
+		atlasquad.a.v = 1.0f - atlasquad.a.v;
+		atlasquad.b.v = 1.0f - atlasquad.b.v;
+		atlasquad.c.v = 1.0f - atlasquad.c.v;
+		atlasquad.d.v = 1.0f - atlasquad.d.v;
+
+	}
+
+	return atlasquad;
+}
+
 void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout)
 {
 
@@ -890,6 +1141,72 @@ void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw,
 
 }
 
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group)
+{
+	float quv[8];
+
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
+
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+		++i;
+		i2++;
+	}
+	return;
+}
+
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side)
+{
+	// i use this to make normally mapped objects into atlas mapped objects
+	float quv[8];
+
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
+
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	i2 = 0; 
+	while (i < p->end()) {
+
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+	++i;
+	i2++;
+	}
+	return;
+
+}
+
 void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv)
 {
 	// same as above except i now also rotate the original uv coordinates
@@ -951,6 +1268,98 @@ void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int
 }
 
 
+
+void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side)
+{
+	// same as above except i now also rotate the original uv coordinates
+
+	double rm[4] = { 1, 0, 0, 1 };
+
+
+	if (r == 1)  //90 degrees
+	{
+		rm[0] = 0;
+		rm[1] = -1;
+		rm[2] = 1;
+		rm[3] = 0;
+	}
+	if (r == 2)  //180 degrees
+	{
+		rm[0] = -1;
+		rm[1] = 0;
+		rm[2] = 0;
+		rm[3] = -1;
+	}
+	if (r == 3)  //270 degrees
+	{
+		rm[0] = 0;
+		rm[1] = 1;
+		rm[2] = -1;
+		rm[3] = 0;
+	}
+	int i2 = 0;
+
+
+	auto i = p->begin();
+	double u, v;
+
+
+	i2 = 0;
+	while (i < p->end()) {
+
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
+		{
+
+			u = ((p->at(i2).a.t.u - 0.5)*rm[0]) + ((p->at(i2).a.t.v - 0.5)*rm[1]);
+			v = ((p->at(i2).a.t.u - 0.5)*rm[2]) + ((p->at(i2).a.t.v - 0.5)*rm[3]);
+			p->at(i2).a.t.u = u + 0.5;
+			p->at(i2).a.t.v = v + 0.5;
+
+			u = ((p->at(i2).b.t.u - 0.5)*rm[0]) + ((p->at(i2).b.t.v - 0.5)*rm[1]);
+			v = ((p->at(i2).b.t.u - 0.5)*rm[2]) + ((p->at(i2).b.t.v - 0.5)*rm[3]);
+			p->at(i2).b.t.u = u + 0.5;
+			p->at(i2).b.t.v = v + 0.5;
+
+			u = ((p->at(i2).c.t.u - 0.5)*rm[0]) + ((p->at(i2).c.t.v - 0.5)*rm[1]);
+			v = ((p->at(i2).c.t.u - 0.5)*rm[2]) + ((p->at(i2).c.t.v - 0.5)*rm[3]);
+			p->at(i2).c.t.u = u + 0.5;
+			p->at(i2).c.t.v = v + 0.5;
+
+		}
+
+		++i;
+		i2++;
+	}
+
+	
+	float quv[8];
+	i2 = 0;
+
+	glzAtlasQuad(aw, ah, atlas, origin, quv);
+
+	i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if ((p->at(i2).group == group) && (p->at(i2).atlas == side))
+		{
+			p->at(i2).a.t.u = glzRemapToRange(0, p->at(i2).a.t.u, 1, quv[0], quv[4]);
+			p->at(i2).a.t.v = glzRemapToRange(0, p->at(i2).a.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).b.t.u = glzRemapToRange(0, p->at(i2).b.t.u, 1, quv[0], quv[4]);
+			p->at(i2).b.t.v = glzRemapToRange(0, p->at(i2).b.t.v, 1, quv[1], quv[3]);
+
+			p->at(i2).c.t.u = glzRemapToRange(0, p->at(i2).c.t.u, 1, quv[0], quv[4]);
+			p->at(i2).c.t.v = glzRemapToRange(0, p->at(i2).c.t.v, 1, quv[1], quv[3]);
+
+		}
+
+		++i;
+		i2++;
+	}
+	return;
+
+}
 // matrix stuff
 // all these matrix functions behave exactly as ther openGL counterparts besides the matrix component that you need to pass around, it makes it a bit more flexible though
 
@@ -976,9 +1385,441 @@ void glzProjectVertexArray(float  *vert, float Matrix[16], int num)
 }
 
 
+void glzProjectVertex(poly3 *p, float Matrix[16], int group)
+{
+	double v[3];
+	if (p->group != group) return;
+	v[0] = (p->a.v.x * Matrix[0]) + (p->a.v.y * Matrix[4]) + (p->a.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->a.v.x * Matrix[1]) + (p->a.v.y * Matrix[5]) + (p->a.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->a.v.x * Matrix[2]) + (p->a.v.y * Matrix[6]) + (p->a.v.z * Matrix[10]) + Matrix[14];
+
+	p->a.v.x = v[0];
+	p->a.v.y = v[1];
+	p->a.v.z = v[2];
+
+	v[0] = (p->b.v.x * Matrix[0]) + (p->b.v.y * Matrix[4]) + (p->b.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->b.v.x * Matrix[1]) + (p->b.v.y * Matrix[5]) + (p->b.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->b.v.x * Matrix[2]) + (p->b.v.y * Matrix[6]) + (p->b.v.z * Matrix[10]) + Matrix[14];
+
+	p->b.v.x = v[0];
+	p->b.v.y = v[1];
+	p->b.v.z = v[2];
+
+	v[0] = (p->c.v.x * Matrix[0]) + (p->c.v.y * Matrix[4]) + (p->c.v.z * Matrix[8]) + Matrix[12];
+	v[1] = (p->c.v.x * Matrix[1]) + (p->c.v.y * Matrix[5]) + (p->c.v.z * Matrix[9]) + Matrix[13];
+	v[2] = (p->c.v.x * Matrix[2]) + (p->c.v.y * Matrix[6]) + (p->c.v.z * Matrix[10]) + Matrix[14];
+
+	p->c.v.x = v[0];
+	p->c.v.y = v[1];
+	p->c.v.z = v[2];
+
+}
+
+
+void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group)
+{
+
+	double v[3];
+	int i2 = 0;
+
+	auto i = p->begin();
+	i2 = 0;
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+		
+			v[0] = (p->at(i2).a.v.x * Matrix[0]) + (p->at(i2).a.v.y * Matrix[4]) + (p->at(i2).a.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).a.v.x * Matrix[1]) + (p->at(i2).a.v.y * Matrix[5]) + (p->at(i2).a.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).a.v.x * Matrix[2]) + (p->at(i2).a.v.y * Matrix[6]) + (p->at(i2).a.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).a.v.x = v[0];
+			p->at(i2).a.v.y = v[1];
+			p->at(i2).a.v.z = v[2];
+
+			v[0] = (p->at(i2).b.v.x * Matrix[0]) + (p->at(i2).b.v.y * Matrix[4]) + (p->at(i2).b.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).b.v.x * Matrix[1]) + (p->at(i2).b.v.y * Matrix[5]) + (p->at(i2).b.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).b.v.x * Matrix[2]) + (p->at(i2).b.v.y * Matrix[6]) + (p->at(i2).b.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).b.v.x = v[0];
+			p->at(i2).b.v.y = v[1];
+			p->at(i2).b.v.z = v[2];
+
+			v[0] = (p->at(i2).c.v.x * Matrix[0]) + (p->at(i2).c.v.y * Matrix[4]) + (p->at(i2).c.v.z * Matrix[8]) + Matrix[12];
+			v[1] = (p->at(i2).c.v.x * Matrix[1]) + (p->at(i2).c.v.y * Matrix[5]) + (p->at(i2).c.v.z * Matrix[9]) + Matrix[13];
+			v[2] = (p->at(i2).c.v.x * Matrix[2]) + (p->at(i2).c.v.y * Matrix[6]) + (p->at(i2).c.v.z * Matrix[10]) + Matrix[14];
+
+			p->at(i2).c.v.x = v[0];
+			p->at(i2).c.v.y = v[1];
+			p->at(i2).c.v.z = v[2];
+		}
+		++i;
+		i2++;
+	}
+}
+
+
+void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group)
+{
+
+	int i2 = 0;
+
+	auto i = p->begin();
+	while (i < p->end()) {
+
+		if (p->at(i2).group == group)
+		{
+
+			p->at(i2).a.v.project(m);
+			p->at(i2).b.v.project(m);
+			p->at(i2).c.v.project(m);
+
+			p->at(i2).a.n.project(m);
+			p->at(i2).b.n.project(m);
+			p->at(i2).c.n.project(m);
+
+		}
+		++i;
+		i2++;
+	}
+}
+
+float glzScanVertexArray(float *vert, long num, glzBoundingScan scan)
+{
+
+	float r = 0, r2 = 0, r3 = 0;
+
+
+	// set initial conditiona
+
+	switch (scan)
+	{
+
+	case glzBoundingScan::LEFT:
+	case glzBoundingScan::RIGHT:
+	case glzBoundingScan::WIDTH:
+	case glzBoundingScan::CENTER_X:
+
+		r = vert[0];
+		r2 = vert[0];
+		r3 = vert[0];
+
+		break;
+
+
+	case glzBoundingScan::TOP:
+	case glzBoundingScan::BOTTOM:
+	case glzBoundingScan::HEIGHT:
+	case glzBoundingScan::CENTER_Y:
+
+		r = vert[1];
+		r2 = vert[1];
+		r3 = vert[1];
+
+		break;
+
+
+	}
+
+
+
+	int i = 0;
+	for (i = 0; i<num; i++)
+	{
+
+		switch (scan)
+		{
+		
+			case glzBoundingScan::LEFT:
+				
+				if (r < vert[i * 3])
+					r = vert[i * 3];
+
+				break;
+
+			case glzBoundingScan::RIGHT:
+
+				if (r > vert[i * 3])
+					r = vert[i * 3];
+
+				break;
+
+			case glzBoundingScan::TOP:
+
+				if (r > vert[i * 3+1])
+					r = vert[i * 3+1];
+
+				break;
+
+			case glzBoundingScan::BOTTOM:
+
+				if (r < vert[i * 3+1])
+					r = vert[i * 3+1];
+
+				break;
+
+			case glzBoundingScan::WIDTH:
+
+				if (r2 > vert[i * 3])
+					r2 = vert[i * 3];	
+
+				if (r3 < vert[i * 3])
+					r3 = vert[i * 3];
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::HEIGHT:
+
+				if (r2 > vert[i * 3 + 1])
+					r2 = vert[i * 3 + 1];
+
+				if (r3 < vert[i * 3 + 1])
+					r3 = vert[i * 3 + 1];
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::CENTER_X:
+
+				if (r2 > vert[i * 3])
+					r2 = vert[i * 3];
+
+				if (r3 < vert[i * 3])
+					r3 = vert[i * 3];
+
+				r = r3 + r2*0.5f;
+
+				break;
+
+			case glzBoundingScan::CENTER_Y:
+
+				if (r2 > vert[i * 3 + 1])
+					r2 = vert[i * 3 + 1];
+
+				if (r3 < vert[i * 3 + 1])
+					r3 = vert[i * 3 + 1];
+
+				r = r3 + r2*0.5f;
+
+				break;
+		}
+		
+
+
+		
+
+	}
+
+
+return r;
+}
+
+
+double glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan)
+{
+
+	double r = 0, r2 = 0, r3 = 0;
+
+
+	// set initial conditiona
+
+	switch (scan)
+	{
+
+	case glzBoundingScan::LEFT:
+	case glzBoundingScan::RIGHT:
+	case glzBoundingScan::WIDTH:
+	case glzBoundingScan::CENTER_X:
+
+		r = pdata[0].a.v.x;
+		r2 = pdata[0].a.v.x;
+		r3 = pdata[0].a.v.x;
+
+		break;
+
+
+	case glzBoundingScan::TOP:
+	case glzBoundingScan::BOTTOM:
+	case glzBoundingScan::HEIGHT:
+	case glzBoundingScan::CENTER_Y:
+
+		r = pdata[0].a.v.y;
+		r2 = pdata[0].a.v.y;
+		r3 = pdata[0].a.v.y;
+
+		break;
+
+
+	}
+
+
+
+	for (auto p:pdata)
+	{
+		if (p.group == group)
+		{
+			switch (scan)
+			{
+
+			case glzBoundingScan::LEFT:
+
+				if (r < p.a.v.x)
+					r = p.a.v.x;
+
+				if (r < p.b.v.x)
+					r = p.b.v.x;
+
+				if (r < p.c.v.x)
+					r = p.c.v.x;
+
+				break;
+
+			case glzBoundingScan::RIGHT:
+
+				if (r > p.a.v.x)
+					r = p.a.v.x;
+
+				if (r > p.b.v.x)
+					r = p.b.v.x;
+
+				if (r > p.c.v.x)
+					r = p.c.v.x;
+
+				break;
+
+			case glzBoundingScan::TOP:
+
+				if (r > p.a.v.y)
+					r = p.a.v.y;
+
+				if (r > p.b.v.y)
+					r = p.b.v.y;
+
+				if (r > p.c.v.y)
+					r = p.c.v.y;
+
+				break;
+
+			case glzBoundingScan::BOTTOM:
+
+				if (r < p.a.v.y)
+					r = p.a.v.y;
+
+				if (r < p.b.v.y)
+					r = p.b.v.y;
+
+				if (r < p.c.v.y)
+					r = p.c.v.y;
+
+				break;
+
+			case glzBoundingScan::WIDTH:
+
+				if (r2 > p.a.v.x)
+					r2 = p.a.v.x;
+
+				if (r2 > p.b.v.x)
+					r2 = p.b.v.x;
+
+				if (r2 > p.c.v.x)
+					r2 = p.c.v.x;
+
+				if (r3 < p.a.v.x)
+					r3 = p.a.v.x;
+
+				if (r3 < p.b.v.x)
+					r3 = p.b.v.x;
+
+				if (r3 < p.c.v.x)
+					r3 = p.c.v.x;
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::HEIGHT:
+
+				if (r2 > p.a.v.y)
+					r2 = p.a.v.y;
+
+				if (r2 > p.b.v.y)
+					r2 = p.b.v.y;
+
+				if (r2 > p.c.v.y)
+					r2 = p.c.v.y;
+
+				if (r3 < p.a.v.y)
+					r3 = p.a.v.y;
+
+				if (r3 < p.b.v.y)
+					r3 = p.b.v.y;
+
+				if (r3 < p.c.v.y)
+					r3 = p.c.v.y;
+
+				r = r2 - r3;
+
+				break;
+
+			case glzBoundingScan::CENTER_X:
+
+				if (r2 > p.a.v.x)
+					r2 = p.a.v.x;
+
+				if (r2 > p.b.v.x)
+					r2 = p.b.v.x;
+
+				if (r2 > p.c.v.x)
+					r2 = p.c.v.x;
+
+				if (r3 < p.a.v.x)
+					r3 = p.a.v.x;
+
+				if (r3 < p.b.v.x)
+					r3 = p.b.v.x;
+
+				if (r3 < p.c.v.x)
+					r3 = p.c.v.x;
+
+				r = r3 + r2*0.5f;
+
+				break;
+
+			case glzBoundingScan::CENTER_Y:
+
+				if (r2 > p.a.v.y)
+					r2 = p.a.v.y;
+
+				if (r2 > p.b.v.y)
+					r2 = p.b.v.y;
+
+				if (r2 > p.c.v.y)
+					r2 = p.c.v.y;
+
+				if (r3 < p.a.v.y)
+					r3 = p.a.v.y;
+
+				if (r3 < p.b.v.y)
+					r3 = p.b.v.y;
+
+				if (r3 < p.c.v.y)
+					r3 = p.c.v.y;
+
+				r = r3 + r2*0.5f;
+
+				break;
+			}
+		}
+	}
+	return r;
+}
+
 void glzMultMatrix(float *MatrixB,float  MatrixA[16])
 {
-   float  NewMatrix[16];
+   float  NewMatrix[16]; // should be done with doubles some day
    int i;
 
    for(i = 0; i < 4; i++){  //Cycle through each vector of first matrix.
@@ -989,7 +1830,7 @@ void glzMultMatrix(float *MatrixB,float  MatrixA[16])
      }
    /*this should combine the matrixes*/
 
-   memcpy(MatrixB,NewMatrix,64);
+   memcpy(MatrixB,NewMatrix,64); // but the method of transfering data must be change before doubles can be used
 
    return;
 }
@@ -1090,6 +1931,63 @@ glzMultMatrix(m,m2);
 return;
 
 }
+
+void glzOrtho2D(float *m, float left, float right, float bottom, float top)
+{
+
+	float Znear = -1.0f, Zfar = 1.0f;
+	float m2[16] = { 0 };
+
+	m2[0] = 2 / (right - left);
+	m2[1] = 0;
+	m2[2] = 0;
+	m2[3] = -((right + left) / (right - left));
+
+	m2[4] = 0;
+	m2[5] = 2 / (top - bottom);
+	m2[6] = 0;
+	m2[7] = -((top + bottom) / (top - bottom));
+
+	m2[8] = 0;
+	m2[9] = 0;
+	m2[10] = 2 / (Zfar - Znear);
+	m2[11] = -((Zfar + Znear) / (Zfar - Znear));
+
+	m2[12] = 0;
+	m2[13] = 0;
+	m2[14] = 0;
+	m2[15] = 1;
+
+	glzMultMatrix(m, m2);
+
+	return;
+
+}
+
+void glzOrtho2DPixelspace(float *m, int x, int y, glzOrigin origin)
+{
+
+	float m2[16];
+	glzLoadIdentity(m2);
+
+	if (origin == glzOrigin::BOTTOM_LEFT)
+	{
+		glzOrtho2D(m2, -(x*0.5f), (x*0.5f), -(y*0.5f), (y*0.5f));
+		glzTranslatef(m2, -(x*0.5f), -(y*0.5f), 0);
+	}
+
+	if (origin == glzOrigin::TOP_LEFT)
+	{
+		glzOrtho2D(m2, (x*0.5f), -(x*0.5f), -(y*0.5f), (y*0.5f));
+		glzTranslatef(m2, -(x*0.5f), (y*0.5f), 0);
+	}
+
+	glzMultMatrix(m, m2);
+
+	return;
+
+}
+
 
 
 
@@ -1208,6 +2106,9 @@ return;
 // on a side note this is pretty much as close as your gonna get to black magic
 
 
+
+
+
 void glzLoadQuaternionIdentity(float *q)
 {
 if(!isinited_glz) ini_glz();
@@ -1221,24 +2122,24 @@ if(!isinited_glz) ini_glz();
 
 void glzMultQuaternion(float *qa, float qb[4])
 {
-   float  nq[4];   
+	float  nq[4];
    
 	nq[0] = -qa[1]*qb[1]  -  qa[2]*qb[2]  -  qa[3]*qb[3]  +  qa[0]*qb[0];
 	nq[1] = qa[1]*qb[0]  +  qa[2]*qb[3]  -  qa[3]*qb[2]  +  qa[0]*qb[1];
 	nq[2] = -qa[1]*qb[3]  +  qa[2]*qb[0]  +  qa[3]*qb[1]  +  qa[0]*qb[2];
  	nq[3] = qa[1]*qb[2]  -  qa[2]*qb[1]  +  qa[3]*qb[0]  +  qa[0]*qb[3];	
    
- 
-	/*this should combine the Quaternions*/
-
-   memcpy(qa,nq,16);
-
+	qa[0] = nq[0];
+	qa[1] = nq[1];
+	qa[2] = nq[2];
+	qa[3] = nq[3];
+	
    return;
 }
 
 void glzNormalizeQuaternion(float *q)
 {
-   float n = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+	float n = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
    q[0] /= n;
    q[1] /= n;
    q[2] /= n;
@@ -1246,22 +2147,22 @@ void glzNormalizeQuaternion(float *q)
    return;
 }
 
-
-void glzRotateQuaternionf(float *q, float a, float x,float y, float z)
+void glzRotateQuaternionf(float *q, float a, float x, float y, float z)
 { 
-	float angle=-a*(float)PI_OVER_360;	
-	float q2[4] = {0,0,0,0};
+	float angle = -a*(float)PI_OVER_360;
+	float q2[4] = { 0, 0, 0, 0 };
  
 	q2[0]  = cos(angle);
-	q2[1]  = x*sin(angle);
-	q2[2]  = y*sin(angle);
-	q2[3]  = z*sin(angle);
+	q2[1]  = sin(angle)*x;
+	q2[2]  = sin(angle)*y;
+	q2[3]  = sin(angle)*z;
 
 	glzNormalizeQuaternion(q);
 	glzMultQuaternion(q,q2);
 
 	return;
 }
+
 
 
 

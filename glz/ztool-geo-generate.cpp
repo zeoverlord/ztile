@@ -28,6 +28,9 @@
 #include <gl/glext.h>
 #include "ztool-geo-generate.h"
 
+#include <vector>
+
+
 #include "primitives.h"
 using namespace std;
 
@@ -44,10 +47,7 @@ void ini_geo_generate(void)
 	isinited_geo_generate = true;
 }
 
-
-
-
-
+/*
 long glzPrimFSQ(float *v, float *t, float *n)
 {
 	float vt[] = {
@@ -66,7 +66,6 @@ long glzPrimFSQ(float *v, float *t, float *n)
 		0.0f, 0.0f,
 		1.0f, 1.0f };
 
-	// + or - 0.0025f is to adjust the texture coords for full screen viewingso to reduce edge bleeding, though it might have to be adjusted for later, this is for 800x600, i think
 
 	float nt[] = {
 		0.0f, 0.0f, 1.0f,
@@ -83,8 +82,23 @@ long glzPrimFSQ(float *v, float *t, float *n)
 
 
 	return 6;
-}
+}*/
 
+void glzPrimFSQVector(vector<poly3> *pdata, int group, int atlas)
+{
+
+	poly3 p1(point3(vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, -1.0f, 1.0f), tex2(1.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), group, atlas);
+	poly3 p2(point3(vert3(-1.0f, 1.0f, 1.0f), tex2(0.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(-1.0f, -1.0f, 1.0f), tex2(0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f)), point3(vert3(1.0f, 1.0f, 1.0f), tex2(1.0f, 1.0f), vec3(0.0f, 0.0f, 1.0f)), group, atlas);
+
+	
+
+	//poly3 p1 = { -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
+	//poly3 p2 = { -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, group, atlas };
+	pdata->push_back(p1);
+	pdata->push_back(p2);
+	
+}
+/*
 long glzPrimRandom(float *v, float *t, float *n, int num)
 {
 	int i = 0;
@@ -113,7 +127,63 @@ long glzPrimRandom(float *v, float *t, float *n, int num)
 
 	return (long)num;
 }
+*/
 
+void glzPrimRandomVector(vector<poly3> *pdata, int group, int atlas, int num)
+{
+	int i = 0;
+
+
+	poly3 p;
+
+	for (i = 0; i<num ; i++)
+	{
+		p.a.v.x = glzRandfs()*0.5f;
+		p.a.v.y = glzRandfs()*0.5f;
+		p.a.v.z = glzRandfs()*0.5f;		
+
+		p.a.t.u = glzRandf();
+		p.a.t.v = glzRandf();
+
+		p.a.n.x = glzRandfs();
+		p.a.n.y = glzRandfs();
+		p.a.n.z = glzRandfs();
+		p.a.n.normalize(1.0);
+
+		p.b.v.x = glzRandfs()*0.5f;
+		p.b.v.y = glzRandfs()*0.5f;
+		p.b.v.z = glzRandfs()*0.5f;
+
+		p.b.t.u = glzRandf();
+		p.b.t.v = glzRandf();
+
+		p.b.n.x = glzRandfs();
+		p.b.n.y = glzRandfs();
+		p.b.n.z = glzRandfs();
+		p.b.n.normalize(1.0);
+
+		p.c.v.x = glzRandfs()*0.5f;
+		p.c.v.y = glzRandfs()*0.5f;
+		p.c.v.z = glzRandfs()*0.5f;
+
+		p.c.t.u = glzRandf();
+		p.c.t.v = glzRandf();
+
+		p.c.n.x = glzRandfs();
+		p.c.n.y = glzRandfs();
+		p.c.n.z = glzRandfs();
+		p.b.n.normalize(1.0);
+
+		p.group = group;
+		p.atlas = atlas;
+
+
+		pdata->push_back(p);
+	}
+
+	return;
+}
+/*
 long glzPrimTetra(float *v, float *t, float *n)
 {
 
@@ -133,8 +203,6 @@ long glzPrimTetra(float *v, float *t, float *n)
 	float n2[3] = { 0.0f, -1.0f, 0.0f };
 	float n3[3] = { 0.5f, 0.5f, sqrt(3.0f) / 2.0f };
 	float n4[3] = { -1.0f, 0.5f, 0.0f };
-
-
 
 
 	float vt[] = {
@@ -187,10 +255,44 @@ long glzPrimTetra(float *v, float *t, float *n)
 
 	return 12;
 }
+*/
 
 
+void glzPrimTetraVector(vector<poly3> *pdata, int group, int atlas)
+{
 
-long glzPrimFromIndexArrays(float *v, float *t, float *n, Point3 vert[], Point2 uv[], Point3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
+
+	vert3 v1 = { 0, -0.5f, (sqrt(3.0f) - (1 / sqrt(3.0f)))*0.5f };
+	vert3 v2 = { 0.5, -0.5f, -0.5f / sqrt(3.0f) };
+	vert3 v3 = { -0.5, -0.5f, -0.5f / sqrt(3.0f) };
+	vert3 v4 = { 0, 1 * sqrt(2.0f / 3.0f) - 0.5f, 0 };
+
+	tex2 t1 = { 0, 0 };
+	tex2 t2 = { 0, 1 };
+	tex2 t3 = { 1, 1 };
+	tex2 t4 = { 1, 0 };
+	tex2 t5 = { 0.5, 0.5 };
+
+	vec3 n1 = { 0.5f, 0.5f, -sqrt(3.0f) / 2.0f };
+	vec3 n2 = { 0.0f, -1.0f, 0.0f };
+	vec3 n3 = { 0.5f, 0.5f, sqrt(3.0f) / 2.0f };
+	vec3 n4 = { -1.0f, 0.5f, 0.0f };
+
+	poly3 p1(point3(v1, t5, n1), point3(v2, t2, n1), point3(v3, t3, n1), group, atlas);
+	poly3 p2(point3(v3, t1, n2), point3(v2, t5, n2), point3(v4, t4, n2), group, atlas);
+	poly3 p3(point3(v4, t4, n3), point3(v2, t3, n3), point3(v1, t5, n3), group, atlas);
+	poly3 p4(point3(v1, t5, n4), point3(v3, t2, n4), point3(v4, t1, n4), group, atlas);
+
+	pdata->push_back(p1);
+	pdata->push_back(p2);
+	pdata->push_back(p3);
+	pdata->push_back(p4);
+
+	return;
+}
+
+/*
+long glzPrimFromIndexArrays(float *v, float *t, float *n, vec3 vert[], vec2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
 {
 	float vt[6000];
 	float tt[6000];
@@ -218,8 +320,8 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, Point3 vert[], Point2 
 			vt[(c * 3) + 1] = (float)vert[vert_face[origin]].y;
 			vt[(c * 3) + 2] = (float)vert[vert_face[origin]].z;
 
-			tt[(c * 2) + 0] = (float)uv[uv_face[origin]].x;
-			tt[(c * 2) + 1] = (float)uv[uv_face[origin]].y;
+			tt[(c * 2) + 0] = (float)uv[uv_face[origin]].u;
+			tt[(c * 2) + 1] = (float)uv[uv_face[origin]].v;
 
 			nt[(c * 3) + 0] = (float)norm[norm_face[origin]].x;
 			nt[(c * 3) + 1] = (float)norm[norm_face[origin]].y;
@@ -231,8 +333,8 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, Point3 vert[], Point2 
 			vt[(c * 3) + 1] = (float)vert[vert_face[i - 1]].y;
 			vt[(c * 3) + 2] = (float)vert[vert_face[i - 1]].z;
 
-			tt[(c * 2) + 0] = (float)uv[uv_face[i - 1]].x;
-			tt[(c * 2) + 1] = (float)uv[uv_face[i - 1]].y;
+			tt[(c * 2) + 0] = (float)uv[uv_face[i - 1]].u;
+			tt[(c * 2) + 1] = (float)uv[uv_face[i - 1]].v;
 
 			nt[(c * 3) + 0] = (float)norm[norm_face[i - 1]].x;
 			nt[(c * 3) + 1] = (float)norm[norm_face[i - 1]].y;
@@ -244,8 +346,8 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, Point3 vert[], Point2 
 			vt[(c * 3) + 1] = (float)vert[vert_face[i]].y;
 			vt[(c * 3) + 2] = (float)vert[vert_face[i]].z;
 
-			tt[(c * 2) + 0] = (float)uv[uv_face[i]].x;
-			tt[(c * 2) + 1] = (float)uv[uv_face[i]].y;
+			tt[(c * 2) + 0] = (float)uv[uv_face[i]].u;
+			tt[(c * 2) + 1] = (float)uv[uv_face[i]].v;
 
 			nt[(c * 3) + 0] = (float)norm[norm_face[i]].x;
 			nt[(c * 3) + 1] = (float)norm[norm_face[i]].y;
@@ -267,179 +369,56 @@ long glzPrimFromIndexArrays(float *v, float *t, float *n, Point3 vert[], Point2 
 
 
 }
+*/
 
-
-
-
-long glzCountPrimText(char *text)
+void glzPrimFromIndexArraysVector(vector<poly3> *pdata, int group, int atlas, vert3 vert[], tex2 uv[], vec3 norm[], long vert_face[], long uv_face[], long norm_face[], int enteries)
 {
-	unsigned int c = 0, i = 0;
+	poly3 p;	
 
+	int faces = enteries;
 
-	while (c<strlen(text))
+	int i = 2, origin = 0;
+
+	while (i<faces)
 	{
 
-		if ((text[c] == '\n') || (text[c] == '\t') || (text[c] == ' '))
+		if (vert_face[i] == -1)
 		{
-			c++;
-		}
-		else
-		{
-			i++;
-			c++;
-		}
-
-	}
-
-	return i * 6;
-}
-
-// glzPrimText is only the first itteration of this, i pan on adding support for more modern font texture generators, currently the function is compattible with "bitmap font builder" since this is
-// a leftover from the old NeHe days, eventually i allso plan on adding things like truetype and things like that
-
-long glzPrimText(char *text, float w, float *v, float *t, float *n, glzOrigin origin)
-{
-	float quv[8];
-
-	float s = 1.0f, st = 0.33f*s, x = 0.0f, y = 0.0f;
-	float xp = 0, yp = -1.0f*s, xs = w, xss = w*0.75f, xssp = w*0.5f;
-	unsigned int c = 0, iv = 0, it = 0, i = 0;
-
-	while (c<strlen(text))
-	{
-
-		if (text[c] == '\n') { yp -= 1 * s; xp = 0; c++; }
-		else if (text[c] == '\t')
-		{
-			if (xp>90 * st)	xp = 100 * st;
-			else if (xp >= 80 * st)	xp = 90 * st;
-			else if (xp >= 70 * st)	xp = 80 * st;
-			else if (xp >= 60 * st)	xp = 70 * st;
-			else if (xp >= 50 * st)	xp = 60 * st;
-			else if (xp >= 40 * st)	xp = 50 * st;
-			else if (xp >= 30 * st)	xp = 40 * st;
-			else if (xp >= 20 * st)	xp = 30 * st;
-			else if (xp >= 10 * st)	xp = 20 * st;
-			else if (xp >= 0)		xp = 10 * st;
-
-
-			c++;
-
-		}
-		else if (text[c] == ' ') { xp += xssp*s; c++; }
-		else
-		{
-
-			if ((text[c] == 'i') || (text[c] == 'I') || (text[c] == 'l') || (text[c] == '1') || (text[c] == 'j') || (text[c] == 't') || (text[c] == '!') || (text[c] == '\"') || (text[c] == '\\') || (text[c] == 'r'))
-			{
-				xp -= xs*s;
-				xp += xss*s;
-			}
-			glzAtlasQuad(16, 16, (unsigned int)text[c], origin, quv);
-
-
-			// t face 1 (124)
-			t[it + 0] = quv[0];
-			t[it + 1] = quv[1];
-
-			t[it + 2] = quv[2];
-			t[it + 3] = quv[3];
-
-			t[it + 4] = quv[6];
-			t[it + 5] = quv[7];
-
-			// t face 2 (234)
-			t[it + 6] = quv[2];
-			t[it + 7] = quv[3];
-
-			t[it + 8] = quv[4];
-			t[it + 9] = quv[5];
-
-			t[it + 10] = quv[6];
-			t[it + 11] = quv[7];
-			it += 12;
-
-			// v face 1 (124)
-
-			v[iv + 0] = 0 * s + x + xp;
-			v[iv + 1] = 0 * s + y + yp;
-			v[iv + 2] = 0;
-
-			v[iv + 3] = 0 * s + x + xp;
-			v[iv + 4] = 1 * s + y + yp;
-			v[iv + 5] = 0;
-
-			v[iv + 6] = 1 * s + x + xp;
-			v[iv + 7] = 0 * s + y + yp;
-			v[iv + 8] = 0;
-
-			// v face 2 (234)
-
-			v[iv + 9] = 0 * s + x + xp;
-			v[iv + 10] = 1 * s + y + yp;
-			v[iv + 11] = 0;
-
-			v[iv + 12] = 1 * s + x + xp;
-			v[iv + 13] = 1 * s + y + yp;
-			v[iv + 14] = 0;
-
-			v[iv + 15] = 1 * s + x + xp;
-			v[iv + 16] = 0 * s + y + yp;
-			v[iv + 17] = 0;
-
-
-
-			n[iv + 0] = 0;
-			n[iv + 1] = 1;
-			n[iv + 2] = 0;
-
-			n[iv + 3] = 0;
-			n[iv + 4] = 1;
-			n[iv + 5] = 0;
-
-			n[iv + 6] = 0;
-			n[iv + 7] = 1;
-			n[iv + 8] = 0;
-
-			n[iv + 9] = 0;
-			n[iv + 10] = 1;
-			n[iv + 11] = 0;
-
-			n[iv + 12] = 0;
-			n[iv + 13] = 1;
-			n[iv + 14] = 0;
-
-			n[iv + 15] = 0;
-			n[iv + 16] = 1;
-			n[iv + 17] = 0;
-
-			iv += 18;
-
-
-			if ((text[c] == 'i') || (text[c] == 'I') || (text[c] == 'l') || (text[c] == '1') || (text[c] == 'j') || (text[c] == 't') || (text[c] == '!') || (text[c] == '\"') || (text[c] == '\\'))
-			{
-				xp += xss*s;
-			}
-			else
-			{
-				xp += xs*s;
-			}
-
-
-			i++;
-
-			c++;
+			origin = i + 1;
+			i = origin + 2;
 
 		}
 
+		if (origin<faces)
+		{
+			
+			p.a.v = vert[vert_face[origin]];
+			p.a.t = uv[uv_face[origin]];
+			p.a.n = norm[norm_face[origin]];
 
+			p.b.v = vert[vert_face[i - 1]];
+			p.b.t = uv[uv_face[i - 1]];
+			p.b.n = norm[norm_face[i - 1]];
 
+			p.c.v = vert[vert_face[i]];
+			p.c.t = uv[uv_face[i]];
+			p.c.n = norm[norm_face[i]];
+			p.group = group;
+			p.atlas = atlas;
+
+			pdata->push_back(p);
+		}
+
+		i++;
 	}
 
 
-	return i * 6;
+	return;
+
+
 }
 
+/*
 
 long glzPrimGrid(texture_transform tt, unsigned int x, unsigned int y, glzOrigin origin, float *v, float *t, float *n)
 {
@@ -559,36 +538,126 @@ long glzPrimGrid(texture_transform tt, unsigned int x, unsigned int y, glzOrigin
 	return c * 6;
 }
 
-// i managed to cut down this from a class into a single function and at the same time made it work better
-// the name glzLoafFileGeometryObj is a strong hin that i will add more formats
+*/
 
-long glzLoafFileGeometryObj(char filename[255], float *v, float *t, float *n)
+void glzPrimGridVector(texture_transform tt, unsigned int x, unsigned int y, glzOrigin origin, vector<poly3> *pdata, int group)
 {
-	typedef float vec3[3];
-	typedef float vec2[2];
+	float quv[8];
+	unsigned int xi = 0, yi = 0, it = 0, iv = 0, discard = 0;
 
-	vec3 *vv, *vt, *vn;
-	vv = new vec3[60000];
-	vt = new vec3[60000];
-	vn = new vec3[60000];
+	poly3 p;
 
-	int fv[6000][3];			// polygon references
-	int ft[6000][3];
-	int fn[6000][3];
-	int fs[6000];				// Surface references
+	vec3 nt = { 0.0, 1.0, 0.0 };
+	vert3 vt = { 0.0, 0.0, 0.0 };
+
+	p.a.v = vt;
+	p.b.v = vt;
+	p.c.v = vt;
+
+	p.a.n = nt;
+	p.b.n = nt;
+	p.c.n = nt;
+
+	p.group = group;
+
+
+	while (yi<y)
+	{
+		xi = 0;
+		while (xi<x)
+		{
+
+			discard = 0;
+
+			if (tt.type == glzTTType::ATLASARRAY)
+			if (tt.atlas[(yi*y) + xi] == 9001)			//in case it's totally trasparent then dont make a quad, allso total DBZ reference
+				discard = 1;
+
+			if (!discard)
+			{
+
+				if (tt.type == glzTTType::ATLASARRAY) {
+					glzAtlasQuad(tt.atlas_width, tt.atlas_height, tt.atlas[(yi*y) + xi], origin, quv);
+					p.atlas = tt.atlas[(yi*y) + xi];
+				}
+				else { glzAtlasQuad(1, 1, 0, glzOrigin::BOTTOM_RIGHT, quv); p.atlas = 0; }
+
+				// face 1 (124)
+				p.a.v.x = 0.0f + xi;
+				p.a.v.y = 0.0f - yi;
+
+				p.c.v.x = 0.0f + xi;
+				p.c.v.y = 1.0f - yi;
+
+				p.b.v.x = 1.0f + xi;
+				p.b.v.y = 0.0f - yi;
+
+				p.a.t.u = quv[0];
+				p.a.t.v = quv[1];
+
+				p.c.t.u = quv[2];
+				p.c.t.v = quv[3];
+
+				p.b.t.u = quv[6];
+				p.b.t.v = quv[7];
+
+				pdata->push_back(p);
+
+				// face 2 (234)
+				p.a.v.x = 0.0f + xi;
+				p.a.v.y = 1.0f - yi;
+
+				p.c.v.x = 1.0f + xi;
+				p.c.v.y = 1.0f - yi;
+
+				p.b.v.x = 1.0f + xi;
+				p.b.v.y = 0.0f - yi;
+
+				p.a.t.u = quv[2];
+				p.a.t.v = quv[3];
+
+				p.c.t.u = quv[4];
+				p.c.t.v = quv[5];
+
+				p.b.t.u = quv[6];
+				p.b.t.v = quv[7];
+
+				pdata->push_back(p);
+			}
+
+
+			xi++;
+		}
+
+		yi++;
+	}
+
+
+	return;
+}
+
+
+
+// i managed to cut down this from a class into a single function and at the same time made it work better
+// the name glzLoafFileGeometryObj is a strong hint that i will add more formats
+
+
+void glzLoadFileGeometryObjVector(char filename[255], vector<poly3> *pdata, int group, int atlas)
+{
+
+	ifstream file;
+	vector<vert3> vdata;
+	vector<tex2> tdata;
+	vector<vec3> ndata;
+		
+	vdata.push_back(vert3(0.0, 0.0, 0.0));
+	tdata.push_back(tex2(0.0, 0.0));
+	ndata.push_back(vec3(0.0, 0.0, 0.0));
+	
 	char mat[1000][120];					// material names - 0 terminated
-
-	int f_num = 0;
-	int v_num = 0;
-	int vt_num = 0;
-	int vn_num = 0;
 	int s_num = 0;
 	int s_cur = 0;
 
-	int f_numt = 0;
-	int v_numt = 0;
-	int vt_numt = 0;
-	int vn_numt = 0;
 	int s_numt = 0;
 	int s_curt = 0;
 
@@ -597,43 +666,26 @@ long glzLoafFileGeometryObj(char filename[255], float *v, float *t, float *n)
 	int vt_a = 0, vt_b = 0, vt_c = 0, vt_d = 0, vt_e = 0;
 	int vn_a = 0, vn_b = 0, vn_c = 0, vn_d = 0, vn_e = 0;
 
-	FILE *file;
+
 	char line[120];
 
-	fopen_s(&file, filename, "r");
-
-	if (file == NULL) /* Trying to open file */
-	{
-		return 0;
-	}
+	file.open(filename, ios::in);
+	if (!file) { return; }
 
 
-	// preparse to find the vertic, texture and normal numbers
-	while (!feof(file)) /* Count lines */
-	{
-		fgets(line, 80, file);
-		if (!strncmp(line, "v ", 2)) v_num++;
-		if (!strncmp(line, "vt ", 3)) vt_num++;
-		if (!strncmp(line, "vn ", 3)) vn_num++;
-		if (!strncmp(line, "f ", 2)) f_num++;
-	}
+	file.seekg(0);
 
+	// first pass - get all the vertex data
 
-	fseek(file, 0, SEEK_SET);
-
-
+	file.clear();
 	int lt = 0;
-	while (!feof(file)) /* Count lines */
+	while (!file.eof()) /* Count lines */
 	{
-		fgets(line, 80, file);
+		file.getline(line, 120);
 
 		if (!strncmp(line, "v ", 2)) lt = 1;
 		if (!strncmp(line, "vt ", 3)) lt = 2;
 		if (!strncmp(line, "vn ", 3)) lt = 3;
-		if (!strncmp(line, "f ", 2)) lt = 4;
-		if (!strncmp(line, "usemtl ", 7)) lt = 5;
-		if (!strncmp(line, "s ", 2)) lt = 6;
-		if (!strncmp(line, "s off", 5)) lt = 7;
 
 		float x = 0.0f, y = 0.0f, z = 0.0f;
 		float u = 0.0f, v = 0.0f;
@@ -643,101 +695,181 @@ long glzLoafFileGeometryObj(char filename[255], float *v, float *t, float *n)
 		case 1:
 
 			sscanf_s(line + 1, "%f%f%f", &x, &y, &z);
-			vv[v_numt][0] = x;
-			vv[v_numt][1] = y;
-			vv[v_numt][2] = z;
-			v_numt++;
+			vdata.push_back({ x, y, z });
 			break;
 
 		case 2:
 			sscanf_s(line + 2, "%f%f", &u, &v);
-			vt[vt_numt][0] = u;
-			vt[vt_numt][1] = v;
-			vt_numt++;
+			tdata.push_back({ u, v });
 			break;
 
 		case 3:
 
 			sscanf_s(line + 2, "%f%f%f", &x, &y, &z);
-			vn[vn_numt][0] = x;
-			vn[vn_numt][1] = y;
-			vn[vn_numt][2] = z;
-			vn_numt++;
+			ndata.push_back({ x, y, z });
 			break;
+		}
+	}
 
+			
+	file.seekg(0);
+
+	//Second pass - get the polygon data
+
+	lt = 0;
+
+	float success=0;
+	bool generatenormal = false;
+	bool generatetexture = false;
+	bool isquad = false;
+	int parse = 0;
+	poly3 ptemp;
+
+	file.clear();
+	file.seekg(0);
+
+	while (!file.eof()) /* Count lines */
+	{		
+		file.getline(line, 120);
+		lt = 0;
+		if (!strncmp(line, "f ", 2)) lt = 4;
+		if (!strncmp(line, "usemtl ", 7)) lt = 5;
+		if (!strncmp(line, "s ", 2)) lt = 6;
+		if (!strncmp(line, "s off", 5)) lt = 7;
+		if (!strncmp(line, "g ", 2)) lt = 8;
+
+		if (lt == 4)
+		{
+			generatenormal = false;
+			generatetexture = false;
+			isquad = false;
+			parse = 0;
+
+			// determine wich f is requires
+			if (sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 9)
+			{
+				generatenormal = false;	generatetexture = false; isquad = false; parse = 1;
+			}
+
+			if (sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 12)
+			{
+				generatenormal = false;	generatetexture = false; isquad = true; parse = 2;
+			}
+
+			if (sscanf_s(line, "f %d/%d %d/%d %d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 6)
+			{
+				generatenormal = true;	generatetexture = false; isquad = false; parse = 3;
+			}
+
+			if (sscanf_s(line, "f %d/%d %d/%d %d/%d %d/%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 8)
+			{
+				generatenormal = true;	generatetexture = false; isquad = true; parse = 4;
+			}
+
+			if (sscanf_s(line, "f %d//%d %d//%d %d//%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 6)
+			{
+				generatenormal = false;	generatetexture = true; isquad = false; parse = 5;
+			}
+
+			if (sscanf_s(line, "f %d//%d %d//%d %d//%d %d//%d", &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a, &v_a) == 8)
+			{
+				generatenormal = false;	generatetexture = true; isquad = true; parse = 6;
+			}
+
+			if (sscanf_s(line, "f %d %d %d", &v_a, &v_a, &v_a) == 3)
+			{
+				generatenormal = true;	generatetexture = true; isquad = false; parse = 7;
+			}
+
+			if (sscanf_s(line, "f %d %d %d %d", &v_a, &v_a, &v_a, &v_a) == 4)
+			{
+				generatenormal = true;	generatetexture = true; isquad = true; parse = 8;
+			}
+		}
+
+		float x = 0.0f, y = 0.0f, z = 0.0f;
+		float u = 0.0f, v = 0.0f;
+
+		if (parse == 0) lt = 99;
+
+
+		switch (lt)
+		{
+		
 		case 4:
 
-			i = 0;
-			ii = 0;
-			while (i<(int)strlen(line))
+
+				if (parse == 1) sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c);
+				if (parse == 2) sscanf_s(line, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c, &v_d, &vt_d, &vn_d);
+
+				if (parse == 3) sscanf_s(line, "f %d/%d %d/%d %d/%d", &v_a, &vt_a, &v_b, &vt_b, &v_c, &vt_c);
+				if (parse == 4) sscanf_s(line, "f %d/%d %d/%d %d/%d %d/%d", &v_a, &vt_a, &v_b, &vt_b, &v_c, &vt_c, &v_d, &vt_d);
+
+				if (parse == 5) sscanf_s(line, "f %d//%d %d//%d %d//%d", &v_a, &vn_a, &v_b, &vn_b, &v_c, &vn_c);					
+				if (parse == 6) sscanf_s(line, "%d//%d %d//%d %d//%d %d//%d", &v_a, &vn_a, &v_b, &vn_b, &v_c, &vn_c, &v_d, &vn_d);
+
+				if (parse == 7) sscanf_s(line, "f %d %d %d", &v_a, &v_b, &v_c);
+				if (parse == 8) sscanf_s(line, "f %d %d %d %d", &v_a, &v_b, &v_c, &v_d);
+
+				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_b - 1], tdata[vt_b - 1], ndata[vn_b - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], group, atlas });*/
+
+
+			
+
+					ptemp.a.v = vdata[v_a];
+					ptemp.b.v = vdata[v_b];
+					ptemp.c.v = vdata[v_c];
+
+					ptemp.a.t = tdata[vt_a];
+					ptemp.b.t = tdata[vt_b];
+					ptemp.c.t = tdata[vt_c];
+
+					ptemp.a.n = ndata[vn_a];
+					ptemp.b.n = ndata[vn_b];
+					ptemp.c.n = ndata[vn_c];
+
+					ptemp.group = group;
+					ptemp.atlas = atlas;
+
+
+					if (generatenormal)	ptemp.generateNormal();
+					if (generatetexture) ptemp.generateTexture(1.0);
+					//ptemp.tempAddNormalToVertex();
+
+					pdata->push_back(ptemp);
+
+		
+
+
+			if (isquad == true)
 			{
-				if (line[i] == '/')
-				{
-					ii++;
-				}
-				i++;
+				
+				ptemp.a.v = vdata[v_a];
+				ptemp.b.v = vdata[v_c];
+				ptemp.c.v = vdata[v_d];
+
+				ptemp.a.t = tdata[vt_a];
+				ptemp.b.t = tdata[vt_c];
+				ptemp.c.t = tdata[vt_d];
+
+				ptemp.a.n = ndata[vn_a];
+				ptemp.b.n = ndata[vn_c];
+				ptemp.c.n = ndata[vn_d];
+
+				ptemp.group = group;
+				ptemp.atlas = atlas;
+				if (generatenormal)	ptemp.generateNormal();
+				if (generatetexture) ptemp.generateTexture(1.0);
+				//ptemp.tempAddNormalToVertex();
+				pdata->push_back(ptemp);
+
+				// these lines cause intellisense to lable them as bugs, but they compile fine, so the above code is a workaround
+
+				/*pdata->push_back({ vdata[v_a - 1], tdata[vt_a - 1], ndata[vn_a - 1], vdata[v_c - 1], tdata[vt_c - 1], ndata[vn_c - 1], vdata[v_d - 1], tdata[vt_d - 1], ndata[vn_d - 1], group, atlas });*/
+
 			}
 
-
-			if ((ii == 8) && (vn_num>0))
-			{
-				sscanf_s(line + 1, "%d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c, &v_d, &vt_d, &vn_d);
-
-				fv[f_numt][0] = v_a - 1;
-				fv[f_numt][1] = v_b - 1;
-				fv[f_numt][2] = v_c - 1;
-
-				ft[f_numt][0] = vt_a - 1;
-				ft[f_numt][1] = vt_b - 1;
-				ft[f_numt][2] = vt_c - 1;
-
-				fn[f_numt][0] = vn_a - 1;
-				fn[f_numt][1] = vn_b - 1;
-				fn[f_numt][2] = vn_c - 1;
-
-				fs[f_numt] = s_cur;
-				f_numt++;
-
-
-
-				fv[f_numt][0] = v_a - 1;
-				fv[f_numt][1] = v_c - 1;
-				fv[f_numt][2] = v_d - 1;
-
-				ft[f_numt][0] = vt_a - 1;
-				ft[f_numt][1] = vt_c - 1;
-				ft[f_numt][2] = vt_d - 1;
-
-				fn[f_numt][0] = vn_a - 1;
-				fn[f_numt][1] = vn_c - 1;
-				fn[f_numt][2] = vn_d - 1;
-
-				fs[f_numt] = s_cur;
-				f_numt++;
-			}
-
-
-			if ((ii == 6) && (vn_num>0))
-			{
-
-				sscanf_s(line + 1, "%d/%d/%d %d/%d/%d %d/%d/%d", &v_a, &vt_a, &vn_a, &v_b, &vt_b, &vn_b, &v_c, &vt_c, &vn_c);
-
-				fv[f_numt][0] = v_a - 1;
-				fv[f_numt][1] = v_b - 1;
-				fv[f_numt][2] = v_c - 1;
-
-				ft[f_numt][0] = vt_a - 1;
-				ft[f_numt][1] = vt_b - 1;
-				ft[f_numt][2] = vt_c - 1;
-
-				fn[f_numt][0] = vn_a - 1;
-				fn[f_numt][1] = vn_b - 1;
-				fn[f_numt][2] = vn_c - 1;
-
-				fs[f_numt] = s_cur;
-				f_numt++;
-
-			}
+			
 			break;
 
 		case 5:
@@ -760,125 +892,122 @@ long glzLoafFileGeometryObj(char filename[255], float *v, float *t, float *n)
 
 	}
 
-	fclose(file);
 
-	i = 0;
+//	if (file) fclose(file);
+	file.close();
 
-	while (i<f_numt)
+}
+
+/*
+long glzLoadFileGeometryObj(char filename[255], float *v, float *t, float *n)
+{
+	// this function is not in use
+
+
+	vector<poly3> pdata;
+
+	glzLoadFileGeometryObjVector(filename, &pdata,0,0);
+
+	int i=0;
+
+	for (auto p : pdata)
 	{
 
-		v[i * 3 * 3 + 0] = vv[fv[i][0]][0];
-		v[i * 3 * 3 + 1] = vv[fv[i][0]][1];
-		v[i * 3 * 3 + 2] = vv[fv[i][0]][2];
+		v[i * 3 * 3 + 0] = p.a.v.x;
+		v[i * 3 * 3 + 1] = p.a.v.y;
+		v[i * 3 * 3 + 2] = p.a.v.z;
 
-		t[i * 2 * 3 + 0] = vt[ft[i][0]][0];
-		t[i * 2 * 3 + 1] = vt[ft[i][0]][1];
+		t[i * 2 * 3 + 0] = p.a.t.u;
+		t[i * 2 * 3 + 1] = p.a.t.v;
 
-		n[i * 3 * 3 + 0] = vn[fn[i][0]][0];
-		n[i * 3 * 3 + 1] = vn[fn[i][0]][1];
-		n[i * 3 * 3 + 2] = vn[fn[i][0]][2];
+		n[i * 3 * 3 + 0] = p.a.n.x;
+		n[i * 3 * 3 + 1] = p.a.n.y;
+		n[i * 3 * 3 + 2] = p.a.n.z;
 
+		v[i * 3 * 3 + 3] = p.b.v.x;
+		v[i * 3 * 3 + 4] = p.b.v.y;
+		v[i * 3 * 3 + 5] = p.b.v.z;
 
-		v[i * 3 * 3 + 3] = vv[fv[i][1]][0];
-		v[i * 3 * 3 + 4] = vv[fv[i][1]][1];
-		v[i * 3 * 3 + 5] = vv[fv[i][1]][2];
+		t[i * 2 * 3 + 2] = p.b.t.u;
+		t[i * 2 * 3 + 3] = p.b.t.v;
 
-		t[i * 2 * 3 + 2] = vt[ft[i][1]][0];
-		t[i * 2 * 3 + 3] = vt[ft[i][1]][1];
+		n[i * 3 * 3 + 3] = p.b.n.x;
+		n[i * 3 * 3 + 4] = p.b.n.y;
+		n[i * 3 * 3 + 5] = p.b.n.z;
 
-		n[i * 3 * 3 + 3] = vn[fn[i][1]][0];
-		n[i * 3 * 3 + 4] = vn[fn[i][1]][1];
-		n[i * 3 * 3 + 5] = vn[fn[i][1]][2];
+		v[i * 3 * 3 + 6] = p.c.v.x;
+		v[i * 3 * 3 + 7] = p.c.v.y;
+		v[i * 3 * 3 + 8] = p.c.v.z;
 
+		t[i * 2 * 3 + 4] = p.c.t.u;
+		t[i * 2 * 3 + 5] = p.c.t.v;
 
-		v[i * 3 * 3 + 6] = vv[fv[i][2]][0];
-		v[i * 3 * 3 + 7] = vv[fv[i][2]][1];
-		v[i * 3 * 3 + 8] = vv[fv[i][2]][2];
+		n[i * 3 * 3 + 6] = p.c.n.x;
+		n[i * 3 * 3 + 7] = p.c.n.y;
+		n[i * 3 * 3 + 8] = p.c.n.z;
 
-		t[i * 2 * 3 + 4] = vt[ft[i][2]][0];
-		t[i * 2 * 3 + 5] = vt[ft[i][2]][1];
-
-		n[i * 3 * 3 + 6] = vn[fn[i][2]][0];
-		n[i * 3 * 3 + 7] = vn[fn[i][2]][1];
-		n[i * 3 * 3 + 8] = vn[fn[i][2]][2];
 		i++;
 	}
 
 
-	return (f_numt * 3);
+	return (i * 3);
 }
 
+*/
 
-long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao)
+
+long glzVAOMakeFromFile(char filename[255], glzMatrix matrix, texture_transform tt, unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
-	float *v, *t, *n;
-	v = new float[60000];
-	t = new float[60000];
-	n = new float[60000];
 
-	long elements = glzLoafFileGeometryObj(filename, v, t, n);
 
-	glzProjectVertexArray(v, matrix, elements);
+	vector<poly3> pdata;
+
+	glzLoadFileGeometryObjVector(filename, &pdata,0,0);
+
+
+
+	glzProjectVertexArray(&pdata, matrix,0);
 
 
 	if (tt.atlas_width + tt.atlas_height>2)
 	{
-		glzAtlasUVarrayRemap(tt.firstatlas, elements, tt.atlas_width, tt.atlas_height, glzOrigin::BOTTOM_RIGHT, t);
+		glzAtlasUVarrayRemap(tt.firstatlas, tt.atlas_width, tt.atlas_height, glzOrigin::BOTTOM_RIGHT, &pdata,0);
 	}
 
-	glzVAOMakeFromArray(v, t, n, elements, vao, glzVAOType::AUTO);
-
-	delete v;
-	delete t;
-	delete n;
+	glzVAOMakeFromVector(pdata, vao, glzVAOType::AUTO);
 
 
 
-	return elements;
+	return pdata.size()*3;
 }
 
-
-
-long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, unsigned int *vao)
+// takes a finished polygon vector and makes a VAO from it
+long glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
-	float *v, *t, *n;
-
-	long verts = glzCountPrimText(text);
-
-	v = new float[verts * 3];
-	t = new float[verts * 2];
-	n = new float[verts * 3];
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
+	
+	glzVAOMakeFromVector(pdata, vao, glzVAOType::AUTO);
 
 
-	glzPrimText(text, kern, v, t, n, tt.origin);
-	glzProjectVertexArray(v, matrix, verts);
 
-	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
-
-
-	delete[] v;
-	delete[] t;
-	delete[] n;
-	v = NULL;
-	t = NULL;
-	n = NULL;
-
-	return verts;
-
+	return pdata.size() * 3;
 }
 
-long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, unsigned int *vao)
+
+
+
+
+long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
 
@@ -896,41 +1025,29 @@ long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture
 	return verts;
 }
 
-long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, image_geo_transform igt, unsigned int *vao)
+long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, image_geo_transform igt, unsigned int *vao)
 {
 
 	if (!isinited_geo_generate) ini_geo_generate();
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
-	float *v, *t, *n;
-
-	long verts = (x*y * 6);
-
-	v = new float[verts * 3];
-	t = new float[verts * 2];
-	n = new float[verts * 3];
-
-	glzPrimGrid(tt, x, y, tt.origin, v, t, n);
-
-	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(v, igt, verts);
-
-	if (tt.type == glzTTType::VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(v, t, tt, verts);
-
-	glzProjectVertexArray(v, matrix, verts);
-
-	glzVAOMakeFromArray(v, t, n, verts, vao, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 
-	delete[] v;
-	delete[] t;
-	delete[] n;
-	v = NULL;
-	t = NULL;
-	n = NULL;
+	vector<poly3> p;
+	
+	glzPrimGridVector(tt, x, y, tt.origin,&p,0);
 
-	return verts;
+	if (igt.type == glzIGTType::DISPLACE_ADD) glzIGT(&p,0, igt);
+
+	if (tt.type == glzTTType::VERTEX_COORD_ADOPT) glzVert2TexcoordRescale(&p, 0, tt);
+
+	glzProjectVertexArray(&p,matrix, 0);
+
+	glzVAOMakeFromVector(p, vao, glzVAOType::AUTO);
+	
+	return p.size() * 3;
 }
 
 
@@ -992,7 +1109,7 @@ long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao)
 
 	unsigned int vaopoint;
 	vaopoint = *vao;
-	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint, glzVAOType::AUTO);
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
 
 	primitive_gen pg2[2];
 	pg2[0] = pg;
@@ -1001,7 +1118,7 @@ long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao)
 	return verts;
 
 }
-
+/*
 long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
@@ -1183,4 +1300,164 @@ long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
 	n = NULL;
 
 	return verts;
+}
+*/
+
+
+long glzVAOMakePrimitives(int num, primitive_gen pg[], unsigned int *vao)
+{
+	if (!isinited_geo_generate) ini_geo_generate();
+
+
+
+	unsigned int vaopoint;
+	vaopoint = *vao;
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
+
+	int i = 0;
+
+	vector<poly3> p;
+	
+
+	int saic = 0, sai = 0;
+	i = 0;
+	while (i<num)
+	{
+
+		switch (pg[i].type)
+		{
+
+		case glzPrimitive::CUBE:
+		case glzPrimitive::HEXAHEDRON:
+			//curvert = glzPrimCubeverts(v + oldcurvert * 3, t + oldcurvert * 2, n + oldcurvert * 3);
+
+			//glzPrimFromIndexArraysVector(&p,i,0, cube_vertex, cube_uv, cube_normal, cube_face, cube_uvface, cube_nface, sizeof(cube_face) / sizeof(long));
+			glzPrimCubeVector(&p, i,63);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+
+
+			if ((pg[i].tt.atlas_height>1) || (pg[i].tt.atlas_width>1))
+			{
+				int aw = pg[i].tt.atlas_width;
+
+				if (pg[i].tt.type == glzTTType::ATLAS_CUBE_TBS)
+				{
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 0, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_INDFACE)
+				{
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 0, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 3, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 4, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + 5, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else if (pg[i].tt.type == glzTTType::ATLAS_CUBE_CROSS)
+				{
+					glzAtlasUVarrayRemapRotate(3, pg[i].tt.firstatlas + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 0);
+					glzAtlasUVarrayRemapRotate(3, pg[i].tt.firstatlas + aw + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 1);
+
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 2);
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 3);
+
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas + aw + 2, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 4);
+					glzAtlasUVarrayRemapRotate(2, pg[i].tt.firstatlas + aw + aw + aw + 1, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, 5);
+				}
+
+				else {
+					glzAtlasUVarrayRemap(pg[i].tt.firstatlas, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i);
+				}
+
+			}
+
+
+
+			break;
+
+
+
+		case glzPrimitive::TETRAHEDRON:
+			glzPrimTetraVector(&p, i, 0);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+
+		case glzPrimitive::PYRAMID:
+			glzPrimFromIndexArraysVector(&p, i, 0, pyramid_vertex, pyramid_uv, pyramid_normal, pyramid_face, pyramid_uvface, pyramid_nface, sizeof(pyramid_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::OCTAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, octahedron_vertex, octahedron_uv, octahedron_normal, octahedron_face, octahedron_uvface, octahedron_nface, sizeof(octahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::DODECAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, dodecahedron_vertex, dodecahedron_uv, dodecahedron_normal, dodecahedron_face, dodecahedron_uvface, dodecahedron_nface, sizeof(dodecahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::ICOSAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, icosahedron_vertex, icosahedron_uv, icosahedron_normal, icosahedron_face, icosahedron_uvface, icosahedron_nface, sizeof(icosahedron_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::ICOSIDODECAHEDRON:
+			glzPrimFromIndexArraysVector(&p, i, 0, icosidodecahederon_vertex, icosidodecahederon_uv, icosidodecahederon_normal, icosidodecahederon_face, icosidodecahederon_uvface, icosidodecahederon_nface, sizeof(icosidodecahederon_face) / sizeof(long));
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+
+
+		case glzPrimitive::FSQ:
+			glzPrimFSQVector(&p, i, 0);
+			break;
+
+		case glzPrimitive::RANDOM_POINT:
+			glzPrimRandomVector(&p, i, 0, pg[i].resolution_x);
+			glzProjectVertexArray(&p, pg[i].matrix, i);
+			break;
+
+		case glzPrimitive::SPRITE_ATLAS_ARRAY:
+
+			saic = pg[i].tt.atlas_width*pg[i].tt.atlas_height;
+			sai = 0;
+
+			while (sai<saic)
+			{
+				glzPrimFSQVector(&p, i, sai);
+
+				glzAtlasUVarrayRemap(sai, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i, sai);
+				
+				sai++;
+			}
+
+			break;
+
+		default:
+			break;
+
+		}
+
+		if ((pg[i].tt.atlas_width + pg[i].tt.atlas_height>2) && (pg[i].type != glzPrimitive::CUBE) && (pg[i].type != glzPrimitive::HEXAHEDRON) && (pg[i].type != glzPrimitive::SPRITE_ATLAS_ARRAY))
+		{
+			glzAtlasUVarrayRemap(pg[i].tt.firstatlas, pg[i].tt.atlas_width, pg[i].tt.atlas_height, pg[i].tt.origin, &p, i);
+		}
+
+		i++;
+	}
+
+
+
+	glzVAOMakeFromVector(p, vao, glzVAOType::AUTO);
+
+	return p.size()*3;
 }

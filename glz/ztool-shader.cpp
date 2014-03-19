@@ -78,10 +78,40 @@ static PFNGLGETSHADERSOURCEPROC                 glGetShaderSource;
 
 static bool isinited_shd;
 
+static unsigned int passtroughprogram;
+
+
+
+char vertexpasstrough[] =
+
+"#version 140\r\n"
+""
+"in vec3 Position;"
+"in vec2 TexCoord;"
+"out vec4 tc;"
+"void main() {"
+"	gl_Position = vec4(Position.xyz, 1.0);"
+"	tc = vec4(TexCoord.xy, 0.0, 1.0);"
+"}"
+"";
+
+char fragmentpasstrough[] =
+"#version 140\r\n"
+""
+"in vec4 tc;"
+"out vec4 fragment_color;"
+"uniform sampler2D texunit0;"
+"void main() {"
+	"vec4 base = texture2D(texunit0, tc.xy);"
+	"fragment_color = base;"
+"}"
+"";
+
 
 // now i made all of these static, so you shouldn't have to initialize them again
 void ini_shd(void)
 {
+	isinited_shd=true;
 	glBindAttribLocation= (PFNGLBINDATTRIBLOCATIONPROC) wglGetProcAddress("glBindAttribLocation");
 	
 	glDeleteShader				= (PFNGLDELETESHADERPROC) wglGetProcAddress("glDeleteShader");
@@ -125,7 +155,12 @@ void ini_shd(void)
 	glUniformMatrix2fv= (PFNGLUNIFORMMATRIX2FVPROC) wglGetProcAddress("glUniformMatrix2fv");
 	glUniformMatrix3fv= (PFNGLUNIFORMMATRIX3FVPROC) wglGetProcAddress("glUniformMatrix3fv");
 	glUniformMatrix4fv= (PFNGLUNIFORMMATRIX4FVPROC) wglGetProcAddress("glUniformMatrix4fv");
-	isinited_shd=true;
+
+
+	passtroughprogram = glzShaderLoadString(vertexpasstrough, fragmentpasstrough, glzVAOType::AUTO);
+	glzShaderLink(passtroughprogram);
+
+	
 }
 
 
@@ -140,6 +175,71 @@ unsigned long getFileLength(ifstream& file)
     file.seekg(ios::beg);
     
     return len;
+}
+
+
+// these next 3 functions will load a file, compile it and attach it to a program object
+void loadVShadeString(unsigned int program, char *shadercode)  //loads a vertex shader in glsl format
+{
+
+	unsigned int  VertexShaderObject;
+
+	// start compilling the source
+	VertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(VertexShaderObject, 1, (const char **)&shadercode, NULL);
+
+	int compiled = 0;
+	char str[4096];
+	// Compile the vertex and fragment shader, and print out any arrors
+
+	glCompileShader(VertexShaderObject);
+	glGetShaderiv(VertexShaderObject, GL_COMPILE_STATUS, &compiled);
+
+	if (!compiled) {
+
+		glGetShaderInfoLog(VertexShaderObject, sizeof(str), NULL, str);
+		MessageBoxA(NULL, str, "vertex Shader Compile Error", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+
+	glAttachShader(program, VertexShaderObject);
+
+	glDeleteShader(VertexShaderObject);
+
+	return;
+}
+
+
+
+void loadFShadeString(unsigned int program, char *shadercode)  //dito on a fragment shader
+{
+
+	unsigned int  FragmentShaderObject;
+
+	// start compilling the source
+	FragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(FragmentShaderObject, 1, (const char **)&shadercode, NULL);
+
+	int compiled = 0;
+	char str[4096];
+	// Compile the vertex and fragment shader, and print out any arrors
+
+	glCompileShader(FragmentShaderObject);
+	glGetShaderiv(FragmentShaderObject, GL_COMPILE_STATUS, &compiled);
+
+	if (!compiled) {
+
+		glGetShaderInfoLog(FragmentShaderObject, sizeof(str), NULL, str);
+		MessageBoxA(NULL, str, "vertex Shader Compile Error", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+
+	glAttachShader(program, FragmentShaderObject);
+
+
+	glDeleteShader(FragmentShaderObject);
+
+	return;
 }
 
 
@@ -339,6 +439,29 @@ void loadGShade(unsigned int program, char filename[160])  //dito on a fragment 
 
 // this specific function will only work if you have openGL 3.2 installed because of the geometry shader which should be any dx 10 class hardware, basically gf8xxx and above
 
+unsigned int glzShaderLoadString(char *vert, char *frag, glzVAOType type)
+{
+	if (!isinited_shd) ini_shd();
+
+	unsigned int  program;
+
+	program = glCreateProgram();
+
+
+	loadVShadeString(program, vert);
+	loadFShadeString(program, frag);
+
+
+	if (type == glzVAOType::AUTO)
+	{
+		glBindAttribLocation(program, 0, "Position");
+		glBindAttribLocation(program, 1, "TexCoord");
+		glBindAttribLocation(program, 2, "Normal");
+	}
+
+	return program;
+}
+
 unsigned int glzShaderLoad(char file_vert[255], char file_geo[255], char file_frag[255], glzVAOType type)
 {
 	if(!isinited_shd) ini_shd();
@@ -407,6 +530,14 @@ void glzShaderLink(unsigned int program)
 
 
 return;
+}
+
+
+
+void glzShaderUsePasstrough(void)
+{
+	glUseProgram(passtroughprogram);
+	return;
 }
 
 

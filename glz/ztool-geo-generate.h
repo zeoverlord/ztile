@@ -21,15 +21,17 @@ using namespace std;
 
 #include "ztool-type.h"
 #include "ztool-geo.h"
+#include "ztool-vectormath.h"
 
 #ifndef __glz_geogenerate__
 #define __glz_geogenerate__
 
-long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao);
-long glzVAOMakeText(char text[255], float matrix[], float kern, texture_transform tt, unsigned int *vao);
+long glzVAOMakeFromFile(char filename[255], glzMatrix matrix, texture_transform tt, unsigned int *vao);
+long glzVAOMakeFromFileVector(char filename[255], glzMatrix matrix, texture_transform tt, unsigned int *vao);
+long glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao);
 
-long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, unsigned int *vao);
-long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, image_geo_transform igt, unsigned int *vao);
+long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, unsigned int *vao);
+long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, image_geo_transform igt, unsigned int *vao);
 
 long glzVAOCountPrimitiveVerts(float varation, float resuloution, unsigned int primitive, texture_transform tt);
 long glzVAOMakePrimitive(primitive_gen pg, unsigned int *vao);

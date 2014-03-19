@@ -21,6 +21,7 @@
 
 #include <vector>
 
+
 using namespace std;
 
 
@@ -28,12 +29,15 @@ using namespace std;
 #define __glztype__
 
 
-enum class glzVAOType { AUTO, VERTEX, VERTEX_TEXTURE, VERTEX_NORMAL, VERTEX_TEXTURE_NORMAL };
+enum class glzVAOType {NONE, AUTO, VERTEX, VERTEX_TEXTURE, VERTEX_NORMAL, VERTEX_TEXTURE_NORMAL };
 enum class glzOrigin { BOTTOM_LEFT, BOTTOM_RIGHT, TOP_LEFT, TOP_RIGHT, CENTERED };
 enum class glzAxis { X, Y, Z };
+enum class glzDistribution { UNIFORM, NORMAL, GAMMA, EXPONENTIAL };
 
 enum class glzTexFilter { NONE, NEAREST, LINEAR, BILINEAR, TRILINEAR, ANSIO_2, ANSIO_4, ANSIO_8, ANSIO_16, ANSIO_MAX };
 enum class glzTexCompression { UNCOMPRESSED, COMPRESSED };
+
+enum class glzBoundingScan { CENTER_X, CENTER_Y, LEFT, RIGHT, TOP, BOTTOM, WIDTH, HEIGHT};
 
 
 enum class glzColorChannels { RED, GREEN, BLUE, ALPHA, HUE, HUE2, CROMA, CROMA2, VALUE, LIGHTNESS, INTENSITY, LUMA, SHSV, SHSL, SHSI };
@@ -47,7 +51,7 @@ enum class glzPrimitive {
 	FSQ, RANDOM_POINT, SPRITE_ATLAS_ARRAY																				// random structures
 };
 
-
+//enum class glzatlasMapType{NONE,GRID};
 enum class glzIGTType { NONE, DISPLACE_ADD };
 
 enum class glzTTType { NONE, VERTEX_COORD_ADOPT, ATLASARRAY, ATLAS_CUBE_TBS, ATLAS_CUBE_INDFACE, ATLAS_CUBE_CROSS };
@@ -107,10 +111,10 @@ public:
 
 // todo, move to own cpp file
 
-
+class glzQuaternion;
 
 // units - well at least it's a beginning, will continue at a later date, probably will be rewritten once visual studio gets user defined literals
-
+/*
 
 class glzsecond;
 class glzlength;
@@ -148,60 +152,12 @@ public:
 	
 };
 
+glzspeed glzlength::operator/ (glzsecond b) { glzspeed sp(L / b.get()); return sp; }
 
-
-typedef struct Point2Struct {
-	double x, y;
-} Point2;
-
-typedef struct Point3Struct {
-	double x, y, z;
-} Point3;
+*/
 
 
 
-typedef struct
-{
-	glzIGTType type;
-	unsigned int width;
-	unsigned int height;
-	unsigned int bpp;
-	float x_offset;
-	float y_offset;
-	float z_offset;
-	float scale;
-	float tscale;
-	glzAxis axis;
-	unsigned char *data;
-} image_geo_transform;
-
-typedef struct
-{
-	glzTTType type;
-	float u_scale;
-	float v_scale;
-	float u_offset;
-	float v_offset;
-	unsigned int atlas_width;
-	unsigned int atlas_height;
-	glzAxis axis;
-	unsigned int firstatlas;
-	unsigned int *atlas;
-	glzOrigin origin;
-} texture_transform;
-
-typedef struct
-{
-	glzPrimitive type;
-	float matrix[16];
-	texture_transform tt;
-	float variation_1;
-	float variation_2;
-	unsigned int resolution_x;
-	unsigned int resolution_y;
-	unsigned int resolution_z;
-
-} primitive_gen;
 
 
 

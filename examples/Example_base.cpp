@@ -29,6 +29,9 @@
 #include <fstream>
 #include <math.h>
 #include "..\glz\ztool-geo.h"
+#include "..\glz\ztool-geo-generate.h"
+#include "..\glz\ztool-vectormath.h"
+#include "..\glz\ztool-geo-2d.h"
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
 #include "..\glz\ztool-tex.h"
@@ -50,13 +53,13 @@ Keys*		g_keys;
 float		angle,width,height;												// Used To Rotate The Triangles
 int			rot1, rot2;											// Counter Variables
 unsigned int vao[5],vao_num[5];
-float m[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+glzMatrix m;
 int e=0,e2=0;
 unsigned int texture[5],fonttexture;
 
-float q[4] ={1,0,0,0};
-float q2[4] ={1,0,0,0};
-float q3[4] ={1,0,0,0};
+glzQuaternion q;
+glzQuaternion q2;
+glzQuaternion q3;
 
 img_head img;
 unsigned char *data;
@@ -100,32 +103,35 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	float mt[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mo[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mg[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mh[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	glzMatrix mt;
+
+	glzMatrix mo;
+	glzMatrix mg;
+	glzMatrix mh;
 
 	unsigned int ad[16]={0,1,1,0,
 						 1,1,2,0,
 						 3,3,2,0,
 						 0,0,2,3};
-	glzLoadIdentity(mt);
-	glzLoadIdentity(mo);
-	glzLoadIdentity(mg);
-	glzLoadIdentity(mh);
+	mt.LoadIdentity();
+	mo.LoadIdentity();
+	mg.LoadIdentity();
+	mh.LoadIdentity();
+
+	mg.translate(0, 0, 0);
+
+	mt.translate(-3.9f, 0.9f, 0);
+
+	mt.scale(0.17f, 0.17f, 0.17f);
+
+	mg.scale(32.0f, 32.0f, 32.0f);
+	mh.scale(0.4f, 0.4f, 0.4f);
+
+	mh.rotate(90, 1.0f, 0.0f, 0.0f);
+
+	mh.translate(-8.0, 8.0, 0.0);
 
 	
-	
-	glzTranslatef(mt,-3.9f,1.9f,0);
-	glzTranslatef(mg,0,0,0);	
-
-	glzScalef(mt,0.17f,0.17f,0.17f);
-	glzScalef(mg,32.0f,32.0f,32.0f);
-	glzScalef(mh,0.4f,0.4f,0.4f);
-
-	glzRotatef(mh,90,1.0f,0.0f,0.0f);
-
-	glzTranslatef(mh,-8.0,8.0,0.0);
 
 
 
@@ -140,11 +146,11 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	texture_transform text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
 	prim_pg[0] = glzMakePGDefault(glzPrimitive::CUBE);
-	glzScalef(prim_pg[0].matrix,5.0f,5.0f,5.0f);
+	prim_pg[0].matrix.scale(5.0f, 5.0f, 5.0f);
 
 	prim_pg[1] = glzMakePGDefault(glzPrimitive::ICOSIDODECAHEDRON);
-	glzTranslatef(prim_pg[1].matrix,-3,0,0);
-	glzScalef(prim_pg[1].matrix,7.0f,7.0f,7.0f);
+	prim_pg[1].matrix.translate(-3, 0, 0);
+	prim_pg[1].matrix.scale(7.0f, 7.0f, 7.0f);
 
 	
 	prim_pg[0].tt = glzMakeTTAtlasCubeCross(4, 4, 0, glzOrigin::BOTTOM_LEFT);
@@ -156,7 +162,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	image_geo_transform igt = glzMakeIGT(glzIGTType::DISPLACE_ADD, img.m_width, img.m_height, img.m_bpp, 0, 0, 0, 2.0f, 32.0, glzAxis::Z, data);
 
-	vao_num[0]=glzVAOMakeText("Geometry generation test, try the arrow keys.", mt, 0.7f, text_tt, &vao[0]);
+	vao_num[0] = glzVAOMakeText("Geometry generation test, try the arrow keys.", mt, 1.3f, text_tt, glzOrigin::BOTTOM_LEFT, &vao[0]);
 	vao_num[1]=glzVAOMakePrimitives(1,prim_pg, &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
 	vao_num[2]=glzVAOMakeFromFile("data\\objects\\cv9040c.obj",mo, obj_tt, &vao[2]);
 	vao_num[3]=glzVAOMakeAtlasGrid(4, 4, mg, grid_tt, &vao[3]);
@@ -210,18 +216,18 @@ void Update (float seconds)								// Perform Motion Updates Here
 	}
 
 	angle += seconds*50;						// Update angle Based On The Clock
-	glzRotateQuaternionf(q,seconds*50,0.0f,1.0f,0.0f);	
-	glzRotateQuaternionf(q,seconds*40,1.0f,0.0f,0.0f);	
+	q.rotate(seconds * 50, 0.0, 1.0, 0.0);
+	q.rotate(seconds * 40, 1.0, 0.0, 0.0);
 
-	if (g_keys->keyDown [VK_UP] == TRUE)glzRotateQuaternionf(q2,seconds*40,1.0f,0.0f,0.0f);	
-	if (g_keys->keyDown [VK_DOWN] == TRUE)glzRotateQuaternionf(q2,seconds*-40,1.0f,0.0f,0.0f);	
+	if (g_keys->keyDown[VK_UP] == TRUE)q2.rotate(seconds * 40, 1.0, 0.0, 0.0);
+	if (g_keys->keyDown[VK_DOWN] == TRUE)q2.rotate(seconds * -40, 1.0, 0.0, 0.0);
 
-	if (g_keys->keyDown [VK_LEFT] == TRUE)glzRotateQuaternionf(q2,seconds*40,0.0f,1.0f,0.0f);	
-	if (g_keys->keyDown [VK_RIGHT] == TRUE)glzRotateQuaternionf(q2,seconds*-40,0.0f,1.0f,0.0f);	
+	if (g_keys->keyDown[VK_LEFT] == TRUE)q2.rotate(seconds * 40, 0.0, 1.0, 0.0);
+	if (g_keys->keyDown[VK_RIGHT] == TRUE)q2.rotate(seconds * -40, 0.0, 1.0, 0.0);
 
 	//now the rotations are a bit wonky in this example but that is because i dont reset the quaternion for each frame and use angles instead here
 
-	glzRotateQuaternionf(q3,seconds*50,0.0f,1.0f,0.0f);	
+	q3.rotate(seconds * 50, 0.0, 1.0, 0.0);
 
 }
 
@@ -229,7 +235,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 void Draw (void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
-	
+	float mtemp[16];
 	glEnable(GL_TEXTURE_2D);
 	unsigned int loc1 = glGetUniformLocation(ProgramObject,"projMat");
 	unsigned int loc2 = glGetUniformLocation(ProgramObject,"texunit0");
@@ -240,14 +246,15 @@ void Draw (void)
 	glUniform4f(loc3, 1.0f,1.0f,1.0f,1.0f);
 
 	// draw objects
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 1000.0f);
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 1000.0f);
 	//glzOrtho(m, -480, 480, -270, 270, -100, 100);
 
-	glzTranslatef(m,-10,5,-30);	
+	m.translate(-10, 5, -30);
 	//glzScalef(m,0.1,0.1,0.1);
-	glzQuaternionToMatrixf(m,q);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.loadQuanternion(q);
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[1]);
 	glzDrawVAO(vao_num[1],vao[1],GL_TRIANGLES);
@@ -255,40 +262,46 @@ void Draw (void)
 
 
 	// draw tank
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
-	glzTranslatef(m,7,2,-30);	
-	glzScalef(m,0.5,0.5,0.5);
-	glzQuaternionToMatrixf(m,q2);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 100.0f);
+	m.translate(7, 2, -30);
+	m.scale(0.5,0.5,0.5);
+	m.loadQuanternion(q2);
+
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glzDrawVAO(vao_num[2],vao[2],GL_TRIANGLES);
 
 	// draw grid
-	glzLoadIdentity(m);
-	glzOrtho(m, -480, 480, -270, 270, -100, 100);
-	glzTranslatef(m,-300,-100,0);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.LoadIdentity();
+	m.ortho(-480, 480, -270, 270, -100, 100);
+	m.translate(-300, -100, 0);
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[3]);
 	glzDrawVAO(vao_num[3],vao[3],GL_TRIANGLES);
 
 	// draw height grid
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
-	glzTranslatef(m,2,-2,-7);	
-	glzQuaternionToMatrixf(m,q3);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 100.0f);
+	m.translate(2, -2, -7);
+	m.loadQuanternion(q3);
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[4]);
 	glzDrawVAO(vao_num[4],vao[4],GL_TRIANGLES);
 
 
 	// draw text
-	glzLoadIdentity(m);
-	glzOrtho(m, -4, 4, -2, 2, -100, 100);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	m.LoadIdentity();
+	m.ortho(-4, 4, -2, 2, -100, 100);
+//	m.translate(-3, y, 0);
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 	glBindTexture(GL_TEXTURE_2D,texture[0]);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

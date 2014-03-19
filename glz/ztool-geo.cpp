@@ -31,6 +31,7 @@
 #include <gl/glu.h>														// Header File For The GLu32 Library
 #include <gl/glext.h>
 
+#include <vector>
 
 using namespace std;
 
@@ -56,7 +57,7 @@ static PFNGLISBUFFERARBPROC			glIsBuffer;
 
 
 static bool isinited_geo;
-static int active_vao[1024];
+static vaostatus active_vao[1024];
 
 // most of the functions below are booring stuff and will not be commented on as they are pretty mic self explanatory
 // it's mostly just setting up primitives, generating geometry and setting up structures
@@ -210,6 +211,90 @@ long glzPrimCubeverts(float *v, float *t, float *n)
 }
 
 
+void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides)
+{
+
+	// a sides of 63 should give all sides
+	vert3 v1 = { -0.500000, -0.500000, 0.500000 };
+	vert3 v2 = { 0.500000, -0.500000, 0.500000 };
+	vert3 v3 = { 0.500000, 0.500000, 0.500000 };
+	vert3 v4 = { -0.500000, 0.500000, 0.500000 };
+	vert3 v5 = { 0.500000, 0.500000, -0.500000 };
+	vert3 v6 = { -0.500000, 0.500000, -0.500000 };
+	vert3 v7 = { 0.500000, -0.500000, -0.500000 };
+	vert3 v8 = { -0.500000, -0.500000, -0.500000 };
+
+
+	vec3 n1 = { 0.000000, 0.000000, 1.000000 };
+	vec3 n2 = { 0.000000, 1.000000, 0.000000 };
+	vec3 n3 = { 0.000000, 0.000000, -1.000000 };
+	vec3 n4 = { 0.000000, -1.000000, 0.000000 };
+	vec3 n5 = { 1.000000, 0.000000, 0.000000 };
+	vec3 n6 = { -1.000000, 0.000000, 0.000000 };
+
+	tex2 t1 = { 0.000000, 0.000000 };
+	tex2 t2 = { 1.000000, 0.000000 };
+	tex2 t3 = { 0.000000, 1.000000 };
+	tex2 t4 = { 1.000000, 1.000000 };
+
+	poly3 p1 = { point3(v6, t3, n2), point3(v4, t1, n2), point3(v3, t2, n2), group, 0 };//top
+	poly3 p2 = { point3(v5, t4, n2), point3(v6, t3, n2), point3(v3, t2, n2), group, 0 };
+
+	poly3 p3 = { point3(v8, t4, n4), point3(v7, t3, n4), point3(v2, t1, n4), group, 1 };// bottom
+	poly3 p4 = { point3(v1, t2, n4), point3(v8, t4, n4), point3(v2, t1, n4), group, 1 };
+
+	poly3 p5 = { point3(v1, t1, n1), point3(v2, t2, n1), point3(v3, t4, n1), group, 2 };// front
+	poly3 p6 = { point3(v4, t3, n1), point3(v1, t1, n1), point3(v3, t4, n1), group, 2 };
+
+	poly3 p7 = { point3(v7, t2, n5), point3(v5, t4, n5), point3(v3, t3, n5), group, 3 };// right
+	poly3 p8 = { point3(v2, t1, n5), point3(v7, t2, n5), point3(v3, t3, n5), group, 3 };
+
+	poly3 p9 = { point3(v8, t2, n3), point3(v6, t4, n3), point3(v5, t3, n3), group, 4 };// back
+	poly3 p10 = { point3(v7, t1, n3), point3(v8, t2, n3), point3(v5, t3, n3), group, 4 };
+
+	poly3 p11 = { point3(v8, t1, n6), point3(v1, t2, n6), point3(v4, t4, n6), group, 5 };// left
+	poly3 p12 = { point3(v6, t3, n6), point3(v8, t1, n6), point3(v4, t4, n6), group, 5 };
+
+	if (sides & 1)
+	{
+		pdata->push_back(p1);//top
+		pdata->push_back(p2);
+	}
+
+	if (sides & 2)
+	{
+	pdata->push_back(p3);// bottom
+	pdata->push_back(p4);
+	}
+
+	if (sides & 4)
+	{
+		pdata->push_back(p5);// front
+	pdata->push_back(p6);
+	}
+
+	if (sides & 8)
+	{
+		pdata->push_back(p7);// right
+	pdata->push_back(p8);
+	}
+
+	if (sides & 16)
+	{
+		pdata->push_back(p9);// back
+	pdata->push_back(p10);
+	}
+
+	if (sides & 32)
+	{
+		pdata->push_back(p11);// left
+	pdata->push_back(p12);
+	}
+
+	
+	
+}
+
 long glzCountFromIndexArrays(long vert_face[],int enteries)
 {
 
@@ -246,17 +331,18 @@ long glzCountFromIndexArrays(long vert_face[],int enteries)
 
 // public stuff
 
-void addToVaoList(unsigned int vao)
+void addToVaoList(unsigned int vao, glzVAOType type)
 {
 	int i=0;
 
-	while (active_vao[i]!=-1)
+	while (active_vao[i].active!=-1)
 	{
 		i++;
 		if (i==1023) return;
 	}
 
-	active_vao[i]=vao;
+	active_vao[i].active = vao;
+	active_vao[i].type = type;
 	return;
 }
 
@@ -264,15 +350,34 @@ void removeFromVaoList(unsigned int vao)
 {
 	int i=0;
 
-	while (active_vao[i]!=vao)
+	while (active_vao[i].active != vao)
 	{
 		i++;
 		if (i==1023) return;
 	}
 
-	active_vao[i]=-1;
+	active_vao[i].active = -1;
+	active_vao[i].type = glzVAOType::NONE;
 	return;
 }
+
+
+
+glzVAOType getTypeFromVaoList(unsigned int vao)
+{
+	int i = 0;
+
+	while (active_vao[i].active != vao)
+	{
+		i++;
+		if (i == 1023) return glzVAOType::NONE;
+	}
+
+	return active_vao[i].type;
+}
+
+
+
 
 
 void ini_geo(void)
@@ -282,7 +387,7 @@ void ini_geo(void)
 
 	while (i<1024)
 	{
-		active_vao[i] = -1;
+		active_vao[i].active = -1;
 		i++;
 	}
 
@@ -391,12 +496,12 @@ texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis 
 }
 
 	
-primitive_gen glzMakePG(glzPrimitive type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
+primitive_gen glzMakePG(glzPrimitive type, glzMatrix matrix, texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
 {
 	primitive_gen pg;
 
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt=tt;
 	pg.variation_1=variation_1;
 	pg.variation_2=variation_2;		
@@ -411,7 +516,7 @@ primitive_gen glzMakePGDefault(glzPrimitive type)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	glzLoadIdentity(pg.matrix);
+	pg.matrix.LoadIdentity();
 	pg.tt=glzMakeTTDefault();
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -421,11 +526,11 @@ primitive_gen glzMakePGDefault(glzPrimitive type)
 	return pg;
 }
 
-primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, float matrix[16])
+primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, glzMatrix matrix)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt=glzMakeTTDefault();
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -439,7 +544,7 @@ primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned in
 {		
 	primitive_gen pg;
 	pg.type=type;
-	glzLoadIdentity(pg.matrix);
+	pg.matrix.LoadIdentity();
 	pg.tt = glzMakeTTAtlas(awidth, aheight, firstatlas, glzOrigin::BOTTOM_RIGHT);
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -449,11 +554,11 @@ primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned in
 	return pg;
 }
 
-primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
+primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, glzMatrix matrix, unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt = glzMakeTTAtlas(awidth, aheight, firstatlas, glzOrigin::BOTTOM_RIGHT);
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -515,6 +620,99 @@ void glzIGT(float *vert, image_geo_transform igt, long num)
 	return;
 }
 
+void glzIGT(vector<poly3> *pdata, int group, image_geo_transform igt)
+{
+	int step = igt.bpp;
+	float x = 0, y = 0, z = 0;
+
+	vert3 a, b, c;
+	int i2 = 0;
+	auto i = pdata->begin();
+
+	switch (igt.type)
+	{
+	case glzIGTType::DISPLACE_ADD:
+
+
+
+		i = pdata->begin();
+		i2 = 0;
+		while (i < pdata->end()) {
+
+			if (pdata->at(i2).group == group)
+			{
+
+				a = pdata->at(i2).a.v;
+				b = pdata->at(i2).b.v;
+				c = pdata->at(i2).c.v;
+
+
+				a.x += igt.x_offset;
+				a.y += igt.y_offset;
+				a.z += igt.z_offset;
+
+				b.x += igt.x_offset;
+				b.y += igt.y_offset;
+				b.z += igt.z_offset;
+
+				c.x += igt.x_offset;
+				c.y += igt.y_offset;
+				c.z += igt.z_offset;
+
+				a.x *= igt.tscale;
+				a.y *= igt.tscale;
+				a.z *= igt.tscale;
+
+				b.x *= igt.tscale;
+				b.y *= igt.tscale;
+				b.z *= igt.tscale;
+
+				c.x *= igt.tscale;
+				c.y *= igt.tscale;
+				c.z *= igt.tscale;
+
+
+
+				if (igt.axis == glzAxis::X) 
+				{
+					pdata->at(i2).a.v.x += glzImageReadBilinear(a.y, a.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.x += glzImageReadBilinear(b.y, b.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.x += glzImageReadBilinear(c.y, c.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+
+				if (igt.axis == glzAxis::Y) 
+				{
+					pdata->at(i2).a.v.y += glzImageReadBilinear(a.x, a.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.y += glzImageReadBilinear(b.x, b.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.y += glzImageReadBilinear(c.x, c.z, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+
+				if (igt.axis == glzAxis::Z) 
+				{
+					pdata->at(i2).a.v.z += glzImageReadBilinear(a.x, a.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).b.v.z += glzImageReadBilinear(b.x, b.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+					pdata->at(i2).c.v.z += glzImageReadBilinear(c.x, c.y, 0, step, igt.width, igt.height, GLZ_REPEAT_X | GLZ_REPEAT_Y, igt.data, true)*igt.scale;
+				}
+				
+
+			}
+			++i;
+			i2++;
+		}
+
+
+
+		break;
+	default:
+		break;
+
+	}
+
+
+	return;
+}
+
+
 
 void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long num)
 {
@@ -548,6 +746,66 @@ void glzVert2TexcoordRescale(float *vert, float *tex, texture_transform tt, long
 }
 
 
+void glzVert2TexcoordRescale(vector<poly3> *pdata, int group, texture_transform tt)
+{
+	int i2 = 0;
+
+	auto i = pdata->begin();
+	i2 = 0;
+	while (i < pdata->end()) {
+
+		if (pdata->at(i2).group == group)
+		{
+
+			if (tt.axis == glzAxis::X)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.y / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.y / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.y / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.z - 1) / tt.v_scale;
+
+			}
+
+			if (tt.axis == glzAxis::Y)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.x / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.x / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.z - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.x / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.z - 1) / tt.v_scale;
+
+			}
+			if (tt.axis == glzAxis::Z)
+			{
+				pdata->at(i2).a.t.u = pdata->at(i2).a.v.x / tt.u_scale;
+				pdata->at(i2).a.t.v = (pdata->at(i2).a.v.y - 1) / tt.v_scale;
+
+				pdata->at(i2).b.t.u = pdata->at(i2).b.v.x / tt.u_scale;
+				pdata->at(i2).b.t.v = (pdata->at(i2).b.v.y - 1) / tt.v_scale;
+
+				pdata->at(i2).c.t.u = pdata->at(i2).c.v.x / tt.u_scale;
+				pdata->at(i2).c.t.v = (pdata->at(i2).c.v.y - 1) / tt.v_scale;
+
+			}
+
+
+		}
+		++i;
+		i2++;
+	}
+
+
+	return;
+}
+
+
 
 
 
@@ -559,7 +817,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	
 	unsigned int vaopoint;
 	vaopoint=*vao;
-	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint,type);
+	if (glIsVertexArray((GLuint)&vao)== GL_FALSE) glzKillVAO(vaopoint);
 
 	unsigned int vaotemp;
 	unsigned int buffer[3];
@@ -597,7 +855,7 @@ void glzVAOMakeFromArray(float v[], float t[], float n[], long enteties, unsigne
 	glBindVertexArray(0);
 
 	vao[0]=vaotemp;
-	addToVaoList(vaotemp);
+	addToVaoList(vaotemp,type);
 
 return;
 
@@ -605,7 +863,123 @@ return;
 
 
 
+void glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao, glzVAOType type)
+{
+	if (!isinited_geo) ini_geo();
 
+	unsigned int vaopoint;
+	vaopoint = *vao;
+	if (glIsVertexArray((GLuint)&vao) == GL_FALSE) glzKillVAO(vaopoint);
+
+	unsigned int vaotemp;
+	unsigned int buffer[3];
+
+	float *v, *t, *n;
+	v = new float[pdata.size() * 3 * 3];
+	t = new float[pdata.size() * 3 * 2];
+	n = new float[pdata.size() * 3 * 3];
+
+
+	int elements=glzConvertVectorToArray(v, t, n, pdata);
+
+
+
+	glGenVertexArrays(1, &vaotemp);   //generate the vao for this mesh
+	glBindVertexArray(vaotemp);
+
+	glGenBuffers(3, &buffer[0]);	// Get A Valid Name
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);			// Bind The Buffer
+	glBufferData(GL_ARRAY_BUFFER, elements * 3 * sizeof(float), v, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_TEXTURE) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL))
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, buffer[1]);			// Bind The Buffer
+		glBufferData(GL_ARRAY_BUFFER, elements * 2 * sizeof(float), t, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer((GLuint)1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_NORMAL) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL))
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, buffer[2]);			// Bind The Buffer
+		glBufferData(GL_ARRAY_BUFFER, elements * 3 * sizeof(float), n, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer((GLuint)2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+
+	glEnableVertexAttribArray(0);
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_TEXTURE) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL)) glEnableVertexAttribArray(1);
+	if ((type == glzVAOType::AUTO) || (type == glzVAOType::VERTEX_NORMAL) || (type == glzVAOType::VERTEX_TEXTURE_NORMAL)) glEnableVertexAttribArray(2);
+
+
+	glBindVertexArray(0);
+
+	vao[0] = vaotemp;
+	addToVaoList(vaotemp,type);
+
+
+	delete[] v;
+	delete[] t;
+	delete[] n;
+	v = NULL;
+	t = NULL;
+	n = NULL;
+
+
+	return;
+
+}
+
+
+
+long glzConvertVectorToArray(float *v, float *t, float *n, vector<poly3> pdata)
+{
+
+	int i = 0;
+
+	for (auto p : pdata)
+	{
+
+		v[i * 3 * 3 + 0] = p.a.v.x;
+		v[i * 3 * 3 + 1] = p.a.v.y;
+		v[i * 3 * 3 + 2] = p.a.v.z;
+
+		t[i * 2 * 3 + 0] = p.a.t.u;
+		t[i * 2 * 3 + 1] = p.a.t.v;
+
+		n[i * 3 * 3 + 0] = p.a.n.x;
+		n[i * 3 * 3 + 1] = p.a.n.y;
+		n[i * 3 * 3 + 2] = p.a.n.z;
+
+		v[i * 3 * 3 + 3] = p.b.v.x;
+		v[i * 3 * 3 + 4] = p.b.v.y;
+		v[i * 3 * 3 + 5] = p.b.v.z;
+
+		t[i * 2 * 3 + 2] = p.b.t.u;
+		t[i * 2 * 3 + 3] = p.b.t.v;
+
+		n[i * 3 * 3 + 3] = p.b.n.x;
+		n[i * 3 * 3 + 4] = p.b.n.y;
+		n[i * 3 * 3 + 5] = p.b.n.z;
+
+		v[i * 3 * 3 + 6] = p.c.v.x;
+		v[i * 3 * 3 + 7] = p.c.v.y;
+		v[i * 3 * 3 + 8] = p.c.v.z;
+
+		t[i * 2 * 3 + 4] = p.c.t.u;
+		t[i * 2 * 3 + 5] = p.c.t.v;
+
+		n[i * 3 * 3 + 6] = p.c.n.x;
+		n[i * 3 * 3 + 7] = p.c.n.y;
+		n[i * 3 * 3 + 8] = p.c.n.z;
+
+		i++;
+	}
+
+
+	return (i * 3);
+}
 
 
 void glzDirectPointArrayRender(float v[], float t[], int E)
@@ -619,7 +993,7 @@ void glzDirectPointArrayRender(float v[], float t[], int E)
 
 
 	glzDrawVAO(0, E, localVAO, GL_POINTS);
-	glzKillVAO(localVAO, glzVAOType::VERTEX_TEXTURE);
+	glzKillVAO(localVAO);
 
 	return;
 }
@@ -647,7 +1021,7 @@ void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, t
 	
 	
 	glzDrawVAO(0, 36, localVAO, GL_TRIANGLES);
-	glzKillVAO(localVAO, glzVAOType::AUTO);
+	glzKillVAO(localVAO);
 
 
 	return;
@@ -656,12 +1030,12 @@ void glzDirectCubeRender(float X, float Y, float Z, float W, float H, float D, t
 
 
 
-void glzKillVAO(unsigned int vao, glzVAOType type)
+void glzKillVAO(unsigned int vao)
 {
 	if (!isinited_geo) ini_geo();
 	if (!glIsVertexArray(vao)) return; // is this a vao
 
-	removeFromVaoList(vao);
+	glzVAOType type = getTypeFromVaoList(vao);
 
 	glBindVertexArray(vao);
 
@@ -685,6 +1059,7 @@ void glzKillVAO(unsigned int vao, glzVAOType type)
 	glDeleteVertexArrays(1,reinterpret_cast<GLuint *>(&vao));
 	glBindVertexArray(0);
 
+	removeFromVaoList(vao);
 	return;
 }
 
@@ -697,7 +1072,7 @@ void glzKillAllVAO(void)
 	while (i<1024)
 	{
 		//if(active_vao[i]!=-1)
-		glzKillVAO(active_vao[i], glzVAOType::AUTO);
+		glzKillVAO(active_vao[i].active);
 		i++;
 	}
 

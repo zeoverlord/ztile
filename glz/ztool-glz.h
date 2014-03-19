@@ -20,6 +20,7 @@
 // https://github.com/zeoverlord/glz.git
 
 #include "ztool-type.h"
+#include "ztool-vectormath.h"
 
 const unsigned int  GLZ_MIRROR_X = 1;
 const unsigned int  GLZ_MIRROR_Y = 2;
@@ -51,7 +52,15 @@ const double PI_OVER_180_REVERSE = 57.2957795131;
 // usefull stuff
 
 float glzRandf(void);  //produces a value between 1 and 0
+float glzRandf(glzDistribution D);
 float glzRandfs(void);  //produces a value between 1 and -1
+float glzRandfs(glzDistribution D);
+
+// static noise functions
+float glzMersienneNoise(float seed);
+float glzMersienneNoise(float seed, float x);
+float glzMersienneNoise(float seed, float x, float y);
+float glzMersienneNoise(float seed, float x, float y, float z);
 
 float glzModF(float f, float m);  //float modulo function
 int glzModFStep(float f, float m);  //special float modulo function that returns the number of times m fits in f
@@ -62,14 +71,18 @@ float quantize(float f, float s); //quantized steping formula
 // some general math functions
 
 
-float glzDotproductf(float a[3], float b[3]);
-double glzDotproductd(double a[3], double b[3]);
-float glzMagnitudef(float a[3]);
-double glzMagnituded(double a[3]);
-void glzNormalizef(float *a, float le); //le is the length to normaliz to, normaly should be left at 1.0
-void glzNormalized(double *a, double le);
-void glzCrossproductf(float a[3], float b[3], float *r);
-void glzCrossproductd(double a[3], double b[3], double *r);
+float glzDotproduct(float a[3], float b[3]);
+double glzDotproduct(double a[3], double b[3]);
+double glzDotproduct(vec3 a, vec3 b);
+float glzMagnitude(float a[3]);
+double glzMagnitude(double a[3]);
+
+void glzNormalize(float *a, float le); //le is the length to normaliz to, normaly should be left at 1.0
+void glzNormalize(double *a, double le);
+
+void glzCrossproduct(float a[3], float b[3], float *r);
+void glzCrossproduct(double a[3], double b[3], double *r);
+vec3 glzCrossproduct(vec3 a, vec3 b);
 
 
 // image functions
@@ -82,31 +95,58 @@ float glzColorConvert(float a, float b, float c, glzColorType intype, glzColorCh
 // specialty code
 
 float glzRemapToRange(float curmin,float cur,float curmax, float rmin, float rmax);
+float glzLerpRange(float curmin, float cur, float curmax, float rmin, float rmax);
+float glzLerpRange2D(float curmin[2], float cur[2], float curmax[2], float rmin[2], float rmax[2]);
+float glzLerpRange3D(float curmin[4], float cur[3], float curmax[4], float rmin[4], float rmax[4]);
+float glzLerp(float cur, float rmin, float rmax);
+float glzLerp2D(float cur[2], float rmin[2], float rmax[2]);
+float glzLerp3D(float cur[3], float rmin[4], float rmax[4]);
 void glzRemapToRangeArray(float curmin,float curmax, float rmin, float rmax, float *curdata, unsigned int num);
+
+
 void glzCubicCurve(float pos, float l, float p1[3], float v1[3], float p2[3], float v2[3], float *ret);
 void glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin, float *uvOut);
 void glzAtlasAniQuad(unsigned int xres, unsigned int yres, float time, glzOrigin origin, float *uvout);
+glzAtlassprite glzAtlasQuad(unsigned int xres, unsigned int yres, unsigned int atlas, glzOrigin origin);
 void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group);
+void glzAtlasUVarrayRemap(unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side);
 void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int num, unsigned int aw, unsigned int ah, glzOrigin origin, float *uv);
+void glzAtlasUVarrayRemapRotate(unsigned int r, unsigned int atlas, unsigned int aw, unsigned int ah, glzOrigin origin, vector<poly3> *p, int group, int side);
 
 
 // matrix stuff
 
 void glzProjectVertex(float  *vert, float Matrix[16]);
 void glzProjectVertexArray(float  *vert, float Matrix[16], int num);
+void glzProjectVertex(poly3 *p, float Matrix[16], int group);
+void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group);
+void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group);
+
+
+float glzScanVertexArray(float  *vert, long num, glzBoundingScan scan);
+double glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan);
+
 void glzMultMatrix(float *MatrixB,float  MatrixA[16]);
 void glzLoadIdentity(float *m);
 void glzPerspective(float *m, float fov, float aspect,float zNear, float zFar);
 void glzOrtho(float *m, float left, float right, float bottom, float top, float Znear, float Zfar);
+void glzOrtho2D(float *m, float left, float right, float bottom, float top);
+void glzOrtho2DPixelspace(float *m, int x, int y, glzOrigin origin);
 void glzTranslatef(float *m,float x,float y, float z);
 void glzScalef(float *m,float x,float y, float z);
 void glzRotatef(float *m, float a, float x,float y, float z);
 
+
 // Quaternion stuff
 void glzLoadQuaternionIdentity(float *q);
+
 void glzMultQuaternion(float *qa, float qb[4]);
+
 void glzNormalizeQuaternion(float *q);
+
 void glzRotateQuaternionf(float *q, float a, float x,float y, float z);
+
 void glzQuaternionToMatrixf(float *m, float q[4]);
 
 

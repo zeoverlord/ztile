@@ -31,6 +31,7 @@
 #include "..\glz\ztool-geo.h"
 #include "..\glz\ztool-shader.h"
 #include "..\glz\ztool-glz.h"
+#include "..\glz\ztool-vectormath.h"
 #include "..\glz\ztool-tex.h"
 #include "..\glz\ztool-geo-2d.h"
 #include "..\glz\ztool-geo-generate.h"
@@ -51,7 +52,7 @@ Keys*		g_keys;
 // User Defined Variables
 float		angle=0,width,height;												// Used To Rotate The Triangles
 unsigned int vao[16],vao_num[16],textvao[16],textvao_num[16];
-float m[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+glzMatrix m;
 unsigned int texture[5],fonttexture[15];
 
 
@@ -61,7 +62,7 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=6;
+int gamestate=5;
 
 
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
@@ -76,6 +77,7 @@ static PFNGLUNIFORM1IPROC                       glUniform1i;
 static PFNGLUNIFORMMATRIX4FVPROC                glUniformMatrix4fv;
 static PFNGLUNIFORM4FARBPROC                    glUniform4f;
 static PFNGLGETUNIFORMLOCATIONPROC              glGetUniformLocation;
+static PFNGLBLENDCOLORPROC						glBlendColor;
 
 
 #define COL_BLACK	0
@@ -104,6 +106,11 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glShadeModel (GL_SMOOTH);									// Select Smooth Shading
 	glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);			// Set Perspective Calculations To Most Accurate
 
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+
+	glFrontFace(GL_CCW);
+
 
 
 	glUseProgram				= (PFNGLUSEPROGRAMPROC) wglGetProcAddress("glUseProgram");
@@ -112,15 +119,19 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glUniform4f= (PFNGLUNIFORM4FARBPROC) wglGetProcAddress("glUniform4fARB");
 	glUniformMatrix4fv= (PFNGLUNIFORMMATRIX4FVPROC) wglGetProcAddress("glUniformMatrix4fv");
 
+	glBlendColor = (PFNGLBLENDCOLORPROC)wglGetProcAddress("glBlendColor");
+
+	
 
 
 
-	float mt[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mt2[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mt3[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mo[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mg[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mh[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+	glzMatrix mt;
+	glzMatrix mt2;
+	glzMatrix mt3;
+	glzMatrix mo;
+	glzMatrix mg;
+	glzMatrix mh;
 
 	unsigned int ad[64]={2,2,2,1,2,2,2,2,
 						 2,2,4,1,4,2,2,2,
@@ -135,27 +146,30 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	glzLoadIdentity(mt);
-	glzLoadIdentity(mt2);
-	glzLoadIdentity(mt3);
-	glzLoadIdentity(mo);
-	glzLoadIdentity(mg);
-	glzLoadIdentity(mh);
+	mt.LoadIdentity();
+	mt2.LoadIdentity();
+	mt3.LoadIdentity();
+
+	mo.LoadIdentity();
+	mg.LoadIdentity();
+	mh.LoadIdentity();
+
 
 	
 	
 	//glzTranslatef(mt,-3.9f,1.9f,0);
-	glzTranslatef(mg,0,0,0);	
+	mg.translate(0,0,0);	
 
-	glzScalef(mt,0.17f,0.17f,0.17f);
-	glzScalef(mt2,0.3f,0.3f,0.3f);
-	glzScalef(mt3,0.13f,0.13f,0.13f);
-	glzScalef(mg,32.0f,32.0f,32.0f);
-	glzScalef(mh,0.4f,0.4f,0.4f);
+	mt.scale(0.17f,0.17f,0.17f);
+	mt2.scale(0.3f, 0.3f, 0.3f);
+	mt3.scale(0.13f, 0.13f, 0.13f);
+	mg.scale(32.0f, 32.0f, 32.0f);
+	mh.scale(0.4f, 0.4f, 0.4f);
 
-	glzRotatef(mh,90,1.0f,0.0f,0.0f);
 
-	glzTranslatef(mh,-8.0,8.0,0.0);
+	mh.rotate(90,1.0f,0.0f,0.0f);
+
+	mh.translate(-8.0,8.0,0.0);
 
 	// if orientation is messed up on the tga then do this, but generally tga files have their origin set to glzOrigin::BOTTOM_LEFT
 	img_head img;
@@ -165,40 +179,40 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 // text screen
-	textvao_num[0]=glzVAOMakeText("Normal text", mt, 0.7f, text_tt, &textvao[0]);
-	textvao_num[1]=glzVAOMakeText("Tabs and endlines work just as well\nTab\t\t\t\\t\nEndline \t\t\\n", mt, 0.7f, text_tt, &textvao[1]);
-	textvao_num[2]=glzVAOMakeText("fast changing text:0000", mt, 0.7f, text_tt, &textvao[2]);
-	textvao_num[3]=glzVAOMakeText("slow changing text:0000", mt, 0.7f, text_tt, &textvao[3]);
-	textvao_num[4]=glzVAOMakeText("You can also play with the kerning if you want", mt, 0.4f, text_tt, &textvao[4]);
-	textvao_num[5]=glzVAOMakeText("Using", mt, 0.7f, text_tt, &textvao[5]);
-	textvao_num[6]=glzVAOMakeText("all kinds", mt, 0.7f, text_tt, &textvao[6]);
-	textvao_num[7]=glzVAOMakeText("of fonts", mt, 0.7f, text_tt, &textvao[7]);
-	textvao_num[8]=glzVAOMakeText("Fancy text is fancy", mt2, 0.6f, text_tt, &textvao[8]);
+	textvao_num[0] = glzVAOMakeText("Normal text", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[0]);
+	textvao_num[1] = glzVAOMakeText("Tabs and endlines work just as well\nTab\t\t\t\\t\nEndline \t\t\\n", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[1]);
+	textvao_num[2] = glzVAOMakeText("fast changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);
+	textvao_num[3] = glzVAOMakeText("slow changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);
+	textvao_num[4] = glzVAOMakeText("You can also play with the kerning if you want", mt, 0.7f, text_tt, glzOrigin::TOP_LEFT, &textvao[4]);
+	textvao_num[5] = glzVAOMakeText("Using", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[5]);
+	textvao_num[6] = glzVAOMakeText("all kinds", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[6]);
+	textvao_num[7] = glzVAOMakeText("of fonts", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[7]);
+	textvao_num[8] = glzVAOMakeText("Fancy text is fancy", mt2, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[8]);
 
 // fsq screen
 
-	textvao_num[9]=glzVAOMakeText("Full screen quads", mt, 0.7f, text_tt, &textvao[9]);
+	textvao_num[9] = glzVAOMakeText("Full screen quads", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[9]);
 	
 // Sprite screen
 
-	textvao_num[10]=glzVAOMakeText("Sprites", mt, 0.7f, text_tt, &textvao[10]);
+	textvao_num[10] = glzVAOMakeText("Sprites", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[10]);
 
 // grid screen
 
-	textvao_num[11]=glzVAOMakeText("Atlas grid", mt, 0.7f, text_tt, &textvao[11]);
+	textvao_num[11] = glzVAOMakeText("Atlas grid", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[11]);
 
 // sprite screen
 
-	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 0.7f, text_tt, &textvao[12]);
+	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[12]);
 
 	// sprite screen
 
-	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 0.7f, text_tt, &textvao[13]);
+	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[13]);
 
 
 
 // all screens
-	textvao_num[15]=glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 0.7f, text_tt, &textvao[15]);
+	textvao_num[15] = glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[15]);
 
 
 
@@ -261,9 +275,9 @@ void Deinitialize (void)										// Any User DeInitialization Goes Here
 void Update (float seconds)								// Perform Motion Updates Here
 {
 
-		float mt[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		glzLoadIdentity(mt);
-		glzScalef(mt,0.17f,0.17f,0.17f);
+		glzMatrix mt;
+		mt.LoadIdentity();
+		mt.scale(0.17f,0.17f,0.17f);
 
 	if (g_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
 	{
@@ -282,12 +296,12 @@ void Update (float seconds)								// Perform Motion Updates Here
 
 		
 		sprintf_s (tbuffer,160,"fast changing text:%f", angle);  
-		textvao_num[2]=glzVAOMakeText(tbuffer, mt, 0.7f, text_tt, &textvao[2]);  // this updates text once every frame
+		textvao_num[2] = glzVAOMakeText(tbuffer, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);  // this updates text once every frame
 
 		if (texttimer>1.0)
 		{
 			sprintf_s (tbuffer2,160,"slow changing text:%f", angle); 
-			textvao_num[3]=glzVAOMakeText(tbuffer2, mt, 0.7f, text_tt, &textvao[3]);  // this updates text once every second
+			textvao_num[3] = glzVAOMakeText(tbuffer2, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);  // this updates text once every second
 			texttimer=0.0f;
 		}
 		texttimer+=seconds;
@@ -328,6 +342,7 @@ ps.run(seconds);
 
 }
 
+
 void draw_text(float x, float y, int text, int font, unsigned int po, unsigned int col)
 {
 	glUseProgram(po);
@@ -335,11 +350,13 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 	unsigned int loc1 = glGetUniformLocation(po,"projMat");
 	unsigned int loc2 = glGetUniformLocation(po,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(po,"tint");
-	glzLoadIdentity(m);
-	glzOrtho(m, -4, 4, -2, 2, -100, 100);
-	glzTranslatef(m,x,y,0);
+	m.LoadIdentity();
+	m.ortho( -4, 4, -2, 2, -100, 100);
+	m.translate(x,y,0);
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 	if (col==COL_BLACK)	glUniform4f(loc3, 0.0f,0.0f,0.0f,1.0f);
 	if (col==COL_WHITE)	glUniform4f(loc3, 1.0f,1.0f,1.0f,1.0f);
@@ -348,6 +365,7 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 	if (col==COL_BLUE)	glUniform4f(loc3, 0.0f,0.0f,1.0f,1.0f);
 
 
+	
 
 	glBindTexture(GL_TEXTURE_2D,fonttexture[font]);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -357,6 +375,41 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 
 }
 
+void draw_text2(char text[255], float x, float y, float scale, float kern, int font, unsigned int po, unsigned int col)
+{
+	glUseProgram(po);
+
+	unsigned int loc1 = glGetUniformLocation(po, "projMat");
+	unsigned int loc2 = glGetUniformLocation(po, "texunit0");
+	unsigned int loc3 = glGetUniformLocation(po, "tint");
+	m.LoadIdentity();
+	m.ortho2DPixelspace( WINDOW_HEIGHT, WINDOW_WIDTH, glzOrigin::BOTTOM_LEFT);	
+	m.translate(x, y, 0);
+
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
+	if (col == COL_BLACK)	glUniform4f(loc3, 0.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_WHITE)	glUniform4f(loc3, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (col == COL_RED)	glUniform4f(loc3, 1.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_GREEN)	glUniform4f(loc3, 0.0f, 1.0f, 0.0f, 1.0f);
+	if (col == COL_BLUE)	glUniform4f(loc3, 0.0f, 0.0f, 1.0f, 1.0f);
+
+	float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+
+	glDisable(GL_DEPTH_TEST);
+	glBindTexture(GL_TEXTURE_2D, fonttexture[font]);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glzDirectDrawText(text, scale, aspect, kern, glzOrigin::BOTTOM_LEFT);
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+
+}
+
+
+
 // custom sprite rendering function, if you have a lot of sprites then one of these is probably usefull
 void draw_sprite(float x, float y, float s, int sprite, int tx, int offset, unsigned int po, float col[4])
 {
@@ -365,12 +418,14 @@ void draw_sprite(float x, float y, float s, int sprite, int tx, int offset, unsi
 	unsigned int loc1 = glGetUniformLocation(po,"projMat");
 	unsigned int loc2 = glGetUniformLocation(po,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(po,"tint");
-	glzLoadIdentity(m);
-	glzOrtho(m, -4, 4, -2, 2, -100, 100);
-	glzTranslatef(m,x,y,0);
-	glzScalef(m,s,s,s);
+	m.LoadIdentity();
+	m.ortho(-4, 4, -2, 2, -100, 100);
+	m.translate(x,y,0);
+	m.scale(s,s,s);
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 	glUniform4f(loc3, col[0],col[1],col[2],col[3]);
 
@@ -390,9 +445,11 @@ void draw_backdrop(unsigned int bgtexture)
 	unsigned int loc2 = glGetUniformLocation(ProgramObjectFSQ,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(ProgramObjectFSQ,"tint");
 	
-	glzLoadIdentity(m);
+	m.LoadIdentity();
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 	glUniform1i(loc2, 0);
 	glUniform4f(loc3, 1.0f,1.0f,1.0f,1.0f);
 	glBindTexture(GL_TEXTURE_2D,bgtexture);
@@ -400,16 +457,19 @@ void draw_backdrop(unsigned int bgtexture)
 
 }
 
-void draw_backdrop2(unsigned int bgtexture,float mat[16],float col[4])
+void draw_backdrop2(unsigned int bgtexture, glzMatrix mat, float col[4])
 {
 	glUseProgram(ProgramObjectFSQ);
 	unsigned int loc1 = glGetUniformLocation(ProgramObjectFSQ,"projMat");
 	unsigned int loc2 = glGetUniformLocation(ProgramObjectFSQ,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(ProgramObjectFSQ,"tint");
 	
-	glzLoadIdentity(m);
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, mat);
+
+	float mtemp[16];
+	mat.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
 	glUniform1i(loc2, 0);
 	glUniform4f(loc3, col[0],col[1],col[2],col[3]);
 	glBindTexture(GL_TEXTURE_2D,bgtexture);
@@ -422,6 +482,7 @@ void Draw (void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
 	
+	float mtemp[16];
 	glEnable(GL_TEXTURE_2D);
 	unsigned int loc1 = glGetUniformLocation(ProgramObject,"projMat");
 	unsigned int loc2 = glGetUniformLocation(ProgramObject,"texunit0");
@@ -464,12 +525,12 @@ void Draw (void)
 	{
 		draw_backdrop(texture[0]);
 
-		float mi[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		glzLoadIdentity(mi);
-		glzScalef(mi,0.17f,0.17f,0.17f);
+		glzMatrix mi;
+		mi.LoadIdentity();
+		mi.scale(0.17f, 0.17f, 0.17f);
 		float col[4]={1.0f,1.0f,1.0f,1.0f};
 
-		glzTranslatef(mi,-4.7f,-4.7f,0.0f);
+		mi.translate(-4.7f, -4.7f, 0.0f);
 
 
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -498,11 +559,15 @@ void Draw (void)
 	if (gamestate==4)
 	{	
 		
-	glzLoadIdentity(m);
-	glzOrtho(m, -400, 400, -250, 250, -100, 100);
-	glzTranslatef(m,-250,150,0);
+	m.LoadIdentity();
+	m.ortho(-400, 400, -250, 250, -100, 100);
+	m.translate(-250,150,0);
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
+
 
 
 
@@ -519,24 +584,39 @@ void Draw (void)
 	if (gamestate == 5)
 	{
 
-		glzLoadIdentity(m);
-		glzOrtho(m, -400, 400, -250, 250, -100, 100);
+		m.LoadIdentity();
+		m.ortho(-400, 400, -250, 250, -100, 100);
 
 
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
 	
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
-		glzDirectSpriteRender(0, 0, 1, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
+		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
+		
+		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
+
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
+		glBlendColor(1, 0, 1, 1.0f);
+		glEnable(GL_BLEND);
+
+		glzDrawTexture(texture[3], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
+
+		glDisable(GL_BLEND);
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
+
+	//	glUniform4f(loc3, 1.0f, 0.0f, 1.0f, 1.0f);
 		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, glzOrigin::CENTERED);
 
 		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
 		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
+
+
 
 		
 		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
@@ -547,11 +627,12 @@ void Draw (void)
 	if (gamestate == 6)
 	{
 
-		glzLoadIdentity(m);
-		glzOrtho(m, -400, 400, -250, 250, -100, 100);
+		m.LoadIdentity();
+		m.ortho(-400, 400, -250, 250, -100, 100);
 
 
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);
 
@@ -560,6 +641,7 @@ void Draw (void)
 		ps.render_out();
 
 
+		draw_text2("abcdefghijklmnopqrstuvxyz\nABCDEFGHIJKLMNOPQRSTUVXYZ\n1234567890", 1.0f,210.0f, 32.0f, 1.0f, 2, ProgramObject, COL_WHITE);
 
 
 		draw_text(-3.9f, 1.9f, 13, 2, ProgramObject, COL_WHITE);
