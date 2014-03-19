@@ -125,7 +125,7 @@ void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group);
 
 
 float glzScanVertexArray(float  *vert, long num, glzBoundingScan scan);
-float glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan);
+double glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan);
 
 void glzMultMatrix(float *MatrixB,float  MatrixA[16]);
 void glzLoadIdentity(float *m);

@@ -46,7 +46,6 @@ Keys*		g_keys;
 float		angle,width,height;												// Used To Rotate The Triangles
 int			rot1, rot2;											// Counter Variables
 unsigned int vao[5],vao_num[5];
-float m[16] = {0};
 int e=0,e2=0;
 unsigned int texture[5],fonttexture;
 

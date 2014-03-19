@@ -56,7 +56,7 @@ float glzRandf(void)  //produces a value between 1 and 0
 	// you wouldn't belive how often doing this the wrong way have given me strange results
 }
 
-float glzRandf(glzDistribution D)  //produces a value between 1 and -1
+float glzRandf(glzDistribution D)  //produces a value between 1 and 0
 {
 	std::uniform_real_distribution<float> dist_u(0.0, 1.0);
 	std::normal_distribution<float> dist_n(0.0, 1.0);
@@ -189,7 +189,7 @@ int glzTimeCounter(float *t, float m)  //timing function
 {
 	int r=0;
 	while(t[0]>m) {t[0]-=abs(m); r++;}
-	return r;
+	return r; // retruns the number of m's that exist in f while decreasing f with r*m
 }
 
 float quantize(float f, float s)
@@ -1462,11 +1462,9 @@ void glzProjectVertexArray(vector<poly3> *p, float Matrix[16], int group)
 void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group)
 {
 
-	double v[3];
 	int i2 = 0;
 
 	auto i = p->begin();
-	i2 = 0;
 	while (i < p->end()) {
 
 		if (p->at(i2).group == group)
@@ -1480,30 +1478,6 @@ void glzProjectVertexArray(vector<poly3> *p, glzMatrix m, int group)
 			p->at(i2).b.n.project(m);
 			p->at(i2).c.n.project(m);
 
-			/*
-			v[0] = (p->at(i2).a.v.x * Matrix[0]) + (p->at(i2).a.v.y * Matrix[4]) + (p->at(i2).a.v.z * Matrix[8]) + Matrix[12];
-			v[1] = (p->at(i2).a.v.x * Matrix[1]) + (p->at(i2).a.v.y * Matrix[5]) + (p->at(i2).a.v.z * Matrix[9]) + Matrix[13];
-			v[2] = (p->at(i2).a.v.x * Matrix[2]) + (p->at(i2).a.v.y * Matrix[6]) + (p->at(i2).a.v.z * Matrix[10]) + Matrix[14];
-
-			p->at(i2).a.v.x = v[0];
-			p->at(i2).a.v.y = v[1];
-			p->at(i2).a.v.z = v[2];
-
-			v[0] = (p->at(i2).b.v.x * Matrix[0]) + (p->at(i2).b.v.y * Matrix[4]) + (p->at(i2).b.v.z * Matrix[8]) + Matrix[12];
-			v[1] = (p->at(i2).b.v.x * Matrix[1]) + (p->at(i2).b.v.y * Matrix[5]) + (p->at(i2).b.v.z * Matrix[9]) + Matrix[13];
-			v[2] = (p->at(i2).b.v.x * Matrix[2]) + (p->at(i2).b.v.y * Matrix[6]) + (p->at(i2).b.v.z * Matrix[10]) + Matrix[14];
-
-			p->at(i2).b.v.x = v[0];
-			p->at(i2).b.v.y = v[1];
-			p->at(i2).b.v.z = v[2];
-
-			v[0] = (p->at(i2).c.v.x * Matrix[0]) + (p->at(i2).c.v.y * Matrix[4]) + (p->at(i2).c.v.z * Matrix[8]) + Matrix[12];
-			v[1] = (p->at(i2).c.v.x * Matrix[1]) + (p->at(i2).c.v.y * Matrix[5]) + (p->at(i2).c.v.z * Matrix[9]) + Matrix[13];
-			v[2] = (p->at(i2).c.v.x * Matrix[2]) + (p->at(i2).c.v.y * Matrix[6]) + (p->at(i2).c.v.z * Matrix[10]) + Matrix[14];
-
-			p->at(i2).c.v.x = v[0];
-			p->at(i2).c.v.y = v[1];
-			p->at(i2).c.v.z = v[2];*/
 		}
 		++i;
 		i2++;
@@ -1644,10 +1618,10 @@ return r;
 }
 
 
-float glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan)
+double glzScanVectorArray(vector<poly3> pdata, int group, glzBoundingScan scan)
 {
 
-	float r = 0, r2 = 0, r3 = 0;
+	double r = 0, r2 = 0, r3 = 0;
 
 
 	// set initial conditiona
