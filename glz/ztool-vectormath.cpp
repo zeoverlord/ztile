@@ -141,6 +141,42 @@ void glzMatrix::translate(double x, double y, double z)
 
 }
 
+void glzMatrix::scale(double x, double y, double z)
+{
+	{
+
+		glzMatrix b;
+
+
+
+		b.m[0] = x;
+		b.m[1] = 0;
+		b.m[2] = 0;
+		b.m[3] = 0;
+
+		b.m[4] = 0;
+		b.m[5] = y;
+		b.m[6] = 0;
+		b.m[7] = 0;
+
+		b.m[8] = 0;
+		b.m[9] = 0;
+		b.m[10] = z;
+		b.m[11] = 0;
+
+		b.m[12] = 0;
+		b.m[13] = 0;
+		b.m[14] = 0;
+		b.m[15] = 1;
+
+		this->multThis(b);
+
+		return;
+
+	}
+
+}
+
 void glzMatrix::rotate(double a, double x, double y, double z)
 {
 

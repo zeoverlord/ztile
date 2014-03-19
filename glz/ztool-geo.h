@@ -41,6 +41,51 @@ typedef struct{
 	glzVAOType type;
 }vaostatus;
 
+typedef struct
+{
+	glzIGTType type;
+	unsigned int width;
+	unsigned int height;
+	unsigned int bpp;
+	float x_offset;
+	float y_offset;
+	float z_offset;
+	float scale;
+	float tscale;
+	glzAxis axis;
+	unsigned char *data;
+} image_geo_transform;
+
+typedef struct
+{
+	glzTTType type;
+	float u_scale;
+	float v_scale;
+	float u_offset;
+	float v_offset;
+	unsigned int atlas_width;
+	unsigned int atlas_height;
+	glzAxis axis;
+	unsigned int firstatlas;
+	unsigned int *atlas;
+	glzOrigin origin;
+} texture_transform;
+
+typedef struct
+{
+	glzPrimitive type;
+	glzMatrix matrix;
+	texture_transform tt;
+	float variation_1;
+	float variation_2;
+	unsigned int resolution_x;
+	unsigned int resolution_y;
+	unsigned int resolution_z;
+
+} primitive_gen;
+
+
+
 long glzPrimCubeverts(float *v, float *t, float *n);
 void glzPrimCubeVector(vector<poly3> *pdata, int group, unsigned int sides);
 
@@ -56,11 +101,11 @@ texture_transform glzMakeTT(glzTTType type, float u_scale, float v_scale, float 
 	texture_transform glzMakeTTAtlasCubeCross(unsigned int awidth, unsigned int aheight, unsigned int firstatlas, glzOrigin origin);
 	texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis axis, glzOrigin origin);
 
-	primitive_gen glzMakePG(glzPrimitive type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z);
+	primitive_gen glzMakePG(glzPrimitive type, glzMatrix matrix, texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z);
 	primitive_gen glzMakePGDefault(glzPrimitive type);
-	primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, float matrix[16]);
+	primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, glzMatrix matrix);
 	primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
-	primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
+	primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, glzMatrix matrix, unsigned int awidth, unsigned int aheight, unsigned int firstatlas);
 
 	void glzIGT(float *vert, image_geo_transform igt, long num);
 	void glzIGT(vector<poly3> *pdata, int group, image_geo_transform igt);

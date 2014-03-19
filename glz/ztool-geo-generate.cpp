@@ -956,7 +956,7 @@ long glzLoadFileGeometryObj(char filename[255], float *v, float *t, float *n)
 */
 
 
-long glzVAOMakeFromFile(char filename[255], float matrix[], texture_transform tt, unsigned int *vao)
+long glzVAOMakeFromFile(char filename[255], glzMatrix matrix, texture_transform tt, unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
 
@@ -1007,7 +1007,7 @@ long glzVAOMakeFromVector(vector<poly3> pdata, unsigned int *vao)
 
 
 
-long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, unsigned int *vao)
+long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, unsigned int *vao)
 {
 	if (!isinited_geo_generate) ini_geo_generate();
 
@@ -1025,7 +1025,7 @@ long glzVAOMakeAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture
 	return verts;
 }
 
-long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, float matrix[], texture_transform tt, image_geo_transform igt, unsigned int *vao)
+long glzVAOMakeHeightAtlasGrid(unsigned int x, unsigned int y, glzMatrix matrix, texture_transform tt, image_geo_transform igt, unsigned int *vao)
 {
 
 	if (!isinited_geo_generate) ini_geo_generate();

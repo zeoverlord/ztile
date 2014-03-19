@@ -53,7 +53,7 @@ Keys*		g_keys;
 // User Defined Variables
 float		angle=0,width,height;												// Used To Rotate The Triangles
 unsigned int vao[16],vao_num[16],textvao[16],textvao_num[16];
-float m[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+glzMatrix m;
 glzMatrix mnew;
 unsigned int texture[5],fonttexture[15];
 
@@ -64,9 +64,9 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-float q[4] = { 1, 0, 0, 0 };
-float q2[4] ={1,0,0,0};
-float q3[4] ={1,0,0,0};
+glzQuaternion q;
+glzQuaternion q2;
+glzQuaternion q3;
 glzQuaternion qn;
 
 int gamestate=4;
@@ -127,12 +127,12 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	float mt[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mt2[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	glzMatrix mt;
+	glzMatrix mt2;
 	glzMatrix mt3;
-	float mo[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mg[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	float mh[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	glzMatrix mo;
+	glzMatrix mg;
+	glzMatrix mh;
 
 	unsigned int ad[64]={2,2,2,1,2,2,2,2,
 						 2,2,4,1,4,2,2,2,
@@ -147,27 +147,27 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 
-	glzLoadIdentity(mt);
-	glzLoadIdentity(mt2);
-	glzLoadIdentity(mo);
-	glzLoadIdentity(mg);
-	glzLoadIdentity(mh);
+	mt.LoadIdentity();
+	mt2.LoadIdentity();
+	mo.LoadIdentity();
+	mg.LoadIdentity();
+	mh.LoadIdentity();
 
 	
 	
 	//glzTranslatef(mt,-3.9f,1.9f,0);
-	glzTranslatef(mg,0,0,0);	
+	mg.translate(0,0,0);	
 
-	glzScalef(mt,0.17f,0.17f,0.17f);
-	glzScalef(mt2,0.3f,0.3f,0.3f);
+	mt.scale(0.17f,0.17f,0.17f);
+	mt2.scale(0.3f,0.3f,0.3f);
 	mt3.scale(0.17f,0.17f,0.17f);
 
-	glzScalef(mg,32.0f,32.0f,32.0f);
-	glzScalef(mh,0.4f,0.4f,0.4f);
+	mg.scale(32.0f,32.0f,32.0f);
+	mh.scale(0.4f,0.4f,0.4f);
 
-	glzRotatef(mh,90,1.0f,0.0f,0.0f);
+	mh.rotate(90,1.0f,0.0f,0.0f);
 
-	glzTranslatef(mh,-8.0,8.0,0.0);
+	mh.translate(-8.0,8.0,0.0);
 
 	text_tt = glzMakeTTAtlas(16, 16, 0, glzOrigin::BOTTOM_LEFT);
 
@@ -280,39 +280,41 @@ void Update (float seconds)								// Perform Motion Updates Here
 	if (gamestate==1)
 	{
 
-		glzRotateQuaternionf(q, seconds * 50, 0.0, 1.0, 0.0);	
-		glzRotateQuaternionf(q, seconds * 40, 1.0, 0.0, 0.0);
+		q.rotate(seconds * 50, 0.0, 1.0, 0.0);
+		q.rotate(seconds * 40, 1.0, 0.0, 0.0);
 
 
 	}
 
 	if (gamestate==2)
 	{
-	if (g_keys->keyDown [VK_UP] == TRUE)glzRotateQuaternionf(q2,seconds*40,1.0f,0.0f,0.0f);	
-	if (g_keys->keyDown [VK_DOWN] == TRUE)glzRotateQuaternionf(q2,seconds*-40,1.0f,0.0f,0.0f);	
+		
+		if (g_keys->keyDown[VK_UP] == TRUE)q2.rotate(seconds * 40, 1.0, 0.0, 0.0);
+		if (g_keys->keyDown[VK_DOWN] == TRUE)q2.rotate(seconds * -40, 1.0, 0.0, 0.0);
 
-	if (g_keys->keyDown [VK_LEFT] == TRUE)glzRotateQuaternionf(q2,seconds*40,0.0f,1.0f,0.0f);	
-	if (g_keys->keyDown [VK_RIGHT] == TRUE)glzRotateQuaternionf(q2,seconds*-40,0.0f,1.0f,0.0f);	
+		if (g_keys->keyDown[VK_LEFT] == TRUE)q2.rotate(seconds * 40, 0.0, 1.0, 0.0);
+		if (g_keys->keyDown[VK_RIGHT] == TRUE)q2.rotate(seconds * -40, 0.0, 1.0, 0.0);
+		//q2.normalize();
 	}
 
 
 if (gamestate==3)
 	{	
 
-		glzRotateQuaternionf(q3,seconds*50,0.0f,1.0f,0.0f);	
+		q3.rotate(seconds * 50, 0.0, 1.0, 0.0);
 	}
 
 if (gamestate == 4)
 {
 
-	glzRotateQuaternionf(q3, seconds * 50, 0.0, 1.0, 0.0);
+	q3.rotate(seconds * 50, 0.0, 1.0, 0.0);
 	qn.rotate(seconds * 50, 0.0, 1.0, 0.0);
 }
 if (gamestate == 5)
 {
 
-	glzRotateQuaternionf(q, seconds * 50, 0.0, 1.0, 0.0);
-	glzRotateQuaternionf(q, seconds * 40, 1.0, 0.0, 0.0);
+	q.rotate(seconds * 50, 0.0, 1.0, 0.0);
+	q.rotate(seconds * 40, 1.0, 0.0, 0.0);
 }
 
 
@@ -334,27 +336,30 @@ void draw_text(float x, float y, int text, int font, unsigned int po, unsigned i
 {
 	glUseProgram(po);
 
-	unsigned int loc1 = glGetUniformLocation(po,"projMat");
-	unsigned int loc2 = glGetUniformLocation(po,"texunit0");
-	unsigned int loc3 = glGetUniformLocation(po,"tint");
-	glzLoadIdentity(m);
-	glzOrtho(m, -4, 4, -2, 2, -100, 100);
-	glzTranslatef(m,x,y,0);
+	unsigned int loc1 = glGetUniformLocation(po, "projMat");
+	unsigned int loc2 = glGetUniformLocation(po, "texunit0");
+	unsigned int loc3 = glGetUniformLocation(po, "tint");
+	m.LoadIdentity();
+	m.ortho(-4, 4, -2, 2, -100, 100);
+	m.translate(x, y, 0);
 
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-	if (col==COL_BLACK)	glUniform4f(loc3, 0.0f,0.0f,0.0f,1.0f);
-	if (col==COL_WHITE)	glUniform4f(loc3, 1.0f,1.0f,1.0f,1.0f);
-	if (col==COL_RED)	glUniform4f(loc3, 1.0f,0.0f,0.0f,1.0f);
-	if (col==COL_GREEN)	glUniform4f(loc3, 0.0f,1.0f,0.0f,1.0f);
-	if (col==COL_BLUE)	glUniform4f(loc3, 0.0f,0.0f,1.0f,1.0f);
+	if (col == COL_BLACK)	glUniform4f(loc3, 0.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_WHITE)	glUniform4f(loc3, 1.0f, 1.0f, 1.0f, 1.0f);
+	if (col == COL_RED)	glUniform4f(loc3, 1.0f, 0.0f, 0.0f, 1.0f);
+	if (col == COL_GREEN)	glUniform4f(loc3, 0.0f, 1.0f, 0.0f, 1.0f);
+	if (col == COL_BLUE)	glUniform4f(loc3, 0.0f, 0.0f, 1.0f, 1.0f);
 
 
 
-	glBindTexture(GL_TEXTURE_2D,fonttexture[font]);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+	glBindTexture(GL_TEXTURE_2D, fonttexture[font]);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	glzDrawVAO(textvao_num[text],textvao[text],GL_TRIANGLES);
+	glzDrawVAO(textvao_num[text], textvao[text], GL_TRIANGLES);
 	glDisable(GL_BLEND);
 
 }
@@ -366,12 +371,13 @@ void draw_text2(char text[255], float x, float y, float scale, float kern, int f
 	unsigned int loc1 = glGetUniformLocation(po, "projMat");
 	unsigned int loc2 = glGetUniformLocation(po, "texunit0");
 	unsigned int loc3 = glGetUniformLocation(po, "tint");
-	glzLoadIdentity(m);
-	glzOrtho2DPixelspace(m, WINDOW_HEIGHT, WINDOW_WIDTH, glzOrigin::BOTTOM_LEFT);
+	m.LoadIdentity();
+	m.ortho2DPixelspace(WINDOW_HEIGHT, WINDOW_WIDTH, glzOrigin::BOTTOM_LEFT);
+	m.translate(x, y, 0);
 
-	glzTranslatef(m, x, y, 0);
-
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 	if (col == COL_BLACK)	glUniform4f(loc3, 0.0f, 0.0f, 0.0f, 1.0f);
 	if (col == COL_WHITE)	glUniform4f(loc3, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -380,7 +386,7 @@ void draw_text2(char text[255], float x, float y, float scale, float kern, int f
 	if (col == COL_BLUE)	glUniform4f(loc3, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-	
+
 	glDisable(GL_DEPTH_TEST);
 	glBindTexture(GL_TEXTURE_2D, fonttexture[font]);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -391,18 +397,19 @@ void draw_text2(char text[255], float x, float y, float scale, float kern, int f
 
 }
 
-
 void draw_object(unsigned int tx,int prim, float x, float y)
 {
 	unsigned int loc1 = glGetUniformLocation(ProgramObject,"projMat");
 	// draw objects
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 1000.0f);
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 1000.0f);
 
-	glzTranslatef(m,x,y,-7);	
-	//glzScalef(m,0.1,0.1,0.1);
-	glzQuaternionToMatrixf(m,q);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.translate(x,y,-7);	
+	m.loadQuanternion(q);
+
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[tx]);
 	glzDrawVAO(vao_num[prim],vao[prim],GL_TRIANGLES);
@@ -412,13 +419,14 @@ void draw_object2(unsigned int tx, int prim, float x, float y)
 {
 	unsigned int loc1 = glGetUniformLocation(ProgramObject, "projMat");
 	// draw objects
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 1000.0f);
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 1000.0f);
 
-	glzTranslatef(m, x, y, -7);
-	//glzScalef(m,0.1,0.1,0.1);
-	glzQuaternionToMatrixf(m, q);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+	m.translate(x, y, -7);
+	m.loadQuanternion(q);
+	float mtemp[16];
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 	glPointSize(1);
 
 
@@ -430,7 +438,7 @@ void draw_object2(unsigned int tx, int prim, float x, float y)
 void Draw (void)
 {
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
-	
+	float mtemp[16];
 	glEnable(GL_TEXTURE_2D);
 	unsigned int loc1 = glGetUniformLocation(ProgramObject,"projMat");
 	unsigned int loc2 = glGetUniformLocation(ProgramObject,"texunit0");
@@ -470,12 +478,15 @@ void Draw (void)
 	{
 
 		// draw tank
-	glzLoadIdentity(m);
-	glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
-	glzTranslatef(m,0,-2,-17);	
-	glzScalef(m,0.5,0.5,0.5);
-	glzQuaternionToMatrixf(m,q2);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+	m.LoadIdentity();
+	m.perspective(45.0f, 1.618f, 1.0f, 100.0f);
+	m.translate(0,-2,-17);	
+	m.scale(0.5,0.5,0.5);
+	
+	m.loadQuanternion(q2);
+
+	m.transferMatrix(&mtemp[0]);
+	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
     glBindTexture(GL_TEXTURE_2D,texture[2]);
 	glzDrawVAO(vao_num[8],vao[8],GL_TRIANGLES);
@@ -490,11 +501,17 @@ void Draw (void)
 	{	
 
 			// draw height grid
-		glzLoadIdentity(m);
-		glzPerspective(m, 45.0f, 1.618f, 1.0f, 100.0f);
-		glzTranslatef(m,0,-1,-7);	
-		glzQuaternionToMatrixf(m,q3);
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);	
+
+		m.LoadIdentity();
+		m.perspective(45.0f, 1.618f, 1.0f, 100.0f);
+		m.translate(0, -1, -7);
+		m.scale(0.5, 0.5, 0.5);
+
+		m.loadQuanternion(q3);
+
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
 
 		glBindTexture(GL_TEXTURE_2D,texture[4]);
 		glzDrawVAO(vao_num[9],vao[9],GL_TRIANGLES);
@@ -507,21 +524,16 @@ void Draw (void)
 	{
 		texture_transform box_tt = glzMakeTTDefault();
 		// draw direct box
-		glzLoadIdentity(m);
-		mnew.LoadIdentity();
-		mnew.perspective( 45.0f, 1.618f, 1.0f, 100.0f);
-		mnew.translate(0, -1, -7);
-		//mnew.rotate(angle, 0, 1, 0);
-		//mnew.loadQuanternion(q3);
-		mnew.loadQuanternion(qn);
+	
 
-	//	int v[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-	//	for (auto i : v)
-	//		m[i] = (float)mnew.m[i];
+		m.LoadIdentity();
+		m.perspective(45.0f, 1.618f, 1.0f, 100.0f);
+		m.translate(0, -1, -7);
 
-		mnew.transferMatrix(&m[0]);
+		m.loadQuanternion(qn);
 
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, m);
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 		glBindTexture(GL_TEXTURE_2D, texture[4]);
 

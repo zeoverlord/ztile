@@ -612,7 +612,7 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 	return;
 }
 
-void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
+void glzDirectSpriteRender(glzMatrix m, unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
 {
 
 
@@ -620,11 +620,11 @@ void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, 
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 	
-	X -= m[12];
-	Y -= m[13];
+	X -= m.m[12];
+	Y -= m.m[13];
 
-	X /= m[0];
-	Y /= m[5];
+	X /= m.m[0];
+	Y /= m.m[5];
 
 	// xy is now in -1 +1 space
 
@@ -638,8 +638,8 @@ void glzDirectSpriteRender(float m[16], unsigned int texture, float X, float Y, 
 
 
 
-	W = (W / (m[0] * (viewport[2] * 0.5f)));
-	H = (H / (m[5] * (viewport[3] * 0.5f)));
+	W = (W / (m.m[0] * (viewport[2] * 0.5f)));
+	H = (H / (m.m[5] * (viewport[3] * 0.5f)));
 
 
 	float x0 = X, y0 = Y, x1 = X + W, y1 = Y + H;

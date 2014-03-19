@@ -32,6 +32,9 @@ unsigned int glzShaderLoadString(char *vert, char *frag, glzVAOType type);
 void glzShaderLink(unsigned int program);
 void glzShaderUsePasstrough(void);
 
+// make sure this replaces all uses of the openGL set uniform functions
+//void glzSetuniform(int type, int location, GLsizei count, GLboolean transpose, const GLfloat *value)
+
 // for now just call one of the two first ones with "glzVAOType::AUTO" as the type then the last one, there will be much more here in future versions
 
 

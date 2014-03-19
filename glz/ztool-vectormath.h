@@ -214,7 +214,7 @@ public:
 	//glzMatrix glzMatrix::operator*= (glzMatrix c, glzQuaternion b);
 	// movements
 	void translate(double x, double y, double z);// {m[12] += x; m[13] += y;  m[14] += z; }
-	void scale(double x, double y, double z) { m[0] *= x; m[5] *= y;  m[10] *= z; }
+	void scale(double x, double y, double z);
 	void rotate(double a, double x, double y, double z);
 	void loadQuanternion(float q[4]);
 	void loadQuanternion(glzQuaternion b);
@@ -227,7 +227,6 @@ public:
 };
 
 inline glzMatrix operator* (glzMatrix lhs, glzMatrix rhs) { lhs *= rhs;	return lhs; }
-
 
 
 // vertex projection
@@ -363,7 +362,7 @@ public:
 	glzAtlasMap(glzAtlassprite a) { map.push_back(a); } // direct initialization
 	glzAtlasMap(int w, int h); // direct initialization with preset
 
-	
+
 	void addsprite(glzAtlassprite a) { map.push_back(a); }
 
 };

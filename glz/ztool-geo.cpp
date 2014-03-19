@@ -496,12 +496,12 @@ texture_transform glzMakeTTVertexCoordAdopt(float uscale, float vscale, glzAxis 
 }
 
 	
-primitive_gen glzMakePG(glzPrimitive type, float matrix[16], texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
+primitive_gen glzMakePG(glzPrimitive type, glzMatrix matrix, texture_transform tt, float variation_1, float variation_2, unsigned int resolution_x, unsigned int resolution_y, unsigned int resolution_z)
 {
 	primitive_gen pg;
 
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt=tt;
 	pg.variation_1=variation_1;
 	pg.variation_2=variation_2;		
@@ -516,7 +516,7 @@ primitive_gen glzMakePGDefault(glzPrimitive type)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	glzLoadIdentity(pg.matrix);
+	pg.matrix.LoadIdentity();
 	pg.tt=glzMakeTTDefault();
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -526,11 +526,11 @@ primitive_gen glzMakePGDefault(glzPrimitive type)
 	return pg;
 }
 
-primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, float matrix[16])
+primitive_gen glzMakePGDefaultMatrix(glzPrimitive type, glzMatrix matrix)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt=glzMakeTTDefault();
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -544,7 +544,7 @@ primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned in
 {		
 	primitive_gen pg;
 	pg.type=type;
-	glzLoadIdentity(pg.matrix);
+	pg.matrix.LoadIdentity();
 	pg.tt = glzMakeTTAtlas(awidth, aheight, firstatlas, glzOrigin::BOTTOM_RIGHT);
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
@@ -554,11 +554,11 @@ primitive_gen glzMakePGAtlas(glzPrimitive type, unsigned int awidth, unsigned in
 	return pg;
 }
 
-primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, float matrix[16], unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
+primitive_gen glzMakePGAtlasMatrix(glzPrimitive type, glzMatrix matrix, unsigned int awidth, unsigned int aheight, unsigned int firstatlas)
 {		
 	primitive_gen pg;
 	pg.type=type;
-	memcpy(pg.matrix,matrix,64);
+	pg.matrix=matrix;
 	pg.tt = glzMakeTTAtlas(awidth, aheight, firstatlas, glzOrigin::BOTTOM_RIGHT);
 	pg.variation_1=0.0f;
 	pg.variation_2=0.0f;		
