@@ -31,10 +31,10 @@ const bool  SHOW_FRAME = true;							// i normally dont but usefull if you want 
 const bool  ALLOW_MAAXIMIZE = true;						// adds minimize/maximize buttons again usefull for a normal app
 const bool  START_WINDOWED = true;						// starts in windowed mode instead of fullscreen
 const bool  ALLOW_FULLSCREENSWITCH = false;				// doesn't work that well when showing a frame, infact dont even bother and set SHOW_FRAME to false
-const bool  ALLOW_RESIZE = false;						// allows you to resice the window by dragging the borders, but only if SHOW_FRAME is true
+const bool  ALLOW_RESIZE = true;						// allows you to resice the window by dragging the borders, but only if SHOW_FRAME is true
 const bool  START_CENTERED = true;						// centers the window which looks good IMHO
-const unsigned int WINDOW_WIDTH	= 800;
-const unsigned int  WINDOW_HEIGHT =	500;
+const unsigned int WINDOW_WIDTH	= 1280;
+const unsigned int  WINDOW_HEIGHT =	720;
 const unsigned int  FULLSCREEN_WIDTH = 1920;
 const unsigned int  FULLSCREEN_HEIGHT = 1080;
 const bool  NATIVE_FULLSCREEN = true;					// generally speaking this should be st to true, most often the current resolution is the higest anyway, overides the above settigns
@@ -52,7 +52,13 @@ const bool ENABLE_VSYNC = true;							// makes everything run a bit smoother, bu
 
 
 typedef struct {									// Structure For Keyboard Stuff
-	BOOL keyDown [256];								// Holds TRUE / FALSE For Each Key
+	bool keyDown[256];								// Holds TRUE / FALSE For Each Key
+	bool LMdown;
+	bool RMdown;
+	bool MMdown;
+	int Mpos_x;
+	int Mpos_y;
+	int Mweel;
 } Keys;												// Keys
 
 typedef struct {									// Contains Information Vital To Applications
@@ -66,7 +72,7 @@ typedef struct {									// Window Creation Info
 	int					width;						// Width
 	int					height;						// Height
 	int					bitsPerPixel;				// Bits Per Pixel
-	BOOL				isFullScreen;				// FullScreen?
+	bool				isFullScreen;				// FullScreen?
 } GL_WindowInit;									// GL_WindowInit
 
 typedef struct {									// Contains Information Vital To A Window

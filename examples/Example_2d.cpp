@@ -62,12 +62,20 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=5;
+int gamestate=1;
 
+float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
 
 GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
 texture_transform text_tt;
 
+
+int Mpos_x_old;
+int Mpos_y_old;
+int Mpos_x_rel;
+int Mpos_y_rel;
+int Mweel_old;
+int Mweel_rel;
 
 
 glzSimpleParticleSystem ps;
@@ -99,7 +107,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	// Start Of User Initialization
 	angle		= 0.0f;											// Set Starting Angle To Zero
 
-	glClearColor (0.0f, 0.0f, 0.0f, 0.5f);						// Black Background
+	glClearColor (0.5f, 0.5f, 0.5f, 0.5f);						// Black Background
 	glClearDepth (1.0f);										// Depth Buffer Setup
 	glDepthFunc (GL_LEQUAL);									// The Type Of Depth Testing (Less Or Equal)
 	glEnable (GL_DEPTH_TEST);									// Enable Depth Testing
@@ -127,133 +135,26 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 
 	glzMatrix mt;
-	glzMatrix mt2;
-	glzMatrix mt3;
-	glzMatrix mo;
-	glzMatrix mg;
-	glzMatrix mh;
-
-	unsigned int ad[64]={2,2,2,1,2,2,2,2,
-						 2,2,4,1,4,2,2,2,
-						 3,3,0,1,0,3,3,3,
-						 3,3,0,1,0,3,3,3,
-						 2,2,4,1,4,2,2,2,
-						 2,2,2,1,2,2,2,2,
-						 2,2,2,1,1,1,1,1,
-						 2,2,2,2,2,2,2,2};
-
-
-
-
-
 	mt.LoadIdentity();
-	mt2.LoadIdentity();
-	mt3.LoadIdentity();
-
-	mo.LoadIdentity();
-	mg.LoadIdentity();
-	mh.LoadIdentity();
-
-
-	
-	
-	//glzTranslatef(mt,-3.9f,1.9f,0);
-	mg.translate(0,0,0);	
-
 	mt.scale(0.17f,0.17f,0.17f);
-	mt2.scale(0.3f, 0.3f, 0.3f);
-	mt3.scale(0.13f, 0.13f, 0.13f);
-	mg.scale(32.0f, 32.0f, 32.0f);
-	mh.scale(0.4f, 0.4f, 0.4f);
-
-
-	mh.rotate(90,1.0f,0.0f,0.0f);
-
-	mh.translate(-8.0,8.0,0.0);
-
-	// if orientation is messed up on the tga then do this, but generally tga files have their origin set to glzOrigin::BOTTOM_LEFT
-	img_head img;
-	glzReadTgaHead(&img, "data\\fonts\\arial.tga");
-	text_tt = glzMakeTTAtlas(16, 16, 0, img.origin);
-
-
-
-// text screen
-	textvao_num[0] = glzVAOMakeText("Normal text", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[0]);
-	textvao_num[1] = glzVAOMakeText("Tabs and endlines work just as well\nTab\t\t\t\\t\nEndline \t\t\\n", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[1]);
-	textvao_num[2] = glzVAOMakeText("fast changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);
-	textvao_num[3] = glzVAOMakeText("slow changing text:0000", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);
-	textvao_num[4] = glzVAOMakeText("You can also play with the kerning if you want", mt, 0.7f, text_tt, glzOrigin::TOP_LEFT, &textvao[4]);
-	textvao_num[5] = glzVAOMakeText("Using", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[5]);
-	textvao_num[6] = glzVAOMakeText("all kinds", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[6]);
-	textvao_num[7] = glzVAOMakeText("of fonts", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[7]);
-	textvao_num[8] = glzVAOMakeText("Fancy text is fancy", mt2, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[8]);
-
-// fsq screen
-
-	textvao_num[9] = glzVAOMakeText("Full screen quads", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[9]);
-	
-// Sprite screen
-
-	textvao_num[10] = glzVAOMakeText("Sprites", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[10]);
-
-// grid screen
-
-	textvao_num[11] = glzVAOMakeText("Atlas grid", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[11]);
-
-// sprite screen
-
-	textvao_num[12] = glzVAOMakeText("Direct draw sprites in various modes", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[12]);
-
-	// sprite screen
-
-	textvao_num[13] = glzVAOMakeText("Simple 2D particle system, easy to use, not hard to master", mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[13]);
-
-
-
-// all screens
-	textvao_num[15] = glzVAOMakeText("Switch screens with 1, 2, 3, 4, 5, 6", mt3, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[15]);
-
-
-
-
-	primitive_gen prim_fsq_pg[1];	
-	prim_fsq_pg[0] = glzMakePGDefault(glzPrimitive::FSQ);
-	prim_fsq_pg[0].tt=glzMakeTTDefault();
-
-	vao_num[0]=glzVAOMakePrimitive(prim_fsq_pg[0], &vao[0]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
-
-	
-	primitive_gen prim_sprite1_pg[1];	
-	prim_sprite1_pg[0] = glzMakePGDefault(glzPrimitive::SPRITE_ATLAS_ARRAY);
-	prim_sprite1_pg[0].tt = glzMakeTTAtlas(8, 4, 0, glzOrigin::BOTTOM_LEFT);
-	
-	vao_num[1]=glzVAOMakePrimitive(prim_sprite1_pg[0], &vao[1]); // change the first argument to 2 for an extra object, this is subject to some major redecorating
-
-
-	texture_transform grid_tt = glzMakeTTAtlasArray(4, 4, ad, glzOrigin::BOTTOM_LEFT);
-	vao_num[2]=glzVAOMakeAtlasGrid(8, 8, mg, grid_tt, &vao[2]);
-
-
-
 
 	ProgramObject = glzShaderLoad("data\\glsl.vert", "data\\glsl.frag", glzVAOType::AUTO);
-	ProgramObjectFT = glzShaderLoad("data\\fancytext.vert", "data\\fancytext.frag", glzVAOType::AUTO);
-	ProgramObjectFSQ = glzShaderLoad("data\\fsq.vert", "data\\fsq.frag", glzVAOType::AUTO);
+//	ProgramObjectFT = glzShaderLoad("data\\fancytext.vert", "data\\fancytext.frag", glzVAOType::AUTO);
+//	ProgramObjectFSQ = glzShaderLoad("data\\fsq.vert", "data\\fsq.frag", glzVAOType::AUTO);
 	glzShaderLink(ProgramObject);
-	glzShaderLink(ProgramObjectFT);
-	glzShaderLink(ProgramObjectFSQ);
+//	glzShaderLink(ProgramObjectFT);
+//	glzShaderLink(ProgramObjectFSQ);
 	// load the textures
 	fonttexture[0] = glzLoadTexture("data\\fonts\\arial.tga", glzTexFilter::LINEAR);
-	fonttexture[1] = glzLoadTexture("data\\fonts\\minya_m.tga", glzTexFilter::LINEAR);
-	fonttexture[2] = glzLoadTexture("data\\fonts\\ms_gothic.tga", glzTexFilter::LINEAR);
-	fonttexture[3] = glzLoadTexture("data\\fonts\\digitalstrip_l.tga", glzTexFilter::LINEAR);
-	fonttexture[4] = glzLoadTexture("data\\fonts\\morpheus_l.tga", glzTexFilter::LINEAR);
+//	fonttexture[1] = glzLoadTexture("data\\fonts\\minya_m.tga", glzTexFilter::LINEAR);
+//	fonttexture[2] = glzLoadTexture("data\\fonts\\ms_gothic.tga", glzTexFilter::LINEAR);
+	//fonttexture[3] = glzLoadTexture("data\\fonts\\digitalstrip_l.tga", glzTexFilter::LINEAR);
+	//fonttexture[4] = glzLoadTexture("data\\fonts\\morpheus_l.tga", glzTexFilter::LINEAR);
 
-	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::LINEAR);
-	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
-	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
-	texture[3] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
+//	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::LINEAR);
+//	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
+//	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
+	texture[0] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
 
 	
 
@@ -275,9 +176,16 @@ void Deinitialize (void)										// Any User DeInitialization Goes Here
 void Update (float seconds)								// Perform Motion Updates Here
 {
 
+
+	Mweel_rel = g_keys->Mweel -Mweel_old;
+	Mpos_x_rel = g_keys->Mpos_x - Mpos_x_old;
+	Mpos_y_rel = g_keys->Mpos_y - Mpos_y_old;
+
+
 		glzMatrix mt;
 		mt.LoadIdentity();
 		mt.scale(0.17f,0.17f,0.17f);
+
 
 	if (g_keys->keyDown [VK_ESCAPE] == TRUE)					// Is ESC Being Pressed?
 	{
@@ -294,51 +202,40 @@ void Update (float seconds)								// Perform Motion Updates Here
 		angle += seconds;						// Update angle Based On The Clock
 		if (angle>90001) angle=0;
 
-		
-		sprintf_s (tbuffer,160,"fast changing text:%f", angle);  
-		textvao_num[2] = glzVAOMakeText(tbuffer, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[2]);  // this updates text once every frame
-
-		if (texttimer>1.0)
-		{
-			sprintf_s (tbuffer2,160,"slow changing text:%f", angle); 
-			textvao_num[3] = glzVAOMakeText(tbuffer2, mt, 1.0f, text_tt, glzOrigin::TOP_LEFT, &textvao[3]);  // this updates text once every second
-			texttimer=0.0f;
-		}
-		texttimer+=seconds;
 
 	}
 
+		if (g_keys->keyDown[VK_UP] == TRUE) paintarea_y += seconds * 150;
+		if (g_keys->keyDown[VK_DOWN] == TRUE) paintarea_y -= seconds * 150;
 
-if (gamestate==3)
-	{
-	
-		spriteframetimer+=seconds;
-		spriteframe+=glzTimeCounter(&spriteframetimer, 0.05f);  // this runs the explotion animation
-		spriteframe=spriteframe%32;
-	}
+		if (g_keys->keyDown[VK_LEFT] == TRUE) paintarea_x -= seconds * 150;
+		if (g_keys->keyDown[VK_RIGHT] == TRUE) paintarea_x += seconds * 150;
 
-if (gamestate == 6)
-{
-	ps.set_clamp(false, false, false);
+		if (g_keys->keyDown[VK_SUBTRACT] == TRUE) paintarea_Zoom -= seconds * 150;
+		if (g_keys->keyDown[VK_ADD] == TRUE) paintarea_Zoom += seconds * 150;
 
 
-	if (g_keys->keyDown[VK_SPACE] == TRUE)
-	{
-	
-		ps.spawn_burst(100, 0.0f, 0.0f, 0.0f, 0.1f, 2.0f, 3.0f, 0.5f, 3.0f, 0.3f, 1.0, 2.0f);
-		
-}
-ps.run(seconds);
+		// Todo: add if cursor points at tile surface
+		//if (g_keys->keyDown[VK_SPACE] == TRUE)
+		//{
+			if (g_keys->RMdown == TRUE) 
+			{
+				paintarea_x += Mpos_x_rel;
+				paintarea_y -= Mpos_y_rel;
+			}
+		//}
 
-}
+		paintarea_Zoom += Mweel_rel;
+		if (paintarea_Zoom < 120) paintarea_Zoom = 120;
 	
 
 	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
-	if (g_keys->keyDown['2'] == TRUE) gamestate = 2;
-	if (g_keys->keyDown['3'] == TRUE) gamestate = 3;
-	if (g_keys->keyDown['4'] == TRUE) gamestate = 4;
-	if (g_keys->keyDown['5'] == TRUE) gamestate = 5;
-	if (g_keys->keyDown['6'] == TRUE) gamestate = 6;
+
+
+
+	Mweel_old = g_keys->Mweel;
+	Mpos_x_old = g_keys->Mpos_x;
+	Mpos_y_old = g_keys->Mpos_y;
 
 }
 
@@ -488,8 +385,8 @@ void Draw (void)
 	unsigned int loc2 = glGetUniformLocation(ProgramObject,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(ProgramObject,"tint");
 
-	unsigned int loc4 = glGetUniformLocation(ProgramObjectFT,"projMat");
-	unsigned int loc5 = glGetUniformLocation(ProgramObjectFT,"texunit0");
+//	unsigned int loc4 = glGetUniformLocation(ProgramObjectFT,"projMat");
+//	unsigned int loc5 = glGetUniformLocation(ProgramObjectFT,"texunit0");
 
 	glUseProgram(ProgramObject);
 	glUniform1i(loc2, 0);	
@@ -498,156 +395,48 @@ void Draw (void)
 	// i have used these gamestates in a few games for LD48 now and they are really quick and dirty, but effective.
 	// they allow you to quickly make a title screen and end screen at the end of the project without changing that much code, instead you just encapsulate it in a gamestate
 
-	if (gamestate==1)  
-	{
-		draw_text(-3.9f, 1.9f,0,2,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, 1.5f,1,0,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, 0.8f,2,2,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, 0.5f,3,2,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, 0.2f,4,2,ProgramObject,COL_WHITE);
 
-		draw_text(-3.9f, -0.2f,5,1,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, -0.4f,6,3,ProgramObject,COL_WHITE);
-		draw_text(-3.9f, -0.6f,7,4,ProgramObject,COL_WHITE);
-
-		draw_text(1.7f, -1.8f,15,2,ProgramObject,COL_WHITE);
-
-		glUseProgram(ProgramObjectFT);
-	
-		glUniform1i(loc5, 0);	
-		draw_text(-3.9f, -1.5f,8,0,ProgramObjectFT,COL_WHITE);
-	}
-
-
-
-
-	if (gamestate==2)
-	{
-		draw_backdrop(texture[0]);
-
-		glzMatrix mi;
-		mi.LoadIdentity();
-		mi.scale(0.17f, 0.17f, 0.17f);
-		float col[4]={1.0f,1.0f,1.0f,1.0f};
-
-		mi.translate(-4.7f, -4.7f, 0.0f);
-
-
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);	
-		draw_backdrop2(texture[1],mi,col); // the derpy phirana
-		glDisable(GL_BLEND);
-
-		
-		draw_text(-3.9f, 1.9f,9,2,ProgramObject,COL_BLACK);
-		draw_text(1.7f, -1.8f,15,2,ProgramObject,COL_BLACK);
-
-	
-	}	
-
-
-	if (gamestate==3)
-	{	
-		
-		float col[4]={1.0,1.0,1.0,1.0};
-		draw_sprite(0,0,2.0f,1,2,spriteframe,ProgramObject,col);
-
-		draw_text(-3.9f, 1.9f,10,2,ProgramObject,COL_WHITE);
-		draw_text(1.7f, -1.8f,15,2,ProgramObject,COL_WHITE);
-	}
-
-	if (gamestate==4)
-	{	
-		
-	m.LoadIdentity();
-	m.ortho(-400, 400, -250, 250, -100, 100);
-	m.translate(-250,150,0);
-
-	
-	m.transferMatrix(&mtemp[0]);
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
-
-
-
-
-
-	glBindTexture(GL_TEXTURE_2D,texture[3]);
-	glzDrawVAO(vao_num[2],vao[2],GL_TRIANGLES);
-
-
-	draw_text(-3.9f, 1.9f,11,2,ProgramObject,COL_WHITE);
-	draw_text(1.7f, -1.8f,15,2,ProgramObject,COL_WHITE);
-
-
-	}
-
-	if (gamestate == 5)
+	if (gamestate == 1)
 	{
 
 		m.LoadIdentity();
 		m.ortho(-400, 400, -250, 250, -100, 100);
 
 
-		m.transferMatrix(&mtemp[0]);
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+	//	m.transferMatrix(&mtemp[0]);
+	//	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-		glBindTexture(GL_TEXTURE_2D, texture[1]);
+		//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	
-		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_LEFT);
-		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
 		
-		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
-		glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
+	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+		//glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
 
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
-		glBlendColor(1, 0, 1, 1.0f);
-		glEnable(GL_BLEND);
+	//	glBlendFunc(GL_ONE, GL_ONE);
+		//glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
+		//glBlendColor(1, 0, 1, 1.0f);
+	//	glEnable(GL_BLEND);
 
-		glzDrawTexture(texture[3], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
+	//	glzDrawTexture(texture[0], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
+
+		glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 3, 0, 0, 1, 1);
 
 		glDisable(GL_BLEND);
 
-		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		//glBindTexture(GL_TEXTURE_2D, texture[3]);
 
 	//	glUniform4f(loc3, 1.0f, 0.0f, 1.0f, 1.0f);
-		glzDirectSpriteRenderAtlas(0, 0, 1, 100, 100, 4, 4, 14, glzOrigin::CENTERED);
-
-		glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
-		glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
+	//	glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
 
 
 
-		
-		draw_text(-3.9f, 1.9f, 12, 2, ProgramObject, COL_WHITE);
-		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
 
 	}
 
-	if (gamestate == 6)
-	{
 
-		m.LoadIdentity();
-		m.ortho(-400, 400, -250, 250, -100, 100);
-
-
-		m.transferMatrix(&mtemp[0]);
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
-
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-
-		glPointSize(3.0f);
-		ps.render_out();
-
-
-		draw_text2("abcdefghijklmnopqrstuvxyz\nABCDEFGHIJKLMNOPQRSTUVXYZ\n1234567890", 1.0f,210.0f, 32.0f, 1.0f, 2, ProgramObject, COL_WHITE);
-
-
-		draw_text(-3.9f, 1.9f, 13, 2, ProgramObject, COL_WHITE);
-		draw_text(1.7f, -1.8f, 15, 2, ProgramObject, COL_WHITE);
-
-	}
 
 
 	glUseProgram(0);

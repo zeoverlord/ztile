@@ -29,6 +29,7 @@
 #include <gl/glext.h>
 #include <gl/wglext.h>
 #include <fstream>
+#include <windowsx.h>
 
 #pragma comment( lib, "opengl32.lib" )							// Search For OpenGL32.lib While Linking
 #pragma comment( lib, "glu32.lib" )								// Search For GLu32.lib While Linking
@@ -48,6 +49,7 @@ DWORD windowStyle = WS_POPUP;
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+
 
 
 void TerminateApplication (GL_Window* window)							// Terminate The Application
@@ -361,10 +363,11 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		break;															// Break
 
+	
 		case WM_KEYDOWN:												// Update Keyboard Buffers For Keys Pressed
 			if ((wParam >= 0) && (wParam <= 255))						// Is Key (wParam) In A Valid Range?
 			{
-				window->keys->keyDown [wParam] = TRUE;					// Set The Selected Key (wParam) To True
+				window->keys->keyDown[wParam] = true;					// Set The Selected Key (wParam) To True
 				return 0;												// Return
 			}
 		break;															// Break
@@ -372,10 +375,46 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_KEYUP:													// Update Keyboard Buffers For Keys Released
 			if ((wParam >= 0) && (wParam <= 255))						// Is Key (wParam) In A Valid Range?
 			{
-				window->keys->keyDown [wParam] = FALSE;					// Set The Selected Key (wParam) To False
+				window->keys->keyDown[wParam] = false;					// Set The Selected Key (wParam) To False
 				return 0;												// Return
 			}
 		break;															// Break
+
+		case WM_LBUTTONDOWN:											
+			window->keys->LMdown = true;											
+			break;
+
+		case WM_LBUTTONUP:
+			window->keys->LMdown = false;
+			break;
+
+		case WM_RBUTTONDOWN:
+			window->keys->RMdown = true;
+			break;
+
+		case WM_RBUTTONUP:
+			window->keys->RMdown = false;
+			break;
+
+		case WM_MBUTTONDOWN:
+			window->keys->MMdown = true;
+			break;
+
+		case WM_MBUTTONUP:
+			window->keys->MMdown = false;
+			break;
+
+		case WM_MOUSEMOVE:
+			window->keys->Mpos_x = GET_X_LPARAM(lParam);
+			window->keys->Mpos_y = GET_Y_LPARAM(lParam);
+			break;
+
+		case WM_MOUSEWHEEL:
+			window->keys->Mweel += GET_WHEEL_DELTA_WPARAM(wParam);			
+			break;
+
+			
+		
 
 		case WM_TOGGLEFULLSCREEN:										// Toggle FullScreen Mode On/Off
 			g_createFullScreen = (g_createFullScreen == TRUE) ? FALSE : TRUE;

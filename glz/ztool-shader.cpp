@@ -536,6 +536,10 @@ return;
 
 void glzShaderUsePasstrough(void)
 {
+	if (!isinited_shd) ini_shd();
+
+	unsigned int loc2 = glGetUniformLocation(passtroughprogram, "texunit0");
+	glUniform1iARB(loc2, 0);
 	glUseProgram(passtroughprogram);
 	return;
 }

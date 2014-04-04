@@ -549,6 +549,8 @@ void glzDirectDrawText(char text[255], float scale, float aspect, float kern, gl
  
 void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1)
 {
+	if (!isinited_geo_2d) ini_geo_2d();
+
 	if (has_drawtexture) 
 	{
 		glDrawTextureNV(texture, sampler, X0, Y0, X1, Y1, Z, s0, t0, s1, t1);
@@ -600,11 +602,12 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 	glGetIntegerv(GL_CURRENT_PROGRAM, &c_program);
 
 	glzShaderUsePasstrough();
+	
 
 	glBindSampler(0,sampler);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
+	glzDrawVAO(0, 6, localVAO, GL_LINES);
 	glzKillVAO(localVAO);
 
 	glUseProgram(c_program);
