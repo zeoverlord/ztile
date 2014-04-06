@@ -398,7 +398,7 @@ void Draw (void)
 
 	if (gamestate == 1)
 	{
-
+		glDisable(GL_DEPTH_TEST);
 		m.LoadIdentity();
 		m.ortho(-400, 400, -250, 250, -100, 100);
 
@@ -421,9 +421,9 @@ void Draw (void)
 
 	//	glzDrawTexture(texture[0], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
 
-		glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 3, 0, 0, 1, 1);
+		glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 0, 0, 0, 1, 1);
 
-		glDisable(GL_BLEND);
+		//glDisable(GL_BLEND);
 
 		//glBindTexture(GL_TEXTURE_2D, texture[3]);
 
@@ -431,7 +431,7 @@ void Draw (void)
 	//	glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
 	//	glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
 
-
+		glEnable(GL_DEPTH_TEST);
 
 
 	}

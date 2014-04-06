@@ -545,13 +545,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		return -1;														// Terminate Application
 	}
 
-	g_isProgramLooping = TRUE;											// Program Looping Is Set To TRUE
+	g_isProgramLooping = true;											// Program Looping Is Set To TRUE
 	g_createFullScreen = window.init.isFullScreen;						// g_createFullScreen Is Set To User Default
 	while (g_isProgramLooping)											// Loop Until WM_QUIT Is Received
 	{
 		// Create A Window
 		window.init.isFullScreen = g_createFullScreen;					// Set Init Param Of Window Creation To Fullscreen?
-		if (CreateWindowGL (&window) == TRUE)							// Was Window Creation Successful?
+		if (CreateWindowGL (&window) == true)							// Was Window Creation Successful?
 		{
 			// At This Point We Should Have A Window That Is Setup To Render OpenGL
 			if (Initialize (&window, &keys) == FALSE)					// Call User Intialization
