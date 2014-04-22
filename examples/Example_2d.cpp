@@ -79,6 +79,8 @@ int Mpos_y_rel;
 int Mweel_old;
 int Mweel_rel;
 
+vert3 mwp; // mouse work position, z is ignored
+
 
 glzSimpleParticleSystem ps;
 
@@ -245,6 +247,15 @@ void Update (float seconds)								// Perform Motion Updates Here
 	Mweel_old = g_keys->Mweel;
 	Mpos_x_old = g_keys->Mpos_x;
 	Mpos_y_old = g_keys->Mpos_y;
+
+	GLint viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	// this took some dooing
+	mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom);
+	mwp.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom / (viewport[3])) + (paintarea_y / paintarea_Zoom);
+
 
 }
 
@@ -453,18 +464,34 @@ void Draw (void)
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-
-		float ps_x=2, ps_y=0;
 		int arm_width = 16, arm_height = 16;
+		float ps_x=2, ps_y=0;
+		float ps_x2 = glzIntegral((mwp.x + 0.5)*arm_width), ps_y2 = glzIntegral((mwp.y + 0.5)*arm_height);
+
+		bool validpos = true;
+
+		if (mwp.x + 0.5 <= 0.0) { ps_x2 = 0.0; validpos = false; }
+		if (mwp.y + 0.5 <= 0.0) { ps_y2 = 0.0; validpos = false; }
+
+		if (ps_x2 > arm_width - 1) { ps_x2 = arm_width - 1; validpos = false; }
+		if (ps_y2 > arm_height - 1) { ps_y2 = arm_height - 1; validpos = false; }
+		
 
 
-		glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height-1-ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height-1-ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+		if (validpos) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x2 / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y2) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
 		ps_x = 1;
 		// mousebox
-		glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+
+		glzDirectSpriteRender(mwp.x , -mwp.y , 2, 1.0 / 32, 1.0 / 32, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+
 
 	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
