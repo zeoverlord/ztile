@@ -547,12 +547,17 @@ void glzDirectDrawText(char text[255], float scale, float aspect, float kern, gl
 }
 
 // direct rendering functions for sprites and such, mostly 2D stuff
- 
+
 void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1)
+{
+	glzDrawTexture(texture, sampler, X0, Y0, X1, Y1, Z, s0, t0, s1, t1, false);
+}
+ 
+void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float Y0, float X1, float Y1, float Z, float s0, float t0, float s1, float t1, bool shader_overide)
 {
 	if (!isinited_geo_2d) ini_geo_2d();
 
-	if (!has_drawtexture)
+	if ((has_drawtexture) && (!shader_overide))
 	{
 		glDrawTextureNV(texture, sampler, X0, Y0, X1, Y1, Z, s0, t0, s1, t1);
 		return;
@@ -606,25 +611,26 @@ void glzDrawTexture(unsigned int texture, unsigned int sampler, float X0, float 
 
 	GLint c_program = 0;
 
-	glGetIntegerv(GL_CURRENT_PROGRAM, &c_program);
+	if (!shader_overide)  glGetIntegerv(GL_CURRENT_PROGRAM, &c_program);
 
-	glzShaderUsePasstrough();
+	if (!shader_overide)  glzShaderUsePasstrough();
 
-	glBindSampler(0, sampler);
+	//glBindSampler(0, sampler);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glzDrawVAO(0, p.size() * 3, localVAO, GL_TRIANGLES);
 	glzKillVAO(localVAO);
 
 
-	glUseProgram(c_program);
+	if (!shader_overide)  glUseProgram(c_program);
 
 	return;
 }
 
-void glzDirectSpriteRender(glzMatrix m, unsigned int texture, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
+void glzDirectSpriteRender(glzMatrix m, float X, float Y, float Z, float W, float H, float spriteX, float spriteY, float spriteW, float spriteH, glzOrigin origin)
 {
 
+	unsigned int localVAO;
 
 	GLint viewport[4];
 
@@ -706,9 +712,9 @@ void glzDirectSpriteRender(glzMatrix m, unsigned int texture, float X, float Y, 
 	}	
 	
 	
-	glzDrawTexture(texture, 0, x0, y0, x1, y1, Z, spriteX, spriteY, spriteX + spriteW, spriteY + spriteH);
-//	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
-//	glzKillVAO(localVAO, glzVAOType::AUTO);
+//	glzDrawTexture(texture, 0, x0, y0, x1, y1, Z, spriteX, spriteY, spriteX + spriteW, spriteY + spriteH);
+	glzDrawVAO(0, 6, localVAO, GL_TRIANGLES);
+	glzKillVAO(localVAO);
 
 	return;
 }

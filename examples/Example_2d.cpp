@@ -64,9 +64,11 @@ int spriteframe=0;
 
 int gamestate=1;
 
-float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
+//float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
 
-GLhandleARB  ProgramObject,ProgramObjectFT,ProgramObjectFSQ;
+float paintarea_x = 0, paintarea_y = 0, paintarea_Zoom = 512;
+
+GLhandleARB  ProgramObject, ProgramObjectFT, ProgramObjectFSQ, ProgramObjectAtlas;
 texture_transform text_tt;
 
 
@@ -86,6 +88,7 @@ static PFNGLUNIFORMMATRIX4FVPROC                glUniformMatrix4fv;
 static PFNGLUNIFORM4FARBPROC                    glUniform4f;
 static PFNGLGETUNIFORMLOCATIONPROC              glGetUniformLocation;
 static PFNGLBLENDCOLORPROC						glBlendColor;
+static PFNGLACTIVETEXTUREPROC					glActiveTexture;
 
 
 #define COL_BLACK	0
@@ -128,7 +131,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glUniformMatrix4fv= (PFNGLUNIFORMMATRIX4FVPROC) wglGetProcAddress("glUniformMatrix4fv");
 
 	glBlendColor = (PFNGLBLENDCOLORPROC)wglGetProcAddress("glBlendColor");
-
+	glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
+	
 	
 
 
@@ -139,9 +143,11 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	mt.scale(0.17f,0.17f,0.17f);
 
 	ProgramObject = glzShaderLoad("data\\glsl.vert", "data\\glsl.frag", glzVAOType::AUTO);
+	ProgramObjectAtlas = glzShaderLoad("data\\atlastexture.vert", "data\\atlastexture.frag", glzVAOType::AUTO);
 //	ProgramObjectFT = glzShaderLoad("data\\fancytext.vert", "data\\fancytext.frag", glzVAOType::AUTO);
 //	ProgramObjectFSQ = glzShaderLoad("data\\fsq.vert", "data\\fsq.frag", glzVAOType::AUTO);
 	glzShaderLink(ProgramObject);
+	glzShaderLink(ProgramObjectAtlas);
 //	glzShaderLink(ProgramObjectFT);
 //	glzShaderLink(ProgramObjectFSQ);
 	// load the textures
@@ -152,9 +158,12 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	//fonttexture[4] = glzLoadTexture("data\\fonts\\morpheus_l.tga", glzTexFilter::LINEAR);
 
 //	texture[0] = glzLoadTexture("data\\back.tga", glzTexFilter::LINEAR);
-//	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::LINEAR);  // the derpy phirana is not an actual logo but just an example on how you can put it there
+//	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::NEAREST);  // the derpy phirana is not an actual logo but just an example on how you can put it there
 //	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
+
 	texture[0] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
+	texture[1] = glzLoadTexture("data\\a-map.tga", glzTexFilter::NEAREST);
+	texture[2] = glzLoadTexture("data\\red.tga", glzTexFilter::NEAREST);
 
 	
 
@@ -385,12 +394,20 @@ void Draw (void)
 	unsigned int loc2 = glGetUniformLocation(ProgramObject,"texunit0");
 	unsigned int loc3 = glGetUniformLocation(ProgramObject,"tint");
 
+
+	unsigned int loc4 = glGetUniformLocation(ProgramObjectAtlas, "projMat");
+	unsigned int loc5 = glGetUniformLocation(ProgramObjectAtlas, "texunit0");
+	unsigned int loc6 = glGetUniformLocation(ProgramObjectAtlas, "texunit1");
 //	unsigned int loc4 = glGetUniformLocation(ProgramObjectFT,"projMat");
 //	unsigned int loc5 = glGetUniformLocation(ProgramObjectFT,"texunit0");
 
 	glUseProgram(ProgramObject);
 	glUniform1i(loc2, 0);	
 	glUniform4f(loc3, 1.0f,1.0f,1.0f,1.0f);
+
+	glUseProgram(ProgramObjectAtlas);
+	glUniform1i(loc5, 0);
+	glUniform1i(loc6, 1);
 
 	// i have used these gamestates in a few games for LD48 now and they are really quick and dirty, but effective.
 	// they allow you to quickly make a title screen and end screen at the end of the project without changing that much code, instead you just encapsulate it in a gamestate
@@ -400,14 +417,55 @@ void Draw (void)
 	{
 		glDisable(GL_DEPTH_TEST);
 		m.LoadIdentity();
-		m.ortho(-400, 400, -250, 250, -100, 100);
+		//m.ortho(-400, 400, -250, 250, -100, 100);
+		
+
+		GLint viewport[4];
+
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		m.ortho(-viewport[2] / 2, viewport[2] / 2, -viewport[3]/2, viewport[3]/2, -100, 100);
+		m.translate(paintarea_x, paintarea_y, 0.0);
+		m.scale(paintarea_Zoom, paintarea_Zoom, 0.0);
+		//glzMatrix m;
+		//m.LoadIdentity();
+		//m.ortho2DPixelspace(viewport[2], viewport[3], glzOrigin::BOTTOM_LEFT);
+		glUseProgram(ProgramObjectAtlas);
 
 
-	//	m.transferMatrix(&mtemp[0]);
-	//	glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc4, 1, GL_FALSE, mtemp);
+		
 
-		//glBindTexture(GL_TEXTURE_2D, texture[1]);
-	
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture[1]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		glActiveTexture(GL_TEXTURE0);
+
+
+		glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0 , 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+
+		glBindTexture(GL_TEXTURE_2D, texture[2]);
+		glUseProgram(ProgramObject);
+
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
+
+		float ps_x=2, ps_y=0;
+		int arm_width = 16, arm_height = 16;
+
+
+		glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height-1-ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		ps_x = 1;
+		// mousebox
+		glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
 	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
 		
@@ -421,8 +479,11 @@ void Draw (void)
 
 	//	glzDrawTexture(texture[0], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
 
-		glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 0, 0, 0, 1, 1);
+		//glUseProgram(ProgramObjectAtlas);
+		
+	//	glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 0, 0, 0, 1, 1, true);
 
+		
 		//glDisable(GL_BLEND);
 
 		//glBindTexture(GL_TEXTURE_2D, texture[3]);
