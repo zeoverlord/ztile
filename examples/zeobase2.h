@@ -37,7 +37,7 @@ const unsigned int WINDOW_WIDTH	= 1280;
 const unsigned int  WINDOW_HEIGHT =	720;
 const unsigned int  FULLSCREEN_WIDTH = 1920;
 const unsigned int  FULLSCREEN_HEIGHT = 1080;
-const bool  NATIVE_FULLSCREEN = true;					// generally speaking this should be st to true, most often the current resolution is the higest anyway, overides the above settigns
+const bool  NATIVE_FULLSCREEN = true;					// generally speaking this should be set to true, most often the current resolution is the higest anyway, overides the above settigns
 const unsigned int  WINDOW_X = 0;
 const unsigned int  WINDOW_Y = 0;
 const bool  FORCE_OPENGL_VERSION = true;				// if you want to force openGL to a specific openGL version, generally set this to false for release, but for development it could be good to set it to true
@@ -59,6 +59,7 @@ typedef struct {									// Structure For Keyboard Stuff
 	int Mpos_x;
 	int Mpos_y;
 	int Mweel;
+	bool Mactive;
 } Keys;												// Keys
 
 typedef struct {									// Contains Information Vital To Applications

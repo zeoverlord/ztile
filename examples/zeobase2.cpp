@@ -407,12 +407,21 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_MOUSEMOVE:
 			window->keys->Mpos_x = GET_X_LPARAM(lParam);
 			window->keys->Mpos_y = GET_Y_LPARAM(lParam);
+			
 			break;
 
 		case WM_MOUSEWHEEL:
-			window->keys->Mweel += GET_WHEEL_DELTA_WPARAM(wParam);			
+			window->keys->Mweel += GET_WHEEL_DELTA_WPARAM(wParam);	
+			window->keys->Mactive = true;
 			break;
 
+		case WM_CAPTURECHANGED:
+			window->keys->Mactive=false;
+			break;
+			
+
+
+			
 			
 		
 

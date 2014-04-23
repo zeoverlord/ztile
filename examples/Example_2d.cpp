@@ -64,9 +64,12 @@ int spriteframe=0;
 
 int gamestate=1;
 
+int arm_width = 16, arm_height = 16;
+
 //float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
 
-float paintarea_x = 0, paintarea_y = 0, paintarea_Zoom = 512;
+float paintarea_x = 0.0f, paintarea_y = 0.0f, paintarea_Zoom = 512;
+float paintarea_pixel_x = 0.0f, paintarea_pixel_y = 0.0f;
 
 GLhandleARB  ProgramObject, ProgramObjectFT, ProgramObjectFSQ, ProgramObjectAtlas;
 texture_transform text_tt;
@@ -81,6 +84,12 @@ int Mweel_rel;
 
 vert3 mwp; // mouse work position, z is ignored
 
+vert3 muip;
+
+
+enum ztUIP {NONE,BACKGROUND,PIXELMAP,SPRITESHEET,SPRITE,UIFRAME};
+
+int z_tileUI_point = ztUIP::BACKGROUND;
 
 glzSimpleParticleSystem ps;
 
@@ -112,7 +121,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	// Start Of User Initialization
 	angle		= 0.0f;											// Set Starting Angle To Zero
 
-	glClearColor (0.5f, 0.5f, 0.5f, 0.5f);						// Black Background
+	glClearColor (0.06f, 0.06f, 0.06f, 1.0f);						// Black Background
 	glClearDepth (1.0f);										// Depth Buffer Setup
 	glDepthFunc (GL_LEQUAL);									// The Type Of Depth Testing (Less Or Equal)
 	glEnable (GL_DEPTH_TEST);									// Enable Depth Testing
@@ -124,6 +133,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	glFrontFace(GL_CCW);
 
+	ShowCursor(FALSE);
 
 
 	glUseProgram				= (PFNGLUSEPROGRAMPROC) wglGetProcAddress("glUseProgram");
@@ -166,6 +176,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	texture[0] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
 	texture[1] = glzLoadTexture("data\\a-map.tga", glzTexFilter::NEAREST);
 	texture[2] = glzLoadTexture("data\\red.tga", glzTexFilter::NEAREST);
+	texture[3] = glzLoadTexture("data\\cursor.tga", glzTexFilter::NEAREST);
 
 	
 
@@ -186,6 +197,8 @@ void Deinitialize (void)										// Any User DeInitialization Goes Here
 
 void Update (float seconds)								// Perform Motion Updates Here
 {
+
+	
 
 
 	Mweel_rel = g_keys->Mweel -Mweel_old;
@@ -229,7 +242,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 		// Todo: add if cursor points at tile surface
 		//if (g_keys->keyDown[VK_SPACE] == TRUE)
 		//{
-			if (g_keys->RMdown == TRUE) 
+		if ((g_keys->RMdown == TRUE) && (z_tileUI_point == ztUIP::PIXELMAP))
 			{
 				paintarea_x += Mpos_x_rel;
 				paintarea_y -= Mpos_y_rel;
@@ -248,13 +261,46 @@ void Update (float seconds)								// Perform Motion Updates Here
 	Mpos_x_old = g_keys->Mpos_x;
 	Mpos_y_old = g_keys->Mpos_y;
 
+	//Ui stuff
 	GLint viewport[4];
 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
-	// this took some dooing
+
+	z_tileUI_point = ztUIP::BACKGROUND;
+
+	if (!g_keys->Mactive) z_tileUI_point = ztUIP::NONE;
+
+	//if (g_keys->Mpos_x == 0) z_tileUI_point = ztUIP::NONE;
+	//if (g_keys->Mpos_y == 0) z_tileUI_point = ztUIP::NONE;
+
+
+	//if (g_keys->Mpos_x > viewport[2]) z_tileUI_point = ztUIP::NONE;
+	//if (g_keys->Mpos_y > viewport[3]) z_tileUI_point = ztUIP::NONE;
+
+
+
+	muip.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]);
+	muip.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]);
+
+		// this took some dooing
 	mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom);
 	mwp.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom / (viewport[3])) + (paintarea_y / paintarea_Zoom);
+
+
+
+
+	paintarea_pixel_x = glzIntegral((mwp.x + 0.5)*arm_width);
+	paintarea_pixel_y = glzIntegral((mwp.y + 0.5)*arm_height);
+
+	
+	if (mwp.x + 0.5 <= 0.0) { paintarea_pixel_x = 0.0; }
+	if (mwp.y + 0.5 <= 0.0) { paintarea_pixel_y = 0.0; }
+
+	if (paintarea_pixel_x > arm_width - 1) { paintarea_pixel_x = arm_width - 1; }
+	if (paintarea_pixel_y > arm_height - 1) { paintarea_pixel_y = arm_height - 1; }
+
+	if ((mwp.x + 0.5 >= 0.0) && ((mwp.x + 0.5)*arm_width < arm_width) && (mwp.y + 0.5 >= 0.0) && ((mwp.y + 0.5)*arm_height <= arm_height)) z_tileUI_point = ztUIP::PIXELMAP;
 
 
 }
@@ -464,32 +510,27 @@ void Draw (void)
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-		int arm_width = 16, arm_height = 16;
-		float ps_x=2, ps_y=0;
-		float ps_x2 = glzIntegral((mwp.x + 0.5)*arm_width), ps_y2 = glzIntegral((mwp.y + 0.5)*arm_height);
 
-		bool validpos = true;
-
-		if (mwp.x + 0.5 <= 0.0) { ps_x2 = 0.0; validpos = false; }
-		if (mwp.y + 0.5 <= 0.0) { ps_y2 = 0.0; validpos = false; }
-
-		if (ps_x2 > arm_width - 1) { ps_x2 = arm_width - 1; validpos = false; }
-		if (ps_y2 > arm_height - 1) { ps_y2 = arm_height - 1; validpos = false; }
 		
 
 
 	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height-1-ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
-		if (validpos) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x2 / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y2) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
-		ps_x = 1;
+		//ps_x = 1;
 		// mousebox
 	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 
-		glzDirectSpriteRender(mwp.x , -mwp.y , 2, 1.0 / 32, 1.0 / 32, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		// cursor
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		if (z_tileUI_point != ztUIP::NONE) glzDirectSpriteRender(mwp.x, -mwp.y, 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		glDisable(GL_BLEND);
 
 
 
