@@ -818,7 +818,7 @@ void glzDirectSpriteRenderAtlas(float X, float Y, float Z, float W, float H, uns
 {
 
 	float quv[8];
-	glzAtlasQuad(atlasW, atlasH, atlasN, origin, quv);
+	glzAtlasQuad(atlasW, atlasH, atlasN, glzOrigin::BOTTOM_LEFT, quv);
 	glzDirectSpriteRender(X, Y, Z, W, H, quv[2], quv[3], quv[6] - quv[2], quv[7] - quv[3], origin);
 
 	return;

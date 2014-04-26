@@ -3,30 +3,64 @@
 
 in vec4 txcoord;
 out vec4 fragment_color;
+
 uniform sampler2D texunit0; // atlas reference map
 uniform sampler2D texunit1; // atlas map
+uniform  int layer;
+uniform  int anim;
 
 
-//uniform int width;  // height and width of the atlas reference map
-//uniform int height;
+uniform int width;  // height and width of the atlas reference map
+uniform int height;
 
-//uniform int a_width;  // height and width of the atlas map
-//uniform int a_height;
+uniform int a_width;  // height and width of the atlas map
+uniform int a_height;
 
 void main() {
         
 float sx=0.0;
 float sy=0.0;
-int width=16;  // height and width of the atlas reference map
-int height=16;
+//int width=16;  // height and width of the atlas reference map
+//int height=16;
 
-int a_width=4;  // height and width of the atlas map
-int a_height=4;
+//int a_width=4;  // height and width of the atlas map
+//int a_height=4;
 
 vec4 arm = texture2D(texunit0, txcoord.xy);
 
+if (layer==0)
+{
 sx=floor(arm.x*256.0);
 sy=floor(arm.y*256.0);
+}
+else
+{
+sx=floor(arm.z*256.0);
+sy=floor(arm.w*256.0);
+}
+
+
+int animate=0;
+
+//strip animation flag
+if (sx>127) 
+    { 
+      sx-=128;
+      animate=1;
+    }
+
+//strip extra flag
+if (sy>127) 
+    { 
+      sy-=128;
+    }
+
+//get animation block
+float ani_b=0;
+float ani_o=mod(modf(sx/4.0,ani_b)*4.0+anim,4.0);
+
+if (animate==1) sx=(ani_b*4.0)+ani_o;
+
 
 vec2 newtx = vec2(fract(txcoord.x*width),fract(txcoord.y*height));
 

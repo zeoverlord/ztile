@@ -62,14 +62,20 @@ float texttimer=0;
 float spriteframetimer=0;
 int spriteframe=0;
 
-int gamestate=1;
+int gamestate=1,testanim=0;
+float testanimTimer = 0;
+float keyTimer = 0;
 
 int arm_width = 16, arm_height = 16;
+int tiles_width = 4, tiles_height = 4;
 
 //float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
 
 float paintarea_x = 0.0f, paintarea_y = 0.0f, paintarea_Zoom = 512;
 float paintarea_pixel_x = 0.0f, paintarea_pixel_y = 0.0f;
+
+float paintarea_x_s = 0.0f, paintarea_y_s = 0.0f, paintarea_Zoom_s = 512;
+float paintarea_pixel_x_s = 0.0f, paintarea_pixel_y_s = 0.0f;
 
 GLhandleARB  ProgramObject, ProgramObjectFT, ProgramObjectFSQ, ProgramObjectAtlas;
 texture_transform text_tt;
@@ -86,12 +92,23 @@ vert3 mwp; // mouse work position, z is ignored
 
 vert3 muip;
 
-
 enum ztUIP {NONE,BACKGROUND,PIXELMAP,SPRITESHEET,SPRITE,UIFRAME};
 
 int z_tileUI_point = ztUIP::BACKGROUND;
 
-glzSimpleParticleSystem ps;
+
+int cursprite_x = 0, cursprite_y = 0;
+int curlayer = 0;
+bool cursprite_anim = false, cursprite_extra = false;
+
+bool image_has_changed = false;
+bool dual_view = false;
+
+img_head img_1;
+unsigned char *img_1_data;
+char leveltex_filename[255] = "data\\a-map.tga";
+
+
 
 static PFNGLUSEPROGRAMPROC						glUseProgram;
 static PFNGLUNIFORM1IPROC                       glUniform1i;
@@ -132,8 +149,8 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 	glEnable(GL_CULL_FACE);
 
 	glFrontFace(GL_CCW);
+	//ShowCursor(false);
 
-	ShowCursor(FALSE);
 
 
 	glUseProgram				= (PFNGLUSEPROGRAMPROC) wglGetProcAddress("glUseProgram");
@@ -173,8 +190,30 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 //	texture[1] = glzLoadTexture("data\\derpy_phirana.tga", glzTexFilter::NEAREST);  // the derpy phirana is not an actual logo but just an example on how you can put it there
 //	texture[2] = glzLoadTexture("data\\explotion128a.tga", glzTexFilter::NEAREST);
 
+
+	// load data
+
 	texture[0] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
-	texture[1] = glzLoadTexture("data\\a-map.tga", glzTexFilter::NEAREST);
+
+
+
+
+	glzReadTgaHead(&img_1, leveltex_filename);
+	img_1_data = new unsigned char[img_1.imageSize];
+	glzLoadTga(&img_1, leveltex_filename, img_1_data);
+	glzMaketex(&img_1, img_1_data, glzTexFilter::NEAREST);
+	texture[1] = img_1.m_id;
+
+	arm_width = img_1.m_width;
+	arm_height = img_1.m_height;
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data);
+
+
+
+	//texture[1] = glzLoadTexture("data\\a-map.tga", glzTexFilter::NEAREST);
+
+
 	texture[2] = glzLoadTexture("data\\red.tga", glzTexFilter::NEAREST);
 	texture[3] = glzLoadTexture("data\\cursor.tga", glzTexFilter::NEAREST);
 
@@ -190,15 +229,86 @@ void Deinitialize (void)										// Any User DeInitialization Goes Here
 
 	// this shouldn't normally be nessecary, but it's better to make it a habit to delete data for when you start to load and unload resources mid game.
 
+	delete(img_1_data);
+
 	glzKillAllVAO();		// deletes all vaos in existance
 
 
 }
 
+void paint_pixel(int x, int y, int px, int py, bool animate, bool extra, int layer)
+{
+
+	// get data
+	int d_o = layer * 2;
+
+	char dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	char dy = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+
+	bool ani=false, ext = false;
+	if (dx > 127) { dx -= 128; ani = true; }
+	if (dy > 127) { dy -= 128; ext = true; }
+
+	if ((px == dx) && (py == dy) && (animate == ani) && (extra == ext)) return; //no change so do nothing
+
+	if (px > 127) px = 127;
+	if (py > 127) py = 127;
+
+	if (animate) px += 128;
+	if (extra) py += 128;
+
+	img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)]=px;
+	img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)]=py;
+	
+	image_has_changed = true;
+
+	return;
+
+
+}
+
+void paint_animate(int x, int y, bool animate, int layer)
+{
+
+	// get data
+	int d_o = layer * 2;
+
+	char dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+
+	if (animate) img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx | 128;
+	else  img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx & 127;
+
+	image_has_changed = true;
+
+	return;
+
+}
+
+void paint_extra(int x, int y, bool extra, int layer)
+{
+
+	// get data
+	int d_o = layer * 2;
+
+	char dy = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+
+	if (extra) img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dy | 128;
+	else  img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dy & 127;
+
+	image_has_changed = true;
+
+	return;
+
+}
+
+
 void Update (float seconds)								// Perform Motion Updates Here
 {
 
-	
+	//Ui stuff
+	GLint viewport[4];
+
+	glGetIntegerv(GL_VIEWPORT, viewport);
 
 
 	Mweel_rel = g_keys->Mweel -Mweel_old;
@@ -221,39 +331,72 @@ void Update (float seconds)								// Perform Motion Updates Here
 		ToggleFullscreen (g_window);							// Toggle Fullscreen Mode
 	}
 
-	if (gamestate==1)
+	gamestate = 1;
+
+	if (g_keys->keyDown[VK_SPACE] == TRUE)					
 	{
-		angle += seconds;						// Update angle Based On The Clock
-		if (angle>90001) angle=0;
-
-
+		gamestate = 2;
 	}
 
-		if (g_keys->keyDown[VK_UP] == TRUE) paintarea_y += seconds * 150;
-		if (g_keys->keyDown[VK_DOWN] == TRUE) paintarea_y -= seconds * 150;
 
-		if (g_keys->keyDown[VK_LEFT] == TRUE) paintarea_x -= seconds * 150;
-		if (g_keys->keyDown[VK_RIGHT] == TRUE) paintarea_x += seconds * 150;
+	if (g_keys->keyDown[VK_TAB] == TRUE) dual_view = true;
+	else dual_view = false;
+
+
+
+
+
+	testanimTimer += seconds;
+	if (testanimTimer > 0.45) { testanim++; testanimTimer -= 0.45; }
+
+	if (testanim >= 4) testanim = 0;
+
+	keyTimer += seconds;	
+	
+	if (gamestate==1)
+	{
+	
+
+
+
+	
+	if (keyTimer > 0.15) 
+	{
+		if (g_keys->keyDown[VK_UP] == TRUE) { cursprite_y--; keyTimer = 0.0; }
+		if (g_keys->keyDown[VK_DOWN] == TRUE) { cursprite_y++; keyTimer = 0.0; }
+
+		if (g_keys->keyDown[VK_LEFT] == TRUE) { cursprite_x--; keyTimer = 0.0; }
+		if (g_keys->keyDown[VK_RIGHT] == TRUE) { cursprite_x++; keyTimer = 0.0; }
+
+	}
+	
+
+
+	if (cursprite_x < 0) cursprite_x = 0;
+	if (cursprite_y < 0) cursprite_y = 0;
+
+	if (cursprite_x > tiles_width-1) cursprite_x = tiles_width-1;
+	if (cursprite_y > tiles_height-1) cursprite_y = tiles_height-1;
+
+
 
 		if (g_keys->keyDown[VK_SUBTRACT] == TRUE) paintarea_Zoom -= seconds * 150;
 		if (g_keys->keyDown[VK_ADD] == TRUE) paintarea_Zoom += seconds * 150;
 
 
 		// Todo: add if cursor points at tile surface
-		//if (g_keys->keyDown[VK_SPACE] == TRUE)
-		//{
+	
 		if ((g_keys->RMdown == TRUE) && (z_tileUI_point == ztUIP::PIXELMAP))
 			{
 				paintarea_x += Mpos_x_rel;
 				paintarea_y -= Mpos_y_rel;
 			}
-		//}
+	
 
 		paintarea_Zoom += Mweel_rel;
 		if (paintarea_Zoom < 120) paintarea_Zoom = 120;
 	
 
-	if (g_keys->keyDown['1'] == TRUE) gamestate = 1;
 
 
 
@@ -261,24 +404,11 @@ void Update (float seconds)								// Perform Motion Updates Here
 	Mpos_x_old = g_keys->Mpos_x;
 	Mpos_y_old = g_keys->Mpos_y;
 
-	//Ui stuff
-	GLint viewport[4];
 
-	glGetIntegerv(GL_VIEWPORT, viewport);
 
 
 	z_tileUI_point = ztUIP::BACKGROUND;
-
-	if (!g_keys->Mactive) z_tileUI_point = ztUIP::NONE;
-
-	//if (g_keys->Mpos_x == 0) z_tileUI_point = ztUIP::NONE;
-	//if (g_keys->Mpos_y == 0) z_tileUI_point = ztUIP::NONE;
-
-
-	//if (g_keys->Mpos_x > viewport[2]) z_tileUI_point = ztUIP::NONE;
-	//if (g_keys->Mpos_y > viewport[3]) z_tileUI_point = ztUIP::NONE;
-
-
+	
 
 	muip.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]);
 	muip.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]);
@@ -302,7 +432,95 @@ void Update (float seconds)								// Perform Motion Updates Here
 
 	if ((mwp.x + 0.5 >= 0.0) && ((mwp.x + 0.5)*arm_width < arm_width) && (mwp.y + 0.5 >= 0.0) && ((mwp.y + 0.5)*arm_height <= arm_height)) z_tileUI_point = ztUIP::PIXELMAP;
 
+	
 
+	if (z_tileUI_point == ztUIP::PIXELMAP)
+	{ 
+				
+		if(g_keys->LMdown == TRUE) paint_pixel(paintarea_pixel_x, paintarea_pixel_y, cursprite_x, cursprite_y, cursprite_anim, cursprite_extra, curlayer);
+
+		if (g_keys->keyDown['A'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, true, curlayer);
+		if (g_keys->keyDown['Z'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, false, curlayer);
+	}
+	else
+	{
+		
+	}
+
+
+	
+
+
+	glBindTexture(GL_TEXTURE_2D, texture[1]);
+	if (image_has_changed) { glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data); image_has_changed = false; }
+
+
+	if (g_keys->keyDown['1'] == TRUE) curlayer = 0;
+	if (g_keys->keyDown['2'] == TRUE) curlayer = 1;
+	
+
+		}
+
+
+	if (gamestate == 2)
+	{
+		if (z_tileUI_point == ztUIP::PIXELMAP)
+		{
+			if ((g_keys->RMdown == TRUE) && (z_tileUI_point == ztUIP::PIXELMAP))
+			{
+				paintarea_x_s += Mpos_x_rel;
+				paintarea_y_s -= Mpos_y_rel;
+			}
+
+
+			paintarea_Zoom_s += Mweel_rel;
+			if (paintarea_Zoom_s < 120) paintarea_Zoom_s = 120;
+
+
+		}
+
+
+			Mweel_old = g_keys->Mweel;
+			Mpos_x_old = g_keys->Mpos_x;
+			Mpos_y_old = g_keys->Mpos_y;
+
+			//Ui stuff
+		
+			z_tileUI_point = ztUIP::BACKGROUND;
+
+
+			muip.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]);
+			muip.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]);
+
+			// this took some dooing
+			mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom_s / (viewport[2])) - (paintarea_x_s / paintarea_Zoom_s);
+			mwp.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom_s / (viewport[3])) + (paintarea_y_s / paintarea_Zoom_s);
+
+
+
+
+			paintarea_pixel_x_s = glzIntegral((mwp.x + 0.5)*tiles_width);
+			paintarea_pixel_y_s = glzIntegral((mwp.y + 0.5)*tiles_height);
+
+
+			if (mwp.x + 0.5 <= 0.0) { paintarea_pixel_x_s = 0.0; }
+			if (mwp.y + 0.5 <= 0.0) { paintarea_pixel_y_s = 0.0; }
+
+			if (paintarea_pixel_x_s > tiles_width - 1) { paintarea_pixel_x_s = tiles_width - 1; }
+			if (paintarea_pixel_y_s > tiles_height - 1) { paintarea_pixel_y_s = tiles_height - 1; }
+
+			if ((mwp.x + 0.5 >= 0.0) && ((mwp.x + 0.5)*tiles_width < tiles_width) && (mwp.y + 0.5 >= 0.0) && ((mwp.y + 0.5)*tiles_height <= tiles_height))  z_tileUI_point = ztUIP::PIXELMAP;
+			
+			if ((z_tileUI_point == ztUIP::PIXELMAP) && (g_keys->LMdown == TRUE)) { cursprite_x = paintarea_pixel_x_s; cursprite_y = paintarea_pixel_y_s; }
+
+		
+	}
+
+
+	if (keyTimer > 0.15)
+	{
+		if (g_keys->keyDown[VK_RETURN]) { glzSaveTGA(leveltex_filename, img_1.m_width, img_1.m_height, 0, glzTexCompression::UNCOMPRESSED, img_1.m_type, img_1_data); keyTimer = 0; }
+	}
 }
 
 
@@ -455,6 +673,17 @@ void Draw (void)
 	unsigned int loc4 = glGetUniformLocation(ProgramObjectAtlas, "projMat");
 	unsigned int loc5 = glGetUniformLocation(ProgramObjectAtlas, "texunit0");
 	unsigned int loc6 = glGetUniformLocation(ProgramObjectAtlas, "texunit1");
+	unsigned int loc7 = glGetUniformLocation(ProgramObjectAtlas, "layer");
+	unsigned int loc8 = glGetUniformLocation(ProgramObjectAtlas, "anim");
+
+	unsigned int loc9 = glGetUniformLocation(ProgramObjectAtlas, "width");
+	unsigned int loc10 = glGetUniformLocation(ProgramObjectAtlas, "height");
+	unsigned int loc11 = glGetUniformLocation(ProgramObjectAtlas, "a_width");
+	unsigned int loc12 = glGetUniformLocation(ProgramObjectAtlas, "a_height");
+
+
+
+
 //	unsigned int loc4 = glGetUniformLocation(ProgramObjectFT,"projMat");
 //	unsigned int loc5 = glGetUniformLocation(ProgramObjectFT,"texunit0");
 
@@ -465,6 +694,18 @@ void Draw (void)
 	glUseProgram(ProgramObjectAtlas);
 	glUniform1i(loc5, 0);
 	glUniform1i(loc6, 1);
+	glUniform1i(loc7, curlayer);
+	glUniform1i(loc8, testanim);
+
+	glUniform1i(loc9, arm_width);
+	glUniform1i(loc10, arm_height);
+	glUniform1i(loc11, tiles_width);
+	glUniform1i(loc12, tiles_height);
+
+
+
+
+
 
 	// i have used these gamestates in a few games for LD48 now and they are really quick and dirty, but effective.
 	// they allow you to quickly make a title screen and end screen at the end of the project without changing that much code, instead you just encapsulate it in a gamestate
@@ -474,7 +715,7 @@ void Draw (void)
 	{
 		glDisable(GL_DEPTH_TEST);
 		m.LoadIdentity();
-		//m.ortho(-400, 400, -250, 250, -100, 100);
+	
 		
 
 		GLint viewport[4];
@@ -494,6 +735,9 @@ void Draw (void)
 		glUniformMatrix4fv(loc4, 1, GL_FALSE, mtemp);
 		
 
+	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
@@ -502,69 +746,115 @@ void Draw (void)
 		glActiveTexture(GL_TEXTURE0);
 
 
-		glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0 , 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		if (!dual_view)
+		{
+			glUniform1i(loc7, curlayer);
+			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
+		}
+		else
+		{
+			glUniform1i(loc7, 0);
+			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
-		glBindTexture(GL_TEXTURE_2D, texture[2]);
-		glUseProgram(ProgramObject);
+			glUniform1i(loc7, 1);
+			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+		}
 
-
-		
-
-
-	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height-1-ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
-
-		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 
 		glBindTexture(GL_TEXTURE_2D, texture[3]);
-		//ps_x = 1;
-		// mousebox
-	//	glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (ps_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - ps_y) / arm_height), 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		glUseProgram(ProgramObject);
 
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+	
+	
+		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, 1.0 / arm_width, 1.0 / arm_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
-		// cursor
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		if (z_tileUI_point != ztUIP::NONE) glzDirectSpriteRender(mwp.x, -mwp.y, 2, 1.0 / 16, 1.0 / 16, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 		glDisable(GL_BLEND);
-
-
-
-	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
-	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_LEFT);
 		
-	//	glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
-		//glzDirectSpriteRender(m, texture[1], 0, 0, 2, 100, 100, 0, 0, 1.0, 1.0, glzOrigin::TOP_RIGHT);
+	
 
-	//	glBlendFunc(GL_ONE, GL_ONE);
-		//glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
-		//glBlendColor(1, 0, 1, 1.0f);
-	//	glEnable(GL_BLEND);
 
-	//	glzDrawTexture(texture[0], 0, 0, 0, 200, 200, 3, 0, 0, 1, 1);
 
-		//glUseProgram(ProgramObjectAtlas);
-		
-	//	glzDrawTexture(texture[0], 0, paintarea_x - (paintarea_Zoom*0.5), paintarea_y - (paintarea_Zoom*0.5), paintarea_x + (paintarea_Zoom*0.5), paintarea_y + (paintarea_Zoom*0.5), 0, 0, 0, 1, 1, true);
 
-		
-		//glDisable(GL_BLEND);
+		m.LoadIdentity();
+		m.ortho(-viewport[2] / 2, viewport[2] / 2, -viewport[3] / 2, viewport[3] / 2, -100, 100);
 
-		//glBindTexture(GL_TEXTURE_2D, texture[3]);
+	
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-	//	glUniform4f(loc3, 1.0f, 0.0f, 1.0f, 1.0f);
-	//	glzDirectSpriteRenderAtlasPixelPerfect(192, 192, 1, 64, 64, 4, 4, 1, glzOrigin::BOTTOM_LEFT);
-	//	glzDirectSpriteRenderAtlasPixelPerfectQuantized(208, 192, 1, 64, 64, 4, 4, 1, 16.0f, glzOrigin::BOTTOM_LEFT);
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, 4, 4, (cursprite_y*4)+cursprite_x, glzOrigin::BOTTOM_RIGHT);
 
 		glEnable(GL_DEPTH_TEST);
 
 
 	}
 
+	if (gamestate == 2) // sprite selection screen
+	{
+		glDisable(GL_DEPTH_TEST);
+		m.LoadIdentity();
+
+
+
+		GLint viewport[4];
+
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		m.ortho(-viewport[2] / 2, viewport[2] / 2, -viewport[3] / 2, viewport[3] / 2, -100, 100);
+		m.translate(paintarea_x_s, paintarea_y_s, 0.0);
+		m.scale(paintarea_Zoom_s, paintarea_Zoom_s, 0.0);
+		//glzMatrix m;
+		//m.LoadIdentity();
+		//m.ortho2DPixelspace(viewport[2], viewport[3], glzOrigin::BOTTOM_LEFT);
+		glUseProgram(ProgramObject);
+
+
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
+				
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		
+				glzDirectSpriteRender(0.0 , 0.0, 2, 1.0 , 1.0 , 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+
+
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		
+
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+
+		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / tiles_width) + (paintarea_pixel_x_s / tiles_width), -0.5 + (0.5f / tiles_height) + ((tiles_height - 1 - paintarea_pixel_y_s) / tiles_height), 2, 1.0 / tiles_width, 1.0 / tiles_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		glDisable(GL_BLEND);
+
+		
+
+
+
+
+		m.LoadIdentity();
+		m.ortho(-viewport[2] / 2, viewport[2] / 2, -viewport[3] / 2, viewport[3] / 2, -100, 100);
+
+
+		m.transferMatrix(&mtemp[0]);
+		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
+
+		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, 4, 4, (cursprite_y * 4) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
+
+		glEnable(GL_DEPTH_TEST);
+
+
+	}
 
 
 
