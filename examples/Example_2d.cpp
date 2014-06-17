@@ -67,7 +67,7 @@ float testanimTimer = 0;
 float keyTimer = 0;
 
 int arm_width = 16, arm_height = 16;
-int tiles_width = 4, tiles_height = 4;
+int tiles_width = 16, tiles_height = 16;
 
 //float paintarea_x = WINDOW_WIDTH / 2, paintarea_y = WINDOW_HEIGHT / 2, paintarea_Zoom = 512;
 
@@ -103,10 +103,12 @@ bool cursprite_anim = false, cursprite_extra = false;
 
 bool image_has_changed = false;
 bool dual_view = false;
+bool toggle_extra = false;
 
 img_head img_1;
 unsigned char *img_1_data;
-char leveltex_filename[255] = "data\\a-map.tga";
+char leveltex_filename[255] = "data\\supertiles.tga";
+//char leveltex_filename[255] = "data\\a-map.tga";
 
 
 
@@ -193,7 +195,7 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	// load data
 
-	texture[0] = glzLoadTexture("data\\tinytiles.tga", glzTexFilter::NEAREST);
+	texture[0] = glzLoadTexture("data\\tileset.tga", glzTexFilter::NEAREST);
 
 
 
@@ -368,6 +370,8 @@ void Update (float seconds)								// Perform Motion Updates Here
 		if (g_keys->keyDown[VK_LEFT] == TRUE) { cursprite_x--; keyTimer = 0.0; }
 		if (g_keys->keyDown[VK_RIGHT] == TRUE) { cursprite_x++; keyTimer = 0.0; }
 
+		if (g_keys->keyDown['E'] == TRUE) { if (toggle_extra) toggle_extra = false; else toggle_extra = true; keyTimer = 0.0; }
+
 	}
 	
 
@@ -395,6 +399,21 @@ void Update (float seconds)								// Perform Motion Updates Here
 
 		paintarea_Zoom += Mweel_rel;
 		if (paintarea_Zoom < 120) paintarea_Zoom = 120;
+
+
+		if (Mweel_rel>0)
+		{
+			paintarea_x -= ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) * paintarea_Zoom *0.3333;
+			paintarea_y += ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) * paintarea_Zoom *0.3333;
+			
+		}
+
+		if (Mweel_rel<0)
+		{
+			paintarea_x *=  0.8;
+			paintarea_y *= 0.8;
+			
+		}
 	
 
 
@@ -414,33 +433,39 @@ void Update (float seconds)								// Perform Motion Updates Here
 	muip.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]);
 
 		// this took some dooing
-	mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom);
+	mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom) / (arm_width / arm_height);
 	mwp.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom / (viewport[3])) + (paintarea_y / paintarea_Zoom);
 
 
 
 
-	paintarea_pixel_x = glzIntegral((mwp.x + 0.5)*arm_width);
+	paintarea_pixel_x = glzIntegral(((mwp.x + 0.5*(arm_width / arm_height))*arm_width) / (arm_width / arm_height))*(arm_width / arm_height);
 	paintarea_pixel_y = glzIntegral((mwp.y + 0.5)*arm_height);
 
+
 	
-	if (mwp.x + 0.5 <= 0.0) { paintarea_pixel_x = 0.0; }
+	if (mwp.x + 0.5+(arm_width) <= 0.0) { paintarea_pixel_x = 0.0; }
 	if (mwp.y + 0.5 <= 0.0) { paintarea_pixel_y = 0.0; }
 
 	if (paintarea_pixel_x > arm_width - 1) { paintarea_pixel_x = arm_width - 1; }
 	if (paintarea_pixel_y > arm_height - 1) { paintarea_pixel_y = arm_height - 1; }
 
-	if ((mwp.x + 0.5 >= 0.0) && ((mwp.x + 0.5)*arm_width < arm_width) && (mwp.y + 0.5 >= 0.0) && ((mwp.y + 0.5)*arm_height <= arm_height)) z_tileUI_point = ztUIP::PIXELMAP;
+	if ((mwp.x + 0.5 >= 0.0) &&
+		(mwp.x + 0.5 < arm_width ) &&
+		(mwp.y + 0.5 >= 0.0) && 
+		((mwp.y + 0.5)*arm_height <= arm_height)) z_tileUI_point = ztUIP::PIXELMAP;
 
 	
 
 	if (z_tileUI_point == ztUIP::PIXELMAP)
 	{ 
 				
-		if(g_keys->LMdown == TRUE) paint_pixel(paintarea_pixel_x, paintarea_pixel_y, cursprite_x, cursprite_y, cursprite_anim, cursprite_extra, curlayer);
+		if (g_keys->LMdown == TRUE) paint_pixel(paintarea_pixel_x , paintarea_pixel_y, cursprite_x, cursprite_y, cursprite_anim, cursprite_extra, curlayer);
 
 		if (g_keys->keyDown['A'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, true, curlayer);
 		if (g_keys->keyDown['Z'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, false, curlayer);
+		if (g_keys->keyDown['S'] == TRUE) paint_extra(paintarea_pixel_x, paintarea_pixel_y, true, curlayer);
+		if (g_keys->keyDown['X'] == TRUE) paint_extra(paintarea_pixel_x, paintarea_pixel_y, false, curlayer);
 	}
 	else
 	{
@@ -680,6 +705,7 @@ void Draw (void)
 	unsigned int loc10 = glGetUniformLocation(ProgramObjectAtlas, "height");
 	unsigned int loc11 = glGetUniformLocation(ProgramObjectAtlas, "a_width");
 	unsigned int loc12 = glGetUniformLocation(ProgramObjectAtlas, "a_height");
+	unsigned int loc13 = glGetUniformLocation(ProgramObjectAtlas, "extr");
 
 
 
@@ -701,6 +727,7 @@ void Draw (void)
 	glUniform1i(loc10, arm_height);
 	glUniform1i(loc11, tiles_width);
 	glUniform1i(loc12, tiles_height);
+	glUniform1i(loc13, 0);
 
 
 
@@ -735,8 +762,7 @@ void Draw (void)
 		glUniformMatrix4fv(loc4, 1, GL_FALSE, mtemp);
 		
 
-	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
+	
 
 
 		glActiveTexture(GL_TEXTURE0);
@@ -749,16 +775,33 @@ void Draw (void)
 		if (!dual_view)
 		{
 			glUniform1i(loc7, curlayer);
-			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+		
+
+			if (toggle_extra){
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glEnable(GL_BLEND);
+
+				glUniform1i(loc13, 1);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+				glDisable(GL_BLEND);
+			}
+
+			else glUniform1i(loc13, 0);
 
 		}
 		else
-		{
+		{    
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_BLEND);
+
 			glUniform1i(loc7, 0);
-			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 			glUniform1i(loc7, 1);
-			glzDirectSpriteRender(0.0, 0.0, 2, 1.0, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+			glDisable(GL_BLEND);
 
 		}
 
@@ -770,7 +813,10 @@ void Draw (void)
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 	
 	
-		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, 1.0 / arm_width, 1.0 / arm_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+
+		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, (1.0 / arm_width)*(arm_width / arm_height), 1.0 / arm_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 		glDisable(GL_BLEND);
 		
@@ -788,7 +834,7 @@ void Draw (void)
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);
 		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
-		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, 4, 4, (cursprite_y*4)+cursprite_x, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, tiles_width, tiles_height, (cursprite_y * 4) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
 
 		glEnable(GL_DEPTH_TEST);
 
@@ -849,7 +895,7 @@ void Draw (void)
 
 		glBindTexture(GL_TEXTURE_2D, texture[0]);
 		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
-		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, 4, 4, (cursprite_y * 4) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
+		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, tiles_width, tiles_height, (cursprite_y * tiles_width) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
 
 		glEnable(GL_DEPTH_TEST);
 
