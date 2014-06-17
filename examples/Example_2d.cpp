@@ -107,7 +107,8 @@ bool toggle_extra = false;
 
 img_head img_1;
 unsigned char *img_1_data;
-char leveltex_filename[255] = "data\\supertiles.tga";
+//char leveltex_filename[255] = "data\\supertiles.tga";
+char leveltex_filename[255] = "data\\supertiles2.tga";
 //char leveltex_filename[255] = "data\\a-map.tga";
 
 
@@ -370,6 +371,12 @@ void Update (float seconds)								// Perform Motion Updates Here
 		if (g_keys->keyDown[VK_LEFT] == TRUE) { cursprite_x--; keyTimer = 0.0; }
 		if (g_keys->keyDown[VK_RIGHT] == TRUE) { cursprite_x++; keyTimer = 0.0; }
 
+		//if (g_keys->keyDown[VK_UP] == TRUE) { paintarea_pixel_y--; keyTimer = 0.0; }
+		//	if (g_keys->keyDown[VK_DOWN] == TRUE) { paintarea_pixel_y++; keyTimer = 0.0; }
+
+		//	if (g_keys->keyDown[VK_LEFT] == TRUE) { paintarea_pixel_x--; keyTimer = 0.0; }
+		//	if (g_keys->keyDown[VK_RIGHT] == TRUE) { paintarea_pixel_x++; keyTimer = 0.0; }
+
 		if (g_keys->keyDown['E'] == TRUE) { if (toggle_extra) toggle_extra = false; else toggle_extra = true; keyTimer = 0.0; }
 
 	}
@@ -424,7 +431,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 	Mpos_y_old = g_keys->Mpos_y;
 
 
-
+float aspect = arm_width / arm_height;
 
 	z_tileUI_point = ztUIP::BACKGROUND;
 	
@@ -433,14 +440,20 @@ void Update (float seconds)								// Perform Motion Updates Here
 	muip.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]);
 
 		// this took some dooing
-	mwp.x = ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom) / (arm_width / arm_height);
-	mwp.y = ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom / (viewport[3])) + (paintarea_y / paintarea_Zoom);
+	mwp.x = (((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) / (paintarea_Zoom / (viewport[2])) - (paintarea_x / paintarea_Zoom));
+	mwp.y = ((g_keys->Mpos_y  - viewport[3] / 2.0) / viewport[3]) / (paintarea_Zoom / (viewport[3])) + (paintarea_y / paintarea_Zoom);
+
+	
 
 
-
-
-	paintarea_pixel_x = glzIntegral(((mwp.x + 0.5*(arm_width / arm_height))*arm_width) / (arm_width / arm_height))*(arm_width / arm_height);
+	//paintarea_pixel_x = (quantize((mwp.x*arm_width) / aspect, aspect)*aspect)+aspect;   //   (((mwp.x)*arm_width / aspect)*aspect) + (0.5*aspect);
+	//paintarea_pixel_x = glzIntegral(((mwp.x)*arm_width / aspect)*aspect) + (0.5*aspect);
+	paintarea_pixel_x = glzIntegral((mwp.x + 0.5*aspect)*arm_width/aspect);
 	paintarea_pixel_y = glzIntegral((mwp.y + 0.5)*arm_height);
+
+
+	//paintarea_pixel_x = glzIntegral(((mwp.x + 0.5*(arm_width / arm_height))*arm_width) / (arm_width / arm_height))*(arm_width / arm_height);
+	//paintarea_pixel_y = glzIntegral((mwp.y + 0.5)*arm_height);
 
 
 	
@@ -450,8 +463,8 @@ void Update (float seconds)								// Perform Motion Updates Here
 	if (paintarea_pixel_x > arm_width - 1) { paintarea_pixel_x = arm_width - 1; }
 	if (paintarea_pixel_y > arm_height - 1) { paintarea_pixel_y = arm_height - 1; }
 
-	if ((mwp.x + 0.5 >= 0.0) &&
-		(mwp.x + 0.5 < arm_width ) &&
+	if ((((mwp.x + 0.5*aspect)*arm_width / aspect) >= 0.0) &&
+		(((mwp.x + 0.5*aspect)*arm_width / aspect) < arm_width) &&
 		(mwp.y + 0.5 >= 0.0) && 
 		((mwp.y + 0.5)*arm_height <= arm_height)) z_tileUI_point = ztUIP::PIXELMAP;
 
@@ -743,6 +756,7 @@ void Draw (void)
 		glDisable(GL_DEPTH_TEST);
 		m.LoadIdentity();
 	
+		float aspect = arm_width / arm_height;
 		
 
 		GLint viewport[4];
@@ -807,7 +821,7 @@ void Draw (void)
 
 
 
-		glBindTexture(GL_TEXTURE_2D, texture[3]);
+		glBindTexture(GL_TEXTURE_2D, texture[2]);
 		glUseProgram(ProgramObject);
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
@@ -816,7 +830,8 @@ void Draw (void)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 
-		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5 + (0.5f / arm_width) + (paintarea_pixel_x / arm_width), -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, (1.0 / arm_width)*(arm_width / arm_height), 1.0 / arm_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+		
+		if (z_tileUI_point == ztUIP::PIXELMAP) glzDirectSpriteRender(-0.5*aspect + (0.5f*aspect / arm_width) + (paintarea_pixel_x / arm_width)*aspect, -0.5 + (0.5f / arm_height) + ((arm_height - 1 - paintarea_pixel_y) / arm_height), 2, (1.0 / arm_width)*(arm_width / arm_height), 1.0 / arm_height, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 		glDisable(GL_BLEND);
 		
