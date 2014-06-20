@@ -49,11 +49,17 @@ using namespace std;
 GL_Window*	g_window;
 Keys*		g_keys;
 
+
+enum ztUIP { NONE, BACKGROUND, PIXELMAP, SPRITESHEET, SPRITE, UIFRAME };
+
+enum ztLeveltex { L1A, L1B, L2A, L2B, DYNAMIC_A, DYNAMIC_B, DYNAMIC_C, DYNAMIC_D, NO_CHANGE };
+
+
 // User Defined Variables
 float		angle=0,width,height;												// Used To Rotate The Triangles
 unsigned int vao[16],vao_num[16],textvao[16],textvao_num[16];
 glzMatrix m;
-unsigned int texture[5],fonttexture[15];
+unsigned int spritetexture[5], fonttexture[15], leveltexture[5];
 
 
 char tbuffer[160];
@@ -92,23 +98,35 @@ vert3 mwp; // mouse work position, z is ignored
 
 vert3 muip;
 
-enum ztUIP {NONE,BACKGROUND,PIXELMAP,SPRITESHEET,SPRITE,UIFRAME};
 
 int z_tileUI_point = ztUIP::BACKGROUND;
 
 
 int cursprite_x = 0, cursprite_y = 0;
-int curlayer = 0;
 bool cursprite_anim = false, cursprite_extra = false;
 
-bool image_has_changed = false;
+ztLeveltex image_has_changed = ztLeveltex::NO_CHANGE;
 bool dual_view = false;
 bool toggle_extra = false;
 
+
+
+
+ztLeveltex curlayer = ztLeveltex::L1A;
+bool has_l1 = true;
+bool has_l2 = true;
+bool has_d = true;
+
 img_head img_1;
+img_head img_2;
+img_head img_d;
 unsigned char *img_1_data;
-//char leveltex_filename[255] = "data\\supertiles.tga";
-char leveltex_filename[255] = "data\\supertiles2.tga";
+unsigned char *img_2_data;
+unsigned char *img_d_data;
+char leveltex_1_filename[255] = "data\\supertiles1.tga";
+char leveltex_2_filename[255] = "data\\supertiles2.tga";
+char leveltex_d_filename[255] = "data\\supertilesd.tga";
+//char leveltex_filename[255] = "data\\supertilesaspect.tga";
 //char leveltex_filename[255] = "data\\a-map.tga";
 
 
@@ -196,29 +214,55 @@ BOOL Initialize (GL_Window* window, Keys* keys)					// Any GL Init Code & User I
 
 	// load data
 
-	texture[0] = glzLoadTexture("data\\tileset.tga", glzTexFilter::NEAREST);
+	spritetexture[0] = glzLoadTexture("data\\tileset.tga", glzTexFilter::NEAREST);
 
 
+	if (has_l1)
+	{
+		glzReadTgaHead(&img_1, leveltex_1_filename);
+		img_1_data = new unsigned char[img_1.imageSize];
+		glzLoadTga(&img_1, leveltex_1_filename, img_1_data);
+		glzMaketex(&img_1, img_1_data, glzTexFilter::NEAREST);
+		leveltexture[1] = img_1.m_id;
+
+		arm_width = img_1.m_width;
+		arm_height = img_1.m_height;
+
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data);
+
+	}
+
+	if (has_l2)
+	{
+		glzReadTgaHead(&img_2, leveltex_2_filename);
+		img_2_data = new unsigned char[img_2.imageSize];
+		glzLoadTga(&img_2, leveltex_2_filename, img_2_data);
+		glzMaketex(&img_2, img_2_data, glzTexFilter::NEAREST);
+		leveltexture[2] = img_2.m_id;
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_2.m_width, img_2.m_height, img_2.m_type, GL_UNSIGNED_BYTE, img_2_data);
+
+	}
+
+	if (has_d)
+	{
+		glzReadTgaHead(&img_d, leveltex_d_filename);
+		img_d_data = new unsigned char[img_d.imageSize];
+		glzLoadTga(&img_d, leveltex_d_filename, img_d_data);
+		glzMaketex(&img_d, img_d_data, glzTexFilter::NEAREST);
+		leveltexture[3] = img_d.m_id;
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_d.m_width, img_d.m_height, img_d.m_type, GL_UNSIGNED_BYTE, img_d_data);
+
+	}
 
 
-	glzReadTgaHead(&img_1, leveltex_filename);
-	img_1_data = new unsigned char[img_1.imageSize];
-	glzLoadTga(&img_1, leveltex_filename, img_1_data);
-	glzMaketex(&img_1, img_1_data, glzTexFilter::NEAREST);
-	texture[1] = img_1.m_id;
-
-	arm_width = img_1.m_width;
-	arm_height = img_1.m_height;
-
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data);
 
 
 
 	//texture[1] = glzLoadTexture("data\\a-map.tga", glzTexFilter::NEAREST);
 
 
-	texture[2] = glzLoadTexture("data\\red.tga", glzTexFilter::NEAREST);
-	texture[3] = glzLoadTexture("data\\cursor.tga", glzTexFilter::NEAREST);
+	spritetexture[2] = glzLoadTexture("data\\red.tga", glzTexFilter::NEAREST);
+	spritetexture[3] = glzLoadTexture("data\\cursor.tga", glzTexFilter::NEAREST);
 
 	
 
@@ -239,14 +283,30 @@ void Deinitialize (void)										// Any User DeInitialization Goes Here
 
 }
 
-void paint_pixel(int x, int y, int px, int py, bool animate, bool extra, int layer)
+void paint_pixel(int x, int y, int px, int py, bool animate, bool extra, ztLeveltex layer)
 {
 
-	// get data
-	int d_o = layer * 2;
+	if ((layer == ztLeveltex::DYNAMIC_A) || (layer == ztLeveltex::DYNAMIC_B) || (layer == ztLeveltex::DYNAMIC_C) || (layer == ztLeveltex::DYNAMIC_D)) return;
 
-	char dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
-	char dy = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	// get data
+	int d_o = 0;
+	char dx, dy;
+
+	if ((layer == ztLeveltex::L1B) || (layer == ztLeveltex::L2B)) d_o = 2;
+
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{ 
+		dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+		dy = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	}
+
+	else
+	{
+		dx = img_2_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_2.m_width, img_2.m_height, true)];
+		dy = img_2_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_2.m_width, img_2.m_height, true)];
+	}
+
+
 
 	bool ani=false, ext = false;
 	if (dx > 127) { dx -= 128; ani = true; }
@@ -260,45 +320,118 @@ void paint_pixel(int x, int y, int px, int py, bool animate, bool extra, int lay
 	if (animate) px += 128;
 	if (extra) py += 128;
 
-	img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)]=px;
-	img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)]=py;
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{
+		img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = px;
+		img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = py;
+	}
+
+	else
+	{
+		img_2_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_2.m_width, img_2.m_height, true)] = px;
+		img_2_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_2.m_width, img_2.m_height, true)] = py;
+	}	
 	
-	image_has_changed = true;
+	image_has_changed = layer;
 
 	return;
-
-
 }
 
-void paint_animate(int x, int y, bool animate, int layer)
+
+void paint_dynamic_pixel(int x, int y, int data, ztLeveltex layer)
+{
+
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B) || (layer == ztLeveltex::L2A) || (layer == ztLeveltex::L2B)) return;
+
+
+	// get data
+	int d_o = 0;
+	char dx;
+
+	if (layer == ztLeveltex::DYNAMIC_A) d_o = 0;
+	if (layer == ztLeveltex::DYNAMIC_B) d_o = 1;
+	if (layer == ztLeveltex::DYNAMIC_C) d_o = 2;
+	if (layer == ztLeveltex::DYNAMIC_D) d_o = 3;	
+
+	dx = img_d_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_d.m_width, img_d.m_height, true)];	
+	img_d_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_d.m_width, img_d.m_height, true)] = data;
+
+	image_has_changed = layer;
+
+	return;
+}
+
+
+
+void paint_animate(int x, int y, bool data, ztLeveltex layer)
 {
 
 	// get data
-	int d_o = layer * 2;
+	int d_o = 0;
+	char dx;
+	if ((layer == ztLeveltex::DYNAMIC_A) || (layer == ztLeveltex::DYNAMIC_B) || (layer == ztLeveltex::DYNAMIC_C) || (layer == ztLeveltex::DYNAMIC_D)) return;
 
-	char dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	if ((layer == ztLeveltex::L1B) || (layer == ztLeveltex::L2B)) d_o = 2;
 
-	if (animate) img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx | 128;
-	else  img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx & 127;
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{
+		dx = img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	}
+	else
+	{
+		dx = img_2_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_2.m_width, img_2.m_height, true)];
+	}
 
-	image_has_changed = true;
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{
+		if (data) img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx | 128;
+		else  img_1_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx & 127;
+	}
+	else
+	{
+		if (data) img_2_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_2.m_width, img_2.m_height, true)] = dx | 128;
+		else  img_2_data[glz2dTo1dImageRemap(x, y, 0 + d_o, 4, img_2.m_width, img_2.m_height, true)] = dx & 127;
+	}
+
+	
+	image_has_changed = layer;
 
 	return;
 
 }
 
-void paint_extra(int x, int y, bool extra, int layer)
+void paint_extra(int x, int y, bool data, ztLeveltex layer)
 {
 
 	// get data
-	int d_o = layer * 2;
+	int d_o = 0;
+	char dx;
+	if ((layer == ztLeveltex::DYNAMIC_A) || (layer == ztLeveltex::DYNAMIC_A) || (layer == ztLeveltex::DYNAMIC_A) || (layer == ztLeveltex::DYNAMIC_A)) return;
 
-	char dy = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	if ((layer == ztLeveltex::L1B) || (layer == ztLeveltex::L2B)) d_o = 2;
 
-	if (extra) img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dy | 128;
-	else  img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dy & 127;
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{
+		dx = img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)];
+	}
+	else
+	{
+		dx = img_2_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_2.m_width, img_2.m_height, true)];
+	}
 
-	image_has_changed = true;
+	if ((layer == ztLeveltex::L1A) || (layer == ztLeveltex::L1B))
+	{
+		if (data) img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx | 128;
+		else  img_1_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_1.m_width, img_1.m_height, true)] = dx & 127;
+	}
+	else
+	{
+		if (data) img_2_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_2.m_width, img_2.m_height, true)] = dx | 128;
+		else  img_2_data[glz2dTo1dImageRemap(x, y, 1 + d_o, 4, img_2.m_width, img_2.m_height, true)] = dx & 127;
+	}
+
+
+	image_has_changed = layer;
 
 	return;
 
@@ -311,6 +444,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 	//Ui stuff
 	GLint viewport[4];
 
+	image_has_changed = ztLeveltex::NO_CHANGE;
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 
@@ -408,9 +542,11 @@ void Update (float seconds)								// Perform Motion Updates Here
 		if (paintarea_Zoom < 120) paintarea_Zoom = 120;
 
 
+		float aspect = arm_width / arm_height;
+
 		if (Mweel_rel>0)
 		{
-			paintarea_x -= ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) * paintarea_Zoom *0.3333;
+			paintarea_x -= ((g_keys->Mpos_x - viewport[2] / 2.0) / viewport[2]) * paintarea_Zoom *0.3333*aspect;
 			paintarea_y += ((g_keys->Mpos_y - viewport[3] / 2.0) / viewport[3]) * paintarea_Zoom *0.3333;
 			
 		}
@@ -431,7 +567,7 @@ void Update (float seconds)								// Perform Motion Updates Here
 	Mpos_y_old = g_keys->Mpos_y;
 
 
-float aspect = arm_width / arm_height;
+
 
 	z_tileUI_point = ztUIP::BACKGROUND;
 	
@@ -472,8 +608,12 @@ float aspect = arm_width / arm_height;
 
 	if (z_tileUI_point == ztUIP::PIXELMAP)
 	{ 
-				
-		if (g_keys->LMdown == TRUE) paint_pixel(paintarea_pixel_x , paintarea_pixel_y, cursprite_x, cursprite_y, cursprite_anim, cursprite_extra, curlayer);
+		if (g_keys->LMdown == TRUE)
+		{
+			paint_dynamic_pixel(paintarea_pixel_x, paintarea_pixel_y, cursprite_x + (cursprite_y * 16), curlayer);
+			paint_pixel(paintarea_pixel_x, paintarea_pixel_y, cursprite_x, cursprite_y, cursprite_anim, cursprite_extra, curlayer);
+		}
+		
 
 		if (g_keys->keyDown['A'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, true, curlayer);
 		if (g_keys->keyDown['Z'] == TRUE) paint_animate(paintarea_pixel_x, paintarea_pixel_y, false, curlayer);
@@ -486,15 +626,43 @@ float aspect = arm_width / arm_height;
 	}
 
 
+	switch (image_has_changed)
+	{
+		case ztLeveltex::L1A:
+		case ztLeveltex::L1B:
+			glBindTexture(GL_TEXTURE_2D, leveltexture[1]);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data);			
+			break;
+
+		case ztLeveltex::L2A:
+		case ztLeveltex::L2B:
+			glBindTexture(GL_TEXTURE_2D, leveltexture[2]);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_2.m_width, img_2.m_height, img_2.m_type, GL_UNSIGNED_BYTE, img_2_data);
+			break;
+
+		case ztLeveltex::DYNAMIC_A:
+		case ztLeveltex::DYNAMIC_B:
+		case ztLeveltex::DYNAMIC_C:
+		case ztLeveltex::DYNAMIC_D:
+			glBindTexture(GL_TEXTURE_2D, leveltexture[3]);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_d.m_width, img_d.m_height, img_d.m_type, GL_UNSIGNED_BYTE, img_d_data);
+			break;
+
+		default:
+			break;
+	}
 	
+	image_has_changed = ztLeveltex::NO_CHANGE;
 
+	if ((g_keys->keyDown['1'] == TRUE) && (has_l1)) curlayer = ztLeveltex::L1A;
+	if ((g_keys->keyDown['2'] == TRUE) && (has_l1)) curlayer = ztLeveltex::L1B;
+	if ((g_keys->keyDown['3'] == TRUE) && (has_l2)) curlayer = ztLeveltex::L2A;
+	if ((g_keys->keyDown['4'] == TRUE) && (has_l2)) curlayer = ztLeveltex::L2B;
 
-	glBindTexture(GL_TEXTURE_2D, texture[1]);
-	if (image_has_changed) { glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, img_1.m_width, img_1.m_height, img_1.m_type, GL_UNSIGNED_BYTE, img_1_data); image_has_changed = false; }
-
-
-	if (g_keys->keyDown['1'] == TRUE) curlayer = 0;
-	if (g_keys->keyDown['2'] == TRUE) curlayer = 1;
+	if ((g_keys->keyDown['5'] == TRUE) && (has_d)) curlayer = ztLeveltex::DYNAMIC_A;
+	if ((g_keys->keyDown['6'] == TRUE) && (has_d)) curlayer = ztLeveltex::DYNAMIC_B;
+	if ((g_keys->keyDown['7'] == TRUE) && (has_d)) curlayer = ztLeveltex::DYNAMIC_C;
+	if ((g_keys->keyDown['8'] == TRUE) && (has_d)) curlayer = ztLeveltex::DYNAMIC_D;
 	
 
 		}
@@ -557,7 +725,16 @@ float aspect = arm_width / arm_height;
 
 	if (keyTimer > 0.15)
 	{
-		if (g_keys->keyDown[VK_RETURN]) { glzSaveTGA(leveltex_filename, img_1.m_width, img_1.m_height, 0, glzTexCompression::UNCOMPRESSED, img_1.m_type, img_1_data); keyTimer = 0; }
+		if (g_keys->keyDown[VK_RETURN]) {
+			if (has_l1)
+				glzSaveTGA(leveltex_1_filename, img_1.m_width, img_1.m_height, 0, glzTexCompression::UNCOMPRESSED, img_1.m_type, img_1_data); keyTimer = 0; 
+
+			if (has_l2)
+				glzSaveTGA(leveltex_2_filename, img_2.m_width, img_2.m_height, 0, glzTexCompression::UNCOMPRESSED, img_2.m_type, img_2_data); keyTimer = 0;
+
+			if (has_d)
+				glzSaveTGA(leveltex_d_filename, img_d.m_width, img_d.m_height, 0, glzTexCompression::UNCOMPRESSED, img_d.m_type, img_d_data); keyTimer = 0;
+		}
 	}
 }
 
@@ -648,7 +825,7 @@ void draw_sprite(float x, float y, float s, int sprite, int tx, int offset, unsi
 
 	glUniform4f(loc3, col[0],col[1],col[2],col[3]);
 
-	glBindTexture(GL_TEXTURE_2D,texture[tx]);
+	glBindTexture(GL_TEXTURE_2D, spritetexture[tx]);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glzDrawVAO(offset*6,6,vao[sprite],GL_TRIANGLES);
@@ -779,16 +956,31 @@ void Draw (void)
 	
 
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture[1]);
+
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		glBindTexture(GL_TEXTURE_2D, spritetexture[0]);
 		glActiveTexture(GL_TEXTURE0);
 
 
 		if (!dual_view)
 		{
-			glUniform1i(loc7, curlayer);
+
+
+			if ((curlayer == ztLeveltex::L1A) || (curlayer == ztLeveltex::L1B))	glBindTexture(GL_TEXTURE_2D, leveltexture[1]);
+			if (has_l2) { if ((curlayer == ztLeveltex::L2A) || (curlayer == ztLeveltex::L2B))	glBindTexture(GL_TEXTURE_2D, leveltexture[2]); }
+			if (has_d) { if ((curlayer == ztLeveltex::DYNAMIC_A) || (curlayer == ztLeveltex::DYNAMIC_B) || (curlayer == ztLeveltex::DYNAMIC_C) || (curlayer == ztLeveltex::DYNAMIC_D))	glBindTexture(GL_TEXTURE_2D, leveltexture[3]); }
+
+
+
+			if ((curlayer == ztLeveltex::L1A) || (curlayer == ztLeveltex::L2A))glUniform1i(loc7, 0);
+			if ((curlayer == ztLeveltex::L1B) || (curlayer == ztLeveltex::L2B))	glUniform1i(loc7, 1);
+			
+			if (curlayer == ztLeveltex::DYNAMIC_A)	glUniform1i(loc7, 2);
+			if (curlayer == ztLeveltex::DYNAMIC_B)	glUniform1i(loc7, 3);
+			if (curlayer == ztLeveltex::DYNAMIC_C)	glUniform1i(loc7, 4);
+			if (curlayer == ztLeveltex::DYNAMIC_D)	glUniform1i(loc7, 5);
+
+
 			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 		
@@ -807,21 +999,56 @@ void Draw (void)
 		}
 		else
 		{    
+
+			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 
-			glUniform1i(loc7, 0);
-			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+			if (has_l1)
+			{
+				glBindTexture(GL_TEXTURE_2D, leveltexture[1]);
+				glUniform1i(loc7, 0);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
-			glUniform1i(loc7, 1);
-			glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+				glUniform1i(loc7, 1);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+			}
+			if (has_l2)
+			{
+				glBindTexture(GL_TEXTURE_2D, leveltexture[2]);
+				glUniform1i(loc7, 0);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+				glUniform1i(loc7, 1);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+			}
+
+			if ((curlayer == ztLeveltex::DYNAMIC_A) || (curlayer == ztLeveltex::DYNAMIC_B) || (curlayer == ztLeveltex::DYNAMIC_C) || (curlayer == ztLeveltex::DYNAMIC_D))
+			{ 
+
+				if (curlayer == ztLeveltex::DYNAMIC_A)	glUniform1i(loc7, 2);
+				if (curlayer == ztLeveltex::DYNAMIC_B)	glUniform1i(loc7, 3);
+				if (curlayer == ztLeveltex::DYNAMIC_C)	glUniform1i(loc7, 4);
+				if (curlayer == ztLeveltex::DYNAMIC_D)	glUniform1i(loc7, 5);
+
+				glBindTexture(GL_TEXTURE_2D, leveltexture[3]);
+				glzDirectSpriteRender(0.0, 0.0, 2, arm_width / arm_height, 1.0, 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
+
+				
+			}
+
+
+
+			
 			glDisable(GL_BLEND);
 
 		}
 
 
 
-		glBindTexture(GL_TEXTURE_2D, texture[2]);
+		glBindTexture(GL_TEXTURE_2D, spritetexture[3]);
 		glUseProgram(ProgramObject);
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
@@ -847,7 +1074,7 @@ void Draw (void)
 		m.transferMatrix(&mtemp[0]);
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		glBindTexture(GL_TEXTURE_2D, spritetexture[0]);
 		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
 		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, tiles_width, tiles_height, (cursprite_y * 4) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
 
@@ -880,13 +1107,13 @@ void Draw (void)
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
 				
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		glBindTexture(GL_TEXTURE_2D, spritetexture[0]);
 		
 				glzDirectSpriteRender(0.0 , 0.0, 2, 1.0 , 1.0 , 0, 0, 1.0, 1.0, glzOrigin::CENTERED);
 
 
 
-		glBindTexture(GL_TEXTURE_2D, texture[3]);
+				glBindTexture(GL_TEXTURE_2D, spritetexture[3]);
 		
 
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
@@ -908,7 +1135,7 @@ void Draw (void)
 		m.transferMatrix(&mtemp[0]);
 		glUniformMatrix4fv(loc1, 1, GL_FALSE, mtemp);
 
-		glBindTexture(GL_TEXTURE_2D, texture[0]);
+		glBindTexture(GL_TEXTURE_2D, spritetexture[0]);
 		//glzDirectSpriteRender(viewport[2] / 2, -viewport[3] / 2, 2, 64.0, 64.0, 0, 0, 1.0, 1.0, glzOrigin::BOTTOM_RIGHT);
 		glzDirectSpriteRenderAtlas(viewport[2] / 2, -viewport[3] / 2, 1, 64, 64, tiles_width, tiles_height, (cursprite_y * tiles_width) + cursprite_x, glzOrigin::BOTTOM_RIGHT);
 
